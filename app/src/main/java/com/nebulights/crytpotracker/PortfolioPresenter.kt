@@ -10,23 +10,23 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 import io.realm.Realm
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
-
 
 /**
  * Created by babramovitch on 10/23/2017.
  */
 
-
 class PortfolioPresenter(private var realm: Realm,
                          private var quadrigaRepository: QuadrigaRepository,
                          private var viewHost: PortfolioContract.ViewHost,
-                         private var view: PortfolioContract.View) : PortfolioContract.Presenter {
+                         private var view: PortfolioContract.View,
+                         private var tickers: List<String>) : PortfolioContract.Presenter {
 
     private val TAG = "PortfolioPresenter"
-    var disposables: MutableList<Disposable> = mutableListOf<Disposable>()
-    var tickerData: MutableMap<String, CurrentTradingInfo> = mutableMapOf<String, CurrentTradingInfo>()
 
+    var disposables: MutableList<Disposable> = mutableListOf()
+    var tickerData: MutableMap<String, CurrentTradingInfo> = mutableMapOf()
 
     init {
         view.setPresenter(this)
@@ -40,7 +40,7 @@ class PortfolioPresenter(private var realm: Realm,
 
     }
 
-    override fun stop() {
+    override fun stopFeed() {
 //        this.viewHost = null
 //        this.view = null
 
@@ -59,20 +59,21 @@ class PortfolioPresenter(private var realm: Realm,
         return null
     }
 
-    override fun dosomething(tickers: List<String>) {
-        //  Log.i(TAG, "Reporting on Tickers: " + tickers.toString())
+    override fun startFeed() {
 
         tickers.forEach { ticker ->
             val disposable: Disposable = quadrigaRepository.getTickerInfo(ticker)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .repeatWhen { result -> result.delay(5000, TimeUnit.MILLISECONDS) }
+                    .repeatWhen { result -> result.delay(30, TimeUnit.SECONDS) }
+                    .repeatWhen { error -> error.delay(30, TimeUnit.SECONDS) }
                     .subscribeOn(Schedulers.io())
                     .subscribe({ result ->
 
                         result.ask.notNull {
                             Log.d("Result", ticker + " current asking price is ${result.last}")
+
+                            result.ticker = ticker //maybe not needed due to map usage
                             tickerData.put(ticker, result)
-                            //viewHost.blahblah()
                             view.updateUi(ticker, result)
                         }
 
@@ -82,7 +83,6 @@ class PortfolioPresenter(private var realm: Realm,
 
             disposables.add(disposable)
         }
-
     }
 
     override fun loadTradingData() {
@@ -95,6 +95,43 @@ class PortfolioPresenter(private var realm: Realm,
 
     override fun addAsset(asset: TrackedAsset) {
 
+    }
+
+    override fun getCurrentTradingData(): MutableMap<String, CurrentTradingInfo> {
+
+        return tickerData
+
+//        val tradingInfo: MutableList<CurrentTradingInfo> = mutableListOf()
+//
+//        for ((ticker, data) in tickerData) {
+//            tradingInfo.add(data)
+//        }
+//
+//        return tradingInfo as ArrayList<CurrentTradingInfo>
+    }
+
+    override fun getNetWorth(): String {
+
+        var netWorth = 0.00
+        
+        for ((ticker, data) in tickerData) {
+            netWorth += data.last!!.toDouble() * quantity(ticker)
+        }
+
+        return BigDecimal(netWorth).setScale(2, BigDecimal.ROUND_HALF_UP).toString()
+    }
+
+    private fun quantity(ticker: String): Double {
+
+        var value = 0.00
+
+        when (ticker) {
+            "BTC_CAD" -> value = 10.0
+            "BCH_CAD" -> value = 20.0
+            "ETH_CAD" -> value = 30.0
+        }
+
+        return value
     }
 
 }

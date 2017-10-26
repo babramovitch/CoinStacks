@@ -14,8 +14,10 @@ class PortfolioContract {
     }
 
     interface Presenter {
-        fun dosomething(tickers: List<String>)
-        fun stop()
+        fun startFeed()
+        fun stopFeed()
+        fun getNetWorth() : String
+        fun getCurrentTradingData() : MutableMap<String, CurrentTradingInfo>
         fun loadTradingData()
         fun loadPortfolioData()
         fun addAsset(asset: TrackedAsset)

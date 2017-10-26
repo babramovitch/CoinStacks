@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
             addFragment(cryptoListFragment, R.id.content_frame)
         }
 
-        portfolioPresenter = PortfolioPresenter(realm, QuadrigaRepositoryProvider.provideQuadrigaRepository(), this, cryptoListFragment)
+        portfolioPresenter = PortfolioPresenter(realm, QuadrigaRepositoryProvider.provideQuadrigaRepository(), this, cryptoListFragment, listOf("BTC_CAD", "BCH_CAD", "LTC_CAD"))
 
     }
 
