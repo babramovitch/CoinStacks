@@ -1,4 +1,4 @@
-package com.nebulights.crytpotracker
+package com.nebulights.crytpotracker.Quadriga
 
 class CurrentTradingInfo {
     var timestamp: String? = null

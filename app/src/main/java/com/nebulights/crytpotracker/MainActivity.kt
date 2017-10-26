@@ -3,6 +3,7 @@ package com.nebulights.crytpotracker
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.nebulights.crytpotracker.Quadriga.QuadrigaRepositoryProvider
 
 import io.realm.Realm
 
@@ -21,16 +22,10 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
 
         if (cryptoListFragment == null) {
             cryptoListFragment = CryptoListFragment.newInstance("asdf", "asdf")
-            addFragment(cryptoListFragment!!, R.id.content_frame)
+            addFragment(cryptoListFragment, R.id.content_frame)
         }
 
-        portfolioPresenter = PortfolioPresenter(realm, QuadrigaService.create(), this, cryptoListFragment)
-
-
-        //        if (savedInstanceState != null) {
-        //            portfolioPresenter.restoreState(savedInstanceState);
-        //        }
-        //
+        portfolioPresenter = PortfolioPresenter(realm, QuadrigaRepositoryProvider.provideQuadrigaRepository(), this, cryptoListFragment)
 
     }
 
@@ -49,18 +44,3 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
         Log.i(TAG, "I DID SOMETHING FROM FRAGMENT")
     }
 }
-
-
-//        service.getCurrentTradingInfo("BTC_CAD").enqueue(new Callback<CurrentTradingInfo>() {
-//            @Override
-//            public void onResponse(@NonNull Call<CurrentTradingInfo> call, @NonNull Response<CurrentTradingInfo> response) {
-//                CurrentTradingInfo currentTradingInfo = response.body();
-//                Log.i("Response", "Current Ask: " + currentTradingInfo.getAsk());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<CurrentTradingInfo> call, Throwable t) {
-//                Log.i("Response", "ERROR");
-//            }
-//        });
-//   }

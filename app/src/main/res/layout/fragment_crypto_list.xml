@@ -13,9 +13,38 @@
         android:text="@string/hello_blank_fragment" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button" />
+
+    <Button
+        android:id="@+id/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button" />
+
+    <TextView
+        android:id="@+id/btc_cad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BTC_CAD"
+        android:ems="10" />
+
+    <TextView
+        android:id="@+id/bch_cad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BCH_CAD"
+        android:ems="10"
+         />
+
+    <TextView
+        android:id="@+id/eth_cad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ETH_CAD"
+        android:ems="10"
+        />
 
 </LinearLayout>

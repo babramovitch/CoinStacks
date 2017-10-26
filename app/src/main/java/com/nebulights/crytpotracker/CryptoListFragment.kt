@@ -9,6 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
+import butterknife.BindView
+import butterknife.ButterKnife
+import com.nebulights.crytpotracker.Quadriga.CurrentTradingInfo
 
 
 /**
@@ -21,10 +25,18 @@ import android.widget.Button
  */
 class CryptoListFragment : Fragment(), PortfolioContract.View {
 
+    @BindView(R.id.btc_cad) lateinit var btcCad: TextView
+    @BindView(R.id.bch_cad) lateinit var bchCad: TextView
+    @BindView(R.id.eth_cad) lateinit var ethCad: TextView
+
+    @BindView(R.id.button_start) lateinit var startButton: TextView
+    @BindView(R.id.button_stop) lateinit var stopButton: TextView
+
     private var mParam1: String? = null
     private var mParam2: String? = null
 
     private var presenter: PortfolioContract.Presenter? = null
+
 
     private var button: Button? = null
 
@@ -38,16 +50,22 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
             mParam1 = arguments.getString(ARG_PARAM1)
             mParam2 = arguments.getString(ARG_PARAM2)
         }
+
+
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
         val rootView = inflater!!.inflate(R.layout.fragment_crypto_list, container, false)
+        ButterKnife.bind(this, rootView)
 
-        button = rootView.findViewById<View>(R.id.button) as Button
 
-        button!!.setOnClickListener { presenter!!.dosomething() }
+
+        val tickers = listOf("BTC_CAD", "ETH_CAD", "BCH_CAD")
+
+        startButton.setOnClickListener { presenter!!.dosomething(tickers) }
+        stopButton.setOnClickListener { presenter!!.stop() }
 
         return rootView
     }
@@ -61,8 +79,12 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
         super.onDetach()
     }
 
-    override fun updateUi() {
-        Log.i(TAG, "I DID SOMETHING IN FRAGMENT")
+    override fun updateUi(ticker: String, result: CurrentTradingInfo) {
+        when (ticker) {
+            "BTC_CAD" -> btcCad.text = result.last
+            "BCH_CAD" -> bchCad.text = result.last
+            "ETH_CAD" -> ethCad.text = result.last
+        }
     }
 
     companion object {
@@ -81,6 +103,5 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
             return fragment
         }
     }
-
 
 }
