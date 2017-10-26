@@ -18,9 +18,10 @@ class PortfolioContract {
         fun stopFeed()
         fun getNetWorth() : String
         fun getCurrentTradingData() : MutableMap<String, CurrentTradingInfo>
-        fun loadTradingData()
-        fun loadPortfolioData()
         fun addAsset(asset: TrackedAsset)
+        fun onDetach()
+        fun onAttach()
+        fun getCurrentHoldings() : MutableMap<String, Double>
     }
 
     interface ViewHost {

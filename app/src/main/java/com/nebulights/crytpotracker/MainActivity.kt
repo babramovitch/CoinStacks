@@ -16,8 +16,6 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val realm = Realm.getDefaultInstance()
-
         var cryptoListFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as CryptoListFragment?
 
         if (cryptoListFragment == null) {
@@ -25,13 +23,15 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
             addFragment(cryptoListFragment, R.id.content_frame)
         }
 
-        portfolioPresenter = PortfolioPresenter(realm, QuadrigaRepositoryProvider.provideQuadrigaRepository(), this, cryptoListFragment, listOf("BTC_CAD", "BCH_CAD", "LTC_CAD"))
+        portfolioPresenter = PortfolioPresenter(Realm.getDefaultInstance(),
+                QuadrigaRepositoryProvider.provideQuadrigaRepository(),
+                this, cryptoListFragment,
+                listOf("BTC_CAD", "BCH_CAD", "ETH_CAD", "LTC_CAD"))
 
     }
 
-
     override fun onDestroy() {
-        portfolioPresenter.onDestroy()
+        portfolioPresenter.onDetach()
         super.onDestroy()
     }
 

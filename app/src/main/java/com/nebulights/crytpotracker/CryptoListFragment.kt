@@ -13,25 +13,11 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.nebulights.crytpotracker.Quadriga.CurrentTradingInfo
 
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [CryptoListFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [CryptoListFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CryptoListFragment : Fragment(), PortfolioContract.View {
 
-    @BindView(R.id.btc_cad) lateinit var btcCad: TextView
-    @BindView(R.id.bch_cad) lateinit var bchCad: TextView
-    @BindView(R.id.eth_cad) lateinit var ethCad: TextView
     @BindView(R.id.net_worth) lateinit var netWorth: TextView
-
     @BindView(R.id.button_start) lateinit var startButton: TextView
     @BindView(R.id.button_stop) lateinit var stopButton: TextView
-
     @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
 
     private var mParam1: String? = null
@@ -63,7 +49,7 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
         linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
 
-        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentTradingData())
+        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentHoldings(), presenter!!.getCurrentTradingData())
 
         startButton.setOnClickListener { presenter.notNull { presenter!!.startFeed() } }
         stopButton.setOnClickListener { presenter.notNull { presenter!!.stopFeed() } }
@@ -71,25 +57,9 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
         return rootView
     }
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-    }
-
     override fun updateUi(ticker: String, result: CurrentTradingInfo) {
-        when (ticker) {
-            "BTC_CAD" -> btcCad.text = "BTC: " + result.last
-            "BCH_CAD" -> bchCad.text = "BCH: " + result.last
-            "ETH_CAD" -> ethCad.text = "ETH: " + result.last
-        }
-
         netWorth.text = "Net Worth: " + presenter!!.getNetWorth()
-
-        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentTradingData())
-
+        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentHoldings(), presenter!!.getCurrentTradingData())
     }
 
     override fun onResume() {

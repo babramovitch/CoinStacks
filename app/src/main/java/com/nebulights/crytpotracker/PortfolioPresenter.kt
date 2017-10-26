@@ -23,6 +23,7 @@ class PortfolioPresenter(private var realm: Realm,
                          private var view: PortfolioContract.View,
                          private var tickers: List<String>) : PortfolioContract.Presenter {
 
+
     private val TAG = "PortfolioPresenter"
 
     var disposables: MutableList<Disposable> = mutableListOf()
@@ -32,18 +33,15 @@ class PortfolioPresenter(private var realm: Realm,
         view.setPresenter(this)
     }
 
-    fun onDestroy() {
-//        this.viewHost = null
-//        this.view = null
+    override fun onAttach() {
+    }
 
+    override fun onDetach() {
         disposables.forEach { disposable -> disposable.let { disposable.dispose() } }
 
     }
 
     override fun stopFeed() {
-//        this.viewHost = null
-//        this.view = null
-
         disposables.forEach { disposable ->
             disposable.let {
                 disposable.dispose()
@@ -85,35 +83,30 @@ class PortfolioPresenter(private var realm: Realm,
         }
     }
 
-    override fun loadTradingData() {
-
-    }
-
-    override fun loadPortfolioData() {
-
-    }
-
     override fun addAsset(asset: TrackedAsset) {
 
     }
 
-    override fun getCurrentTradingData(): MutableMap<String, CurrentTradingInfo> {
+    override fun getCurrentHoldings(): MutableMap<String, Double> {
+
+        val tickerData: MutableMap<String, Double> = mutableMapOf()
+
+        tickers.forEach { ticker ->
+            tickerData.put(ticker, quantity(ticker))
+        }
 
         return tickerData
 
-//        val tradingInfo: MutableList<CurrentTradingInfo> = mutableListOf()
-//
-//        for ((ticker, data) in tickerData) {
-//            tradingInfo.add(data)
-//        }
-//
-//        return tradingInfo as ArrayList<CurrentTradingInfo>
+    }
+
+    override fun getCurrentTradingData(): MutableMap<String, CurrentTradingInfo> {
+        return tickerData
     }
 
     override fun getNetWorth(): String {
 
         var netWorth = 0.00
-        
+
         for ((ticker, data) in tickerData) {
             netWorth += data.last!!.toDouble() * quantity(ticker)
         }
