@@ -7,24 +7,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.nebulights.crytpotracker.Quadriga.CurrentTradingInfo
 
 /**
  * Created by babramovitch on 10/26/2017.
  */
 
-class CryptoAdapter(private val holdingData: MutableMap<String, Double>,
-                    private val tradingData: MutableMap<String, CurrentTradingInfo>) : RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
+class CryptoAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: CryptoAdapter.ViewHolder, position: Int) {
-        val currentTradingInfo = tradingData[getOrderedTicker(position)]
-
-        holder.ticker.text = getOrderedTicker(position).replace("_", ":")
-
-        currentTradingInfo.notNull {
-            holder.lastPrice.text = currentTradingInfo!!.last
-            holder.holdings.text = holdingData[getOrderedTicker(position)].toString()
-        }
+        presenter.onBindRepositoryRowViewAtPosition(position, holder);
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoAdapter.ViewHolder {
@@ -33,21 +24,10 @@ class CryptoAdapter(private val holdingData: MutableMap<String, Double>,
     }
 
     override fun getItemCount(): Int {
-        return 4 //determined by how many pairs I want to display - should be derived from a constant list
+        return presenter.tickerCount()
     }
 
-    private fun getOrderedTicker(position: Int): String {
-
-        return when (position) {
-            0 -> "BTC_CAD"
-            1 -> "BCH_CAD"
-            2 -> "ETH_CAD"
-            3 -> "LTC_CAD"
-            else -> ""
-        }
-    }
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener, PortfolioContract.ViewRow {
 
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
@@ -65,6 +45,18 @@ class CryptoAdapter(private val holdingData: MutableMap<String, Double>,
 
         override fun onClick(v: View) {
             Log.d("RecyclerView", "CLICK!")
+        }
+
+        override fun setTicker(ticker: String) {
+            this.ticker.text = ticker
+        }
+
+        override fun setLastPrice(lastPrice: String) {
+            this.lastPrice.text = lastPrice
+        }
+
+        override fun setHoldings(holdings: String) {
+            this.holdings.text = holdings
         }
     }
 }

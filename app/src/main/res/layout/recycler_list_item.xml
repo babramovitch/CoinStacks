@@ -11,6 +11,8 @@
         android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:ems="5"
+        android:gravity="left"
         android:text="text" />
 
     <TextView
@@ -19,6 +21,8 @@
         android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:ems="5"
+        android:gravity="right"
         android:text="test" />
 
     <TextView
@@ -27,5 +31,7 @@
         android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:ems="5"
+        android:gravity="right"
         android:text="test" />
 </LinearLayout>

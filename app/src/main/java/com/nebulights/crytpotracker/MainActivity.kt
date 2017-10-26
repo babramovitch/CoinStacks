@@ -20,14 +20,18 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
 
         if (cryptoListFragment == null) {
             cryptoListFragment = CryptoListFragment.newInstance("asdf", "asdf")
+            createPresenter(cryptoListFragment)
             addFragment(cryptoListFragment, R.id.content_frame)
+        } else {
+            createPresenter(cryptoListFragment)
         }
+    }
 
+    fun createPresenter(cryptoListFragment: CryptoListFragment) {
         portfolioPresenter = PortfolioPresenter(Realm.getDefaultInstance(),
                 QuadrigaRepositoryProvider.provideQuadrigaRepository(),
                 this, cryptoListFragment,
                 listOf("BTC_CAD", "BCH_CAD", "ETH_CAD", "LTC_CAD"))
-
     }
 
     override fun onDestroy() {

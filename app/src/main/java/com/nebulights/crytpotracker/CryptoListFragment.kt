@@ -1,6 +1,5 @@
 package com.nebulights.crytpotracker
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -49,7 +48,7 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
         linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
 
-        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentHoldings(), presenter!!.getCurrentTradingData())
+        recyclerView.adapter = CryptoAdapter(presenter!!)
 
         startButton.setOnClickListener { presenter.notNull { presenter!!.startFeed() } }
         stopButton.setOnClickListener { presenter.notNull { presenter!!.stopFeed() } }
@@ -59,7 +58,7 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi(ticker: String, result: CurrentTradingInfo) {
         netWorth.text = "Net Worth: " + presenter!!.getNetWorth()
-        recyclerView.adapter = CryptoAdapter(presenter!!.getCurrentHoldings(), presenter!!.getCurrentTradingData())
+        recyclerView.adapter.notifyDataSetChanged()
     }
 
     override fun onResume() {
@@ -88,5 +87,4 @@ class CryptoListFragment : Fragment(), PortfolioContract.View {
             return fragment
         }
     }
-
 }

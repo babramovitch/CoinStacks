@@ -23,11 +23,9 @@ class PortfolioPresenter(private var realm: Realm,
                          private var view: PortfolioContract.View,
                          private var tickers: List<String>) : PortfolioContract.Presenter {
 
-
     private val TAG = "PortfolioPresenter"
-
-    var disposables: MutableList<Disposable> = mutableListOf()
-    var tickerData: MutableMap<String, CurrentTradingInfo> = mutableMapOf()
+    private var disposables: MutableList<Disposable> = mutableListOf()
+    private var tickerData: MutableMap<String, CurrentTradingInfo> = mutableMapOf()
 
     init {
         view.setPresenter(this)
@@ -84,37 +82,41 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun addAsset(asset: TrackedAsset) {
-
     }
 
     override fun getCurrentHoldings(): MutableMap<String, Double> {
-
         val tickerData: MutableMap<String, Double> = mutableMapOf()
 
         tickers.forEach { ticker ->
-            tickerData.put(ticker, quantity(ticker))
+            tickerData.put(ticker, tickerQuantity(ticker))
         }
 
         return tickerData
+    }
 
+    override fun getCurrentHoldings(position: Int): Double {
+        return tickerQuantity(getOrderedTicker(position))
     }
 
     override fun getCurrentTradingData(): MutableMap<String, CurrentTradingInfo> {
         return tickerData
     }
 
-    override fun getNetWorth(): String {
+    override fun getCurrentTradingData(position: Int): CurrentTradingInfo? {
+        return tickerData[getOrderedTicker(position)]
+    }
 
+    override fun getNetWorth(): String {
         var netWorth = 0.00
 
         for ((ticker, data) in tickerData) {
-            netWorth += data.last!!.toDouble() * quantity(ticker)
+            netWorth += data.last!!.toDouble() * tickerQuantity(ticker)
         }
 
         return BigDecimal(netWorth).setScale(2, BigDecimal.ROUND_HALF_UP).toString()
     }
 
-    private fun quantity(ticker: String): Double {
+    private fun tickerQuantity(ticker: String): Double {
 
         var value = 0.00
 
@@ -122,9 +124,36 @@ class PortfolioPresenter(private var realm: Realm,
             "BTC_CAD" -> value = 10.0
             "BCH_CAD" -> value = 20.0
             "ETH_CAD" -> value = 30.0
+            "LTC_CAD" -> value = 40.0
         }
 
         return value
+    }
+
+    override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
+        val currentTradingInfo = getCurrentTradingData(position)
+
+        row.setTicker(getOrderedTicker(position).replace("_", ":"))
+
+        currentTradingInfo.notNull {
+            row.setLastPrice(currentTradingInfo!!.last!!)
+            row.setHoldings(getCurrentHoldings(position).toString())
+        }
+    }
+
+    override fun tickerCount(): Int {
+        return tickers.count()
+    }
+
+    override fun getOrderedTicker(position: Int): String {
+
+        return when (position) {
+            0 -> "BTC_CAD"
+            1 -> "BCH_CAD"
+            2 -> "ETH_CAD"
+            3 -> "LTC_CAD"
+            else -> ""
+        }
     }
 
 }
