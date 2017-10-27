@@ -1,4 +1,4 @@
-package com.nebulights.crytpotracker.Quadriga
+package com.nebulights.crytpotracker.Network.Quadriga.model
 
 class CurrentTradingInfo {
     var ticker: String? = null

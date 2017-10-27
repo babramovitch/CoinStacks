@@ -1,13 +1,15 @@
-package com.nebulights.crytpotracker
+package com.nebulights.crytpotracker.Portfolio
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.nebulights.crytpotracker.Quadriga.QuadrigaRepositoryProvider
+import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.Network.RepositoryProvider
+import com.nebulights.crytpotracker.R
+import com.nebulights.crytpotracker.addFragment
 
 import io.realm.Realm
 
-class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
+class PortfolioActivity : AppCompatActivity() {
 
     lateinit var portfolioPresenter: PortfolioPresenter
     private var TAG = "MainActivity"
@@ -16,10 +18,10 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var cryptoListFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as CryptoListFragment?
+        var cryptoListFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as PortfolioFragment?
 
         if (cryptoListFragment == null) {
-            cryptoListFragment = CryptoListFragment.newInstance("asdf", "asdf")
+            cryptoListFragment = PortfolioFragment.newInstance()
             createPresenter(cryptoListFragment)
             addFragment(cryptoListFragment, R.id.content_frame)
         } else {
@@ -27,16 +29,11 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
         }
     }
 
-    fun createPresenter(cryptoListFragment: CryptoListFragment) {
+    fun createPresenter(portfolioFragment: PortfolioFragment) {
         portfolioPresenter = PortfolioPresenter(Realm.getDefaultInstance(),
-                QuadrigaRepositoryProvider.provideQuadrigaRepository(),
-                this, cryptoListFragment,
-                listOf("BTC_CAD", "BCH_CAD", "ETH_CAD", "LTC_CAD"))
-    }
-
-    override fun onDestroy() {
-        portfolioPresenter.onDetach()
-        super.onDestroy()
+                RepositoryProvider.provideQuadrigaRepository(),
+                portfolioFragment,
+                listOf(CryptoTypes.BTC, CryptoTypes.BCH, CryptoTypes.ETH, CryptoTypes.LTC))
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -44,7 +41,8 @@ class MainActivity : AppCompatActivity(), PortfolioContract.ViewHost {
         outState!!.putParcelable("PRESENTER_STATE", portfolioPresenter.saveState())
     }
 
-    override fun blahblah() {
-        Log.i(TAG, "I DID SOMETHING FROM FRAGMENT")
+    override fun onDestroy() {
+        portfolioPresenter.onDetach()
+        super.onDestroy()
     }
 }

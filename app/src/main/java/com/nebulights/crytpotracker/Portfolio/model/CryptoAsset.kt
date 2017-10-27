@@ -1,9 +1,11 @@
-package com.nebulights.crytpotracker
+package com.nebulights.crytpotracker.Portfolio.model
 
+import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.CurrencyTypes
 import java.math.BigDecimal
 import io.realm.RealmObject
 
-open class TrackedAsset : RealmObject() {
+open class CryptoAsset : RealmObject() {
 
     private var currency: String? = null
     private var type: String? = null
@@ -19,7 +21,7 @@ open class TrackedAsset : RealmObject() {
         return if (type != null) CryptoTypes.valueOf(type!!) else null
     }
 
-    fun setCurrency(`val`: CryptoTypes) {
+    fun setCurrency(`val`: CurrencyTypes) {
         this.currency = `val`.toString()
     }
 
@@ -27,12 +29,12 @@ open class TrackedAsset : RealmObject() {
         return if (currency != null) CryptoTypes.valueOf(currency!!) else null
     }
 
-    fun getAmount(): String {
-        return amount!!
+    fun getAmount(): BigDecimal {
+        return BigDecimal(amount!!)
     }
 
     fun setAmount(amount: BigDecimal) {
-        //this.amount = amount;
+        this.amount = amount.toString();
     }
 
     fun getPurchasePrice(): BigDecimal? {
@@ -40,6 +42,6 @@ open class TrackedAsset : RealmObject() {
     }
 
     fun setPurchasePrice(purchasePrice: BigDecimal) {
-        //this.purchasePrice = purchasePrice;
+        this.purchasePrice = purchasePrice.toString()
     }
 }

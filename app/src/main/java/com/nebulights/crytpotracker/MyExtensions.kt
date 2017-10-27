@@ -33,3 +33,12 @@ fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false):
 inline fun <T : Any> T?.notNull(f: (it: T) -> Unit) {
     if (this != null) f(this)
 }
+
+fun String.isNumber(): Boolean {
+    return try {
+        this.toDouble()
+        true
+    } catch (e: NumberFormatException) {
+        false
+    }
+}

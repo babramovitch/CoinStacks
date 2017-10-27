@@ -1,5 +1,6 @@
-package com.nebulights.crytpotracker.Quadriga
+package com.nebulights.crytpotracker.Network.Quadriga
 
+import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 import io.reactivex.Observable
 
 /**

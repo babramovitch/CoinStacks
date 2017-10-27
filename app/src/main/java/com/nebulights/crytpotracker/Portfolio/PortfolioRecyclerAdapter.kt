@@ -1,4 +1,4 @@
-package com.nebulights.crytpotracker
+package com.nebulights.crytpotracker.Portfolio
 
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -7,18 +7,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.nebulights.crytpotracker.R
+import com.nebulights.crytpotracker.inflate
 
 /**
  * Created by babramovitch on 10/26/2017.
  */
 
-class CryptoAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<CryptoAdapter.ViewHolder>() {
+class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<PortfolioRecyclerAdapter.ViewHolder>() {
 
-    override fun onBindViewHolder(holder: CryptoAdapter.ViewHolder, position: Int) {
-        presenter.onBindRepositoryRowViewAtPosition(position, holder);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        presenter.onBindRepositoryRowViewAtPosition(position, holder)
+        holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(position) }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CryptoAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
         return ViewHolder(inflatedView)
     }
@@ -27,7 +30,7 @@ class CryptoAdapter(private val presenter: PortfolioContract.Presenter) : Recycl
         return presenter.tickerCount()
     }
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener, PortfolioContract.ViewRow {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
@@ -38,13 +41,11 @@ class CryptoAdapter(private val presenter: PortfolioContract.Presenter) : Recycl
         @BindView(R.id.recycler_holdings)
         lateinit var holdings: TextView
 
+        @BindView(R.id.recycler_net_value)
+        lateinit var netValue: TextView
+
         init {
             ButterKnife.bind(this, view)
-            view.setOnClickListener(this)
-        }
-
-        override fun onClick(v: View) {
-            Log.d("RecyclerView", "CLICK!")
         }
 
         override fun setTicker(ticker: String) {
@@ -58,8 +59,9 @@ class CryptoAdapter(private val presenter: PortfolioContract.Presenter) : Recycl
         override fun setHoldings(holdings: String) {
             this.holdings.text = holdings
         }
+
+        override fun setNetValue(netValue: String) {
+            this.netValue.text = netValue
+        }
     }
 }
-
-
-
