@@ -58,23 +58,42 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         return rootView
     }
 
-    override fun showCreateAssetDialog(cryptoType: CryptoTypes, currentQuantity: String) {
-        val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
-        val quantityLayout = input.findViewById<TextInputLayout>(R.id.crypto_layout_quantity)
-        val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
-        val price = input.findViewById<EditText>(R.id.crypto_price)
+    override fun showCreateAssetDialog(cryptoType: CryptoTypes?, currentQuantity: String) {
 
-        quantityLayout.isHintAnimationEnabled = currentQuantity == ""
-        quantity.setText(if (currentQuantity == "0.0") "" else currentQuantity)
-        quantity.setSelection(quantity.text.length)
+        if (cryptoType == null) {
+            showErrorDialogCouldNotFindCrypto()
+        } else {
+            val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
+            val quantityLayout = input.findViewById<TextInputLayout>(R.id.crypto_layout_quantity)
+            val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
+            val price = input.findViewById<EditText>(R.id.crypto_price)
+
+            quantityLayout.isHintAnimationEnabled = currentQuantity == ""
+            quantity.setText(if (currentQuantity == "0.0") "" else currentQuantity)
+            quantity.setSelection(quantity.text.length)
+
+            val builder = AlertDialog.Builder(activity)
+            builder.setTitle(getString(R.string.dialog_title, cryptoType.name))
+            builder.setView(input)
+            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+                presenter!!.createAsset(cryptoType, quantity.text.toString(), price.text.toString())
+            })
+            builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+
+            val dialog = builder.create()
+            dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            dialog.show()
+        }
+    }
+
+    fun showErrorDialogCouldNotFindCrypto() {
 
         val builder = AlertDialog.Builder(activity)
-        builder.setTitle(getString(R.string.dialog_title, cryptoType.name))
-        builder.setView(input)
+        builder.setTitle("Error")
+        builder.setMessage(getString(R.string.dialog_message_error))
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-            presenter!!.createAsset(cryptoType, quantity.text.toString(), price.text.toString())
+            dialog.dismiss()
         })
-        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
 
         val dialog = builder.create()
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
@@ -83,10 +102,14 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi(position: Int) {
         netWorth.text = getString(R.string.networth, presenter!!.getNetWorth())
-        recyclerView.adapter.notifyItemChanged(position)
+        if (position != -1) {
+            recyclerView.adapter.notifyItemChanged(position)
+        } else {
+            recyclerView.adapter.notifyDataSetChanged()
+        }
     }
 
-    override fun updateUi() {
+    override fun resetUi() {
         netWorth.text = getString(R.string.networth, "0.0")
         recyclerView.adapter.notifyDataSetChanged()
     }

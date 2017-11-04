@@ -12,9 +12,9 @@ class PortfolioContract {
 
     interface View {
         fun updateUi(position: Int)
-        fun updateUi()
+        fun resetUi()
         fun setPresenter(presenter: Presenter)
-        fun showCreateAssetDialog(cryptoType: CryptoTypes, currentQuantity: String)
+        fun showCreateAssetDialog(cryptoType: CryptoTypes?, currentQuantity: String)
     }
 
     interface ViewRow {
@@ -36,7 +36,7 @@ class PortfolioContract {
         fun getCurrentTradingData(position: Int): CurrentTradingInfo?
         fun getCurrentHoldings(): MutableMap<CryptoTypes, BigDecimal>
         fun getCurrentHoldings(position: Int): BigDecimal
-        fun getOrderedTicker(position: Int): CryptoTypes
+        fun getOrderedTicker(position: Int): CryptoTypes?
 
         fun createAsset(cryptoType: CryptoTypes, quantity: String, price: String)
         fun tickerCount(): Int

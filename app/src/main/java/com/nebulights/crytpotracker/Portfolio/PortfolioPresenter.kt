@@ -39,6 +39,10 @@ class PortfolioPresenter(private var realm: Realm,
         realm.close()
     }
 
+    fun stringSafeBigDecimal(value: String): BigDecimal {
+        return if (value.isNumber()) BigDecimal(value) else BigDecimal(0.00)
+    }
+
     override fun stopFeed() {
         disposables.forEach { disposable ->
             disposable.let {
@@ -65,15 +69,15 @@ class PortfolioPresenter(private var realm: Realm,
             Log.i(TAG, ticker.ticker)
             val disposable: Disposable = quadrigaRepository.getTickerInfo(ticker.ticker)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .repeatWhen { result -> result.delay(30, TimeUnit.SECONDS) }
-                    .repeatWhen { error -> error.delay(30, TimeUnit.SECONDS) }
+                    .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
+                    .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
                     .subscribeOn(Schedulers.io())
                     .subscribe({ result ->
 
                         result.ask.notNull {
-                            Log.d("Result", ticker.toString() + " current asking price is ${result.last}")
-                            tickerData.put(ticker, result)
+                            addTickerData(result, ticker)
                             view.updateUi(getOrderedTicker(ticker))
+                            Log.d("Result", ticker.toString() + " current asking price is ${result.last}")
                         }
 
                     }, { error ->
@@ -84,33 +88,44 @@ class PortfolioPresenter(private var realm: Realm,
         }
     }
 
+    fun addTickerData(currentTradingInfo: CurrentTradingInfo, ticker: CryptoTypes) {
+        if (currentTradingInfo.last == null) {
+            return
+        }
+
+        tickerData.put(ticker, currentTradingInfo)
+    }
+
     override fun createAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
+        createOrUpdateAsset(cryptoType, quantity, price)
+        view.updateUi(getOrderedTicker(cryptoType))
+    }
+
+    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
 
         val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoType.toString()).findFirst()
 
         if (asset == null) {
             realm.executeTransaction {
                 val newAsset = realm.createObject(CryptoAsset::class.java)
-                newAsset.setAmount(if (quantity.isNumber()) BigDecimal(quantity) else BigDecimal(0.00))
-                newAsset.setPurchasePrice(if (price.isNumber()) BigDecimal(price) else BigDecimal(0.00))
+                newAsset.setAmount(stringSafeBigDecimal(quantity))
+                newAsset.setPurchasePrice(stringSafeBigDecimal(price))
                 newAsset.setCurrency(CurrencyTypes.CAD)
                 newAsset.setCrytpoType(cryptoType)
             }
         } else {
             realm.executeTransaction {
-                asset.setAmount(if (quantity.isNumber()) BigDecimal(quantity) else BigDecimal(0.00))
-                asset.setPurchasePrice(if (price.isNumber()) BigDecimal(price) else BigDecimal(0.00))
+                asset.setAmount(stringSafeBigDecimal(quantity))
+                asset.setPurchasePrice(stringSafeBigDecimal(price))
             }
         }
-
-        view.updateUi(getOrderedTicker(cryptoType))
     }
 
     override fun clearAssets() {
         realm.executeTransaction {
             realm.deleteAll()
         }
-        view.updateUi()
+        view.resetUi()
     }
 
     override fun getCurrentHoldings(): MutableMap<CryptoTypes, BigDecimal> {
@@ -124,7 +139,13 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun getCurrentHoldings(position: Int): BigDecimal {
-        return tickerQuantity(getOrderedTicker(position))
+        val ticker = getOrderedTicker(position)
+
+        return if (ticker != null) {
+            tickerQuantity(ticker)
+        } else {
+            BigDecimal("0.0")
+        }
     }
 
     override fun getCurrentTradingData(): MutableMap<CryptoTypes, CurrentTradingInfo> {
@@ -139,13 +160,13 @@ class PortfolioPresenter(private var realm: Realm,
         var netWorth = BigDecimal(0.0)
 
         for ((ticker, data) in tickerData) {
-            netWorth += BigDecimal(data.last!!) * tickerQuantity(ticker)
+            netWorth += stringSafeBigDecimal(data.last!!) * tickerQuantity(ticker)
         }
 
         return netWorth.setScale(2, BigDecimal.ROUND_HALF_UP).toString()
     }
 
-    private fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
+    fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
 
         var total: BigDecimal = BigDecimal.valueOf(0.0)
 
@@ -161,29 +182,34 @@ class PortfolioPresenter(private var realm: Realm,
         row.setTicker(getOrderedTicker(position).toString())
 
         currentTradingInfo.notNull {
-            val lastPrice = currentTradingInfo!!.last!!
+            val lastPrice = stringSafeBigDecimal(currentTradingInfo!!.last!!)
             val holdings = getCurrentHoldings(position)
 
-            row.setLastPrice(lastPrice)
+            row.setLastPrice(lastPrice.toString())
             row.setHoldings(holdings.toString())
             row.setNetValue(netValue(lastPrice, holdings).toString())
         }
     }
 
-    private fun netValue(price: String, holdings: BigDecimal): BigDecimal {
-        val value = BigDecimal(price) * holdings
+    fun netValue(price: BigDecimal, holdings: BigDecimal): BigDecimal {
+        val value = price * holdings
         return value.setScale(2, BigDecimal.ROUND_HALF_UP)
+
     }
 
     override fun tickerCount(): Int {
         return tickers.count()
     }
 
-    override fun getOrderedTicker(position: Int): CryptoTypes {
-        return tickers[position]
+    override fun getOrderedTicker(position: Int): CryptoTypes? {
+        return if (position >= tickers.count() || position < 0) {
+            null
+        } else {
+            tickers[position]
+        }
     }
 
-    private fun getOrderedTicker(cryptoType: CryptoTypes): Int {
+    fun getOrderedTicker(cryptoType: CryptoTypes): Int {
         return tickers.indexOf(cryptoType)
     }
 }
