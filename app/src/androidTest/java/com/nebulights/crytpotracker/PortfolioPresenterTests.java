@@ -11,6 +11,7 @@ import com.nebulights.crytpotracker.Network.RepositoryProvider;
 import com.nebulights.crytpotracker.Portfolio.PortfolioFragment;
 import com.nebulights.crytpotracker.Portfolio.PortfolioPresenter;
 import com.nebulights.crytpotracker.Portfolio.PortfolioRecyclerAdapter;
+import com.squareup.moshi.Moshi;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,14 +32,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class PortfolioPresenterTests {
-
-    @Test
-    public void useAppContext() throws Exception {
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        assertEquals("com.nebulights.crytpotracker", appContext.getPackageName());
-    }
-
-    //******
 
     @Test
     public void stringSafeBigDecimalNotANumber() throws Exception {
@@ -404,8 +397,7 @@ public class PortfolioPresenterTests {
         return new PortfolioPresenter(realm,
                 RepositoryProvider.INSTANCE.provideQuadrigaRepository(),
                 PortfolioFragment.Companion.newInstance(),
-                cryptoTypesArrayList);
+                cryptoTypesArrayList,
+                new Moshi.Builder().build());
     }
-
-
 }

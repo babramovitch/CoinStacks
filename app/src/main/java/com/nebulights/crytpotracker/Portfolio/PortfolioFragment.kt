@@ -12,7 +12,6 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DividerItemDecoration
 import android.view.*
 import android.widget.EditText
-import android.widget.Button
 import com.nebulights.crytpotracker.CryptoTypes
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.notNull
@@ -29,10 +28,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     companion object {
         fun newInstance(): PortfolioFragment {
-            val fragment = PortfolioFragment()
-            val args = Bundle()
-            fragment.arguments = args
-            return fragment
+            return PortfolioFragment()
         }
     }
 
@@ -52,10 +48,12 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         ButterKnife.bind(this, rootView)
 
         linearLayoutManager = LinearLayoutManager(activity)
-        recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
-        recyclerView.layoutManager = linearLayoutManager
 
+        recyclerView.layoutManager = linearLayoutManager
+        recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter!!)
+
+        netWorth.text = getString(R.string.networth, presenter!!.getNetWorth())
 
         return rootView
     }
@@ -71,19 +69,15 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         when (item.itemId) {
             R.id.clear -> {
                 presenter.notNull { presenter!!.clearAssets() }
             }
         }
-
         return super.onOptionsItemSelected(item)
     }
 
-
     override fun showCreateAssetDialog(cryptoType: CryptoTypes?, currentQuantity: String) {
-
         if (cryptoType == null) {
             showErrorDialogCouldNotFindCrypto()
         } else {
@@ -113,7 +107,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     fun showErrorDialogCouldNotFindCrypto() {
-
         val builder = AlertDialog.Builder(activity)
         builder.setTitle("Error")
         builder.setMessage(getString(R.string.dialog_message_error))

@@ -6,13 +6,14 @@ import com.nebulights.crytpotracker.CryptoTypes
 import com.nebulights.crytpotracker.Network.RepositoryProvider
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.addFragment
+import com.squareup.moshi.Moshi
 
 import io.realm.Realm
 
 class PortfolioActivity : AppCompatActivity() {
-
-    lateinit var portfolioPresenter: PortfolioPresenter
     private var TAG = "MainActivity"
+
+    lateinit var portfolioPresenter: PortfolioContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,18 +28,23 @@ class PortfolioActivity : AppCompatActivity() {
         } else {
             createPresenter(cryptoListFragment)
         }
+
+        if (savedInstanceState != null) {
+            portfolioPresenter.restoreTickerData(savedInstanceState)
+        }
     }
 
     fun createPresenter(portfolioFragment: PortfolioFragment) {
         portfolioPresenter = PortfolioPresenter(Realm.getDefaultInstance(),
                 RepositoryProvider.provideQuadrigaRepository(),
                 portfolioFragment,
-                listOf(CryptoTypes.BTC, CryptoTypes.BCH, CryptoTypes.ETH, CryptoTypes.LTC))
+                listOf(CryptoTypes.BTC, CryptoTypes.BCH, CryptoTypes.ETH, CryptoTypes.LTC),
+                Moshi.Builder().build())
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        outState!!.putParcelable("PRESENTER_STATE", portfolioPresenter.saveState())
+        outState!!.putString("PRESENTER_TICKER_DATA", portfolioPresenter.saveTickerDataState())
     }
 
     override fun onDestroy() {
