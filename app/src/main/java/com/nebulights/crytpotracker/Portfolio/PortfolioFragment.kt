@@ -138,7 +138,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun resetUi() {
-        netWorth.text = getString(R.string.networth, "0.0")
+        netWorth.text = getString(R.string.networth, getString(R.string.zero_dollar))
         recyclerView.adapter.notifyDataSetChanged()
     }
 
