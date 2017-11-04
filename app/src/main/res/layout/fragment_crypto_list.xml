@@ -9,10 +9,11 @@
         android:id="@+id/net_worth"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:gravity="center"
+        android:gravity="left|center_vertical"
         android:text="Net Worth: $0.00"
         android:textSize="@dimen/net_worth_font_size"
         android:textStyle="bold"
+        android:layout_marginLeft="16dp"
 
         />
 

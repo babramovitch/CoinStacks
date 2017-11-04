@@ -62,7 +62,7 @@ class PortfolioPresenter(private var realm: Realm,
                         result.ask.notNull {
                             addTickerData(result, ticker)
                             view.updateUi(getOrderedTicker(ticker))
-                            Log.d("Result", ticker.toString() + " current asking price is ${result.last}")
+                            Log.d("Result", ticker.toString() + " last price is ${result.last}")
                         }
 
                     }, { error ->
@@ -199,10 +199,8 @@ class PortfolioPresenter(private var realm: Realm,
 
     fun getOrderedTicker(position: Int): CryptoTypes? {
         return if (position >= tickers.count() || position < 0) {
-            Log.i(TAG, "A")
             null
         } else {
-            Log.i(TAG, "B")
             tickers[position]
         }
     }
