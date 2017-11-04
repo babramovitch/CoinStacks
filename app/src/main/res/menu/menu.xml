@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/clear"
+        android:icon="@drawable/ic_delete_sweep_white_24dp"
+        android:title="Clear Assets"
+        app:showAsAction="always" />
+
+</menu>

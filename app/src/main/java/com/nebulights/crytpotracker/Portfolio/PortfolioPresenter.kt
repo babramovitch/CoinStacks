@@ -13,6 +13,7 @@ import io.reactivex.schedulers.Schedulers
 
 import io.realm.Realm
 import java.math.BigDecimal
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
 /**
@@ -163,7 +164,9 @@ class PortfolioPresenter(private var realm: Realm,
             netWorth += stringSafeBigDecimal(data.last!!) * tickerQuantity(ticker)
         }
 
-        return netWorth.setScale(2, BigDecimal.ROUND_HALF_UP).toString()
+        val formatter = DecimalFormat("$###,###,##0.00")
+
+        return formatter.format(netWorth.setScale(2, BigDecimal.ROUND_HALF_UP))
     }
 
     fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
@@ -185,9 +188,11 @@ class PortfolioPresenter(private var realm: Realm,
             val lastPrice = stringSafeBigDecimal(currentTradingInfo!!.last!!)
             val holdings = getCurrentHoldings(position)
 
-            row.setLastPrice(lastPrice.toString())
+            val formatter = DecimalFormat("$###,###,##0.00")
+
+            row.setLastPrice(formatter.format(lastPrice))
             row.setHoldings(holdings.toString())
-            row.setNetValue(netValue(lastPrice, holdings).toString())
+            row.setNetValue(formatter.format(netValue(lastPrice, holdings)))
         }
     }
 
@@ -211,5 +216,10 @@ class PortfolioPresenter(private var realm: Realm,
 
     fun getOrderedTicker(cryptoType: CryptoTypes): Int {
         return tickers.indexOf(cryptoType)
+    }
+
+    fun formatCurrency(amount: String): String {
+        val formatter = DecimalFormat("$###,###,##0.00")
+        return formatter.format(amount)
     }
 }

@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">crytpotracker</string>
-    <string name="networth">Crypto Net Worth: %1$s</string>
+    <string name="app_name">Crypto Tracker</string>
+    <string name="networth">Net Worth: %1$s</string>
     <string name="dialog_title">%1$s Ownership</string>
     <string name="dialog_message_error">Could not find Crypto</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dashes">---</string>
 </resources>

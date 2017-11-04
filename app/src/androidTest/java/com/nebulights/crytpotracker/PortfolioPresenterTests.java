@@ -197,7 +197,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("5076.23", networth);
+        assertEquals("$5,076.23", networth);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.BCH, "20.55", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("6115.03", networth);
+        assertEquals("$6,115.03", networth);
     }
 
     @Test
@@ -231,7 +231,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.BCH, "20.55", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("5076.23", networth);
+        assertEquals("$5,076.23", networth);
     }
 
     @Test
@@ -245,7 +245,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.BCH, "20.55", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("0.00", networth);
+        assertEquals("$0.00", networth);
     }
 
     @Test
@@ -266,7 +266,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.LTC, "50.50974687", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("0.00", networth);
+        assertEquals("$0.00", networth);
     }
 
     @Test
@@ -285,7 +285,7 @@ public class PortfolioPresenterTests {
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         String networth = presenter.getNetWorth();
-        assertEquals("0.00", networth);
+        assertEquals("$0.00", networth);
     }
 
     @Test
@@ -299,7 +299,7 @@ public class PortfolioPresenterTests {
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
 
         String networth = presenter.getNetWorth();
-        assertEquals("0.00", networth);
+        assertEquals("$0.00", networth);
     }
 
     // ******
@@ -321,9 +321,9 @@ public class PortfolioPresenterTests {
         presenter.onBindRepositoryRowViewAtPosition(1, viewHolder);
 
         assertEquals(viewHolder.getTicker().getText().toString(), "BCH");
-        assertEquals(viewHolder.getLastPrice().getText().toString(), "50.55");
+        assertEquals(viewHolder.getLastPrice().getText().toString(), "$50.55");
         assertEquals(viewHolder.getHoldings().getText().toString(), "10.00");
-        assertEquals(viewHolder.getNetValue().getText().toString(), "505.50");
+        assertEquals(viewHolder.getNetValue().getText().toString(), "$505.50");
 
     }
 
@@ -342,9 +342,9 @@ public class PortfolioPresenterTests {
         presenter.onBindRepositoryRowViewAtPosition(1, viewHolder);
 
         assertEquals(viewHolder.getTicker().getText().toString(), "BCH");
-        assertEquals(viewHolder.getLastPrice().getText().toString(), "50.55");
+        assertEquals(viewHolder.getLastPrice().getText().toString(), "$50.55");
         assertEquals(viewHolder.getHoldings().getText().toString(), "0.0");
-        assertEquals(viewHolder.getNetValue().getText().toString(), "0.00");
+        assertEquals(viewHolder.getNetValue().getText().toString(), "$0.00");
 
     }
 

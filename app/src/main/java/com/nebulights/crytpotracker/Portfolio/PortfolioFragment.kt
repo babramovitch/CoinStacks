@@ -5,15 +5,13 @@ import android.support.design.widget.TextInputLayout
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.DividerItemDecoration
+import android.view.*
 import android.widget.EditText
-import android.view.WindowManager
 import android.widget.Button
 import com.nebulights.crytpotracker.CryptoTypes
 import com.nebulights.crytpotracker.R
@@ -22,10 +20,10 @@ import com.nebulights.crytpotracker.notNull
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     @BindView(R.id.net_worth) lateinit var netWorth: TextView
-    @BindView(R.id.button_clear) lateinit var clearButton: Button
     @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
 
     private var presenter: PortfolioContract.Presenter? = null
+    private var dialog: AlertDialog? = null
 
     private lateinit var linearLayoutManager: LinearLayoutManager
 
@@ -42,6 +40,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         this.presenter = presenter
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
@@ -49,14 +52,35 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         ButterKnife.bind(this, rootView)
 
         linearLayoutManager = LinearLayoutManager(activity)
+        recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.layoutManager = linearLayoutManager
 
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter!!)
 
-        clearButton.setOnClickListener { presenter.notNull { presenter!!.clearAssets() } }
-
         return rootView
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onResume() {
+        presenter.notNull { presenter!!.startFeed() }
+        super.onResume()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.clear -> {
+                presenter.notNull { presenter!!.clearAssets() }
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
 
     override fun showCreateAssetDialog(cryptoType: CryptoTypes?, currentQuantity: String) {
 
@@ -80,9 +104,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             })
             builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
 
-            val dialog = builder.create()
-            dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            dialog.show()
+            dialog = builder.create()
+            dialog.notNull {
+                dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+                dialog!!.show()
+            }
         }
     }
 
@@ -95,9 +121,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             dialog.dismiss()
         })
 
-        val dialog = builder.create()
-        dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        dialog.show()
+        dialog = builder.create()
+        dialog.notNull {
+            dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            dialog!!.show()
+        }
     }
 
     override fun updateUi(position: Int) {
@@ -114,13 +142,13 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         recyclerView.adapter.notifyDataSetChanged()
     }
 
-    override fun onResume() {
-        presenter.notNull { presenter!!.startFeed() }
-        super.onResume()
-    }
-
     override fun onPause() {
         presenter.notNull { presenter!!.stopFeed() }
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        dialog.notNull { dialog!!.dismiss() }
+        super.onDestroy()
     }
 }
