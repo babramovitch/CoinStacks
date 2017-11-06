@@ -17,6 +17,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import io.reactivex.disposables.CompositeDisposable
 
 
 /**
@@ -30,7 +31,7 @@ class PortfolioPresenter(private var realm: Realm,
                          private val moshi: Moshi) : PortfolioContract.Presenter {
 
     private val TAG = "PortfolioPresenter"
-    private var disposables: MutableList<Disposable> = mutableListOf()
+    private var disposables: CompositeDisposable = CompositeDisposable()
     private var tickerData: MutableMap<CryptoTypes, CurrentTradingInfo> = mutableMapOf()
 
     init {
@@ -74,11 +75,7 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun stopFeed() {
-        disposables.forEach { disposable ->
-            disposable.let {
-                disposable.dispose()
-            }
-        }
+        disposables.dispose()
     }
 
     override fun showCreateAssetDialog(position: Int) {
