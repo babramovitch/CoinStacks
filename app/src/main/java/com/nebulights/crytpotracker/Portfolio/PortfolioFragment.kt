@@ -13,18 +13,24 @@ import android.support.v7.widget.DividerItemDecoration
 import android.view.*
 import android.widget.EditText
 import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.notNull
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     @BindView(R.id.net_worth) lateinit var netWorth: TextView
     @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
 
-    private var presenter: PortfolioContract.Presenter? = null
+    private lateinit var presenter: PortfolioContract.Presenter
+    private lateinit var linearLayoutManager: LinearLayoutManager
+
     private var dialog: AlertDialog? = null
 
-    private lateinit var linearLayoutManager: LinearLayoutManager
+    private val TICKER_DATA_SAVED_STATE = "PRESENTER_TICKER_DATA"
 
     companion object {
         fun newInstance(): PortfolioFragment {
@@ -47,13 +53,17 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         val rootView = inflater!!.inflate(R.layout.fragment_crypto_list, container, false)
         ButterKnife.bind(this, rootView)
 
+        if (savedInstanceState != null) {
+            presenter.restoreTickerData(restoreTickerData(savedInstanceState))
+        }
+
         linearLayoutManager = LinearLayoutManager(activity)
 
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = PortfolioRecyclerAdapter(presenter!!)
+        recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
 
-        netWorth.text = getString(R.string.networth, presenter!!.getNetWorth())
+        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
 
         return rootView
     }
@@ -64,14 +74,14 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun onResume() {
-        presenter.notNull { presenter!!.startFeed() }
+        presenter.startFeed()
         super.onResume()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.clear -> {
-                presenter.notNull { presenter!!.clearAssets() }
+                presenter.clearAssets()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -94,7 +104,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             builder.setTitle(getString(R.string.dialog_title, cryptoType.name))
             builder.setView(input)
             builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-                presenter!!.createAsset(cryptoType, quantity.text.toString(), price.text.toString())
+                presenter.createAsset(cryptoType, quantity.text.toString(), price.text.toString())
             })
             builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
 
@@ -108,7 +118,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     fun showErrorDialogCouldNotFindCrypto() {
         val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Error")
+        builder.setTitle(getString(R.string.dialog_title_error))
         builder.setMessage(getString(R.string.dialog_message_error))
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
             dialog.dismiss()
@@ -122,7 +132,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun updateUi(position: Int) {
-        netWorth.text = getString(R.string.networth, presenter!!.getNetWorth())
+        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
         if (position != -1) {
             recyclerView.adapter.notifyItemChanged(position)
         } else {
@@ -135,12 +145,36 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         recyclerView.adapter.notifyDataSetChanged()
     }
 
+    fun tickerDataJsonAdapter(): JsonAdapter<MutableMap<CryptoTypes, CurrentTradingInfo>> {
+        val moshi = Moshi.Builder().build()
+        val type = Types.newParameterizedType(MutableMap::class.java, CryptoTypes::class.java, CurrentTradingInfo::class.java)
+        return moshi.adapter<MutableMap<CryptoTypes, CurrentTradingInfo>>(type)
+    }
+
+    fun restoreTickerData(savedInstanceState: Bundle): MutableMap<CryptoTypes, CurrentTradingInfo> {
+        val tickerBundleData = savedInstanceState.getString(TICKER_DATA_SAVED_STATE)
+
+        var tickerData: MutableMap<CryptoTypes, CurrentTradingInfo> = mutableMapOf()
+
+        if (tickerBundleData.isNotEmpty()) {
+            tickerData = tickerDataJsonAdapter().fromJson(tickerBundleData)
+        }
+
+        return tickerData
+    }
+
     override fun onPause() {
-        presenter.notNull { presenter!!.stopFeed() }
+        presenter.stopFeed()
         super.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState!!.putString(TICKER_DATA_SAVED_STATE, tickerDataJsonAdapter().toJson(presenter.saveTickerDataState()))
+    }
+
     override fun onDestroy() {
+        presenter.onDetach()
         dialog.notNull { dialog!!.dismiss() }
         super.onDestroy()
     }

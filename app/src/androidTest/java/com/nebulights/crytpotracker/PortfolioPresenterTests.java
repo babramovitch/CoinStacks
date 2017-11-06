@@ -8,10 +8,11 @@ import android.view.View;
 
 import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo;
 import com.nebulights.crytpotracker.Network.RepositoryProvider;
+import com.nebulights.crytpotracker.Portfolio.CryptoAssetRepository;
 import com.nebulights.crytpotracker.Portfolio.PortfolioFragment;
+import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers;
 import com.nebulights.crytpotracker.Portfolio.PortfolioPresenter;
 import com.nebulights.crytpotracker.Portfolio.PortfolioRecyclerAdapter;
-import com.squareup.moshi.Moshi;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,24 +33,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class PortfolioPresenterTests {
-
-    @Test
-    public void stringSafeBigDecimalNotANumber() throws Exception {
-        PortfolioPresenter presenter = createPresenter(getCryptoList());
-
-        BigDecimal result = presenter.stringSafeBigDecimal("abc");
-        assertEquals(result, new BigDecimal("0"));
-    }
-
-    @Test
-    public void stringSafeBigDecimalIsANumber() throws Exception {
-        PortfolioPresenter presenter = createPresenter(getCryptoList());
-
-        BigDecimal result = presenter.stringSafeBigDecimal("500");
-        assertEquals(result, new BigDecimal("500"));
-    }
-
-    //******
 
     @Test
     public void netValueRoundsTwoDecimalsUp() throws Exception {
@@ -145,24 +128,23 @@ public class PortfolioPresenterTests {
     @Test
     public void tickerIndexNotFound() throws Exception {
         PortfolioPresenter presenter = createPresenter(getSingleCryptoList());
-        int result = presenter.getOrderedTicker(CryptoTypes.BCH);
+        int result = presenter.getOrderedTickerIndex(CryptoTypes.BCH);
         assertEquals(-1, result);
     }
 
     @Test
     public void tickerIndexFound() throws Exception {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
-        int result = presenter.getOrderedTicker(CryptoTypes.BCH);
+        int result = presenter.getOrderedTickerIndex(CryptoTypes.BCH);
         assertEquals(1, result);
     }
-
 
     //******
 
     @Test
     public void currentHoldingsNotFoundForPosition() throws Exception {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
-        BigDecimal result = presenter.getCurrentHoldings(5);
+        BigDecimal result = presenter.tickerQuantityForIndex(5);
 
         assertEquals("0.0", result.toString());
     }
@@ -172,19 +154,18 @@ public class PortfolioPresenterTests {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
-        BigDecimal result = presenter.getCurrentHoldings(0);
+        BigDecimal result = presenter.tickerQuantityForIndex(0);
 
         assertEquals("50.50974687", result.toString());
     }
 
     //******
+
     @Test
     public void netWorthOneAsset() throws Exception {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
-        CurrentTradingInfo currentTradingInfo = new CurrentTradingInfo();
-        currentTradingInfo.setLast("100.50");
-
+        CurrentTradingInfo currentTradingInfo = new CurrentTradingInfo("", "", "100.50", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfo, CryptoTypes.BTC);
 
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
@@ -197,12 +178,10 @@ public class PortfolioPresenterTests {
     public void netWorthTwoAsset() throws Exception {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
-        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo();
-        currentTradingInfoBTC.setLast("100.50");
+        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo("", "", "100.50", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBTC, CryptoTypes.BTC);
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast("50.55");
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "50.55", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
@@ -216,8 +195,7 @@ public class PortfolioPresenterTests {
     public void netWorthTwoAssetOneTicker() throws Exception {
         PortfolioPresenter presenter = createPresenter(getSingleCryptoList());
 
-        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo();
-        currentTradingInfoBTC.setLast("100.50");
+        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo("", "", "100.50", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBTC, CryptoTypes.BTC);
 
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
@@ -248,12 +226,10 @@ public class PortfolioPresenterTests {
 
         PortfolioPresenter presenter = createPresenter(list);
 
-        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo();
-        currentTradingInfoBTC.setLast("100.50");
+        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo("", "", "100.50", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBTC, CryptoTypes.BTC);
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast("50.55");
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "50.55", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         presenter.createOrUpdateAsset(CryptoTypes.LTC, "50.50974687", "1756.87");
@@ -269,12 +245,10 @@ public class PortfolioPresenterTests {
 
         PortfolioPresenter presenter = createPresenter(list);
 
-        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo();
-        currentTradingInfoBTC.setLast("100.50");
+        CurrentTradingInfo currentTradingInfoBTC = new CurrentTradingInfo("", "", "100.50", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBTC, CryptoTypes.BTC);
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast("50.55");
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "50.55", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         String networth = presenter.getNetWorth();
@@ -282,11 +256,10 @@ public class PortfolioPresenterTests {
     }
 
     @Test
-    public void netWorthNullLastAmount() throws Exception {
+    public void netWorthEmptyLastAmount() throws Exception {
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
-        CurrentTradingInfo currentTradingInfo = new CurrentTradingInfo();
-        currentTradingInfo.setLast(null);
+        CurrentTradingInfo currentTradingInfo = new CurrentTradingInfo("", "", "", "", "", "", "", "");
 
         presenter.addTickerData(currentTradingInfo, CryptoTypes.BTC);
         presenter.createOrUpdateAsset(CryptoTypes.BTC, "50.50974687", "1756.87");
@@ -304,8 +277,7 @@ public class PortfolioPresenterTests {
 
         presenter.createOrUpdateAsset(CryptoTypes.BCH, "10.00", "1756.87");
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast("50.55");
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "50.55", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -325,8 +297,7 @@ public class PortfolioPresenterTests {
 
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast("50.55");
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "50.55", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -342,12 +313,11 @@ public class PortfolioPresenterTests {
     }
 
     @Test
-    public void bindRowWithNullLastPrice() throws Exception {
+    public void bindRowWithEmptyLastPrice() throws Exception {
 
         PortfolioPresenter presenter = createPresenter(getCryptoList());
 
-        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo();
-        currentTradingInfoBCH.setLast(null);
+        CurrentTradingInfo currentTradingInfoBCH = new CurrentTradingInfo("", "", "", "", "", "", "", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoTypes.BCH);
 
         Context appContext = InstrumentationRegistry.getTargetContext();
@@ -394,10 +364,9 @@ public class PortfolioPresenterTests {
         realm.deleteAll();
         realm.commitTransaction();
 
-        return new PortfolioPresenter(realm,
-                RepositoryProvider.INSTANCE.provideQuadrigaRepository(),
+        return new PortfolioPresenter(RepositoryProvider.INSTANCE.provideQuadrigaRepository(),
                 PortfolioFragment.Companion.newInstance(),
                 cryptoTypesArrayList,
-                new Moshi.Builder().build());
+                new CryptoAssetRepository(realm));
     }
 }

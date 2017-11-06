@@ -13,16 +13,16 @@ open class CryptoAsset : RealmObject() {
     private var amount: String? = null
     private var purchasePrice: String? = null
 
-    fun setCrytpoType(`val`: CryptoTypes) {
-        this.type = `val`.toString()
+    fun setCrytpoType(cryptoTypes: CryptoTypes) {
+        this.type = cryptoTypes.toString()
     }
 
     fun getType(): CryptoTypes? {
         return if (type != null) CryptoTypes.valueOf(type!!) else null
     }
 
-    fun setCurrency(`val`: CurrencyTypes) {
-        this.currency = `val`.toString()
+    fun setCurrency(currenncyType: CurrencyTypes) {
+        this.currency = currenncyType.toString()
     }
 
     fun getCurrency(): CryptoTypes? {
@@ -34,11 +34,11 @@ open class CryptoAsset : RealmObject() {
     }
 
     fun setAmount(amount: BigDecimal) {
-        this.amount = amount.toString();
+        this.amount = amount.toString()
     }
 
     fun getPurchasePrice(): BigDecimal? {
-        return null //purchasePrice;
+        return BigDecimal(purchasePrice!!)
     }
 
     fun setPurchasePrice(purchasePrice: BigDecimal) {

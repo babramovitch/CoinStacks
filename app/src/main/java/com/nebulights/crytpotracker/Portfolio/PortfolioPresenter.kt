@@ -1,34 +1,27 @@
 package com.nebulights.crytpotracker.Portfolio
 
-import android.os.Bundle
 import android.util.Log
 import com.nebulights.crytpotracker.*
-import com.nebulights.crytpotracker.Portfolio.model.CryptoAsset
 import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaRepository
-import com.squareup.moshi.Types
+import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.currencyFormatter
+import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-import io.realm.Realm
 import java.math.BigDecimal
-import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
 import io.reactivex.disposables.CompositeDisposable
-
 
 /**
  * Created by babramovitch on 10/23/2017.
  */
 
-class PortfolioPresenter(private var realm: Realm,
-                         private var quadrigaRepository: QuadrigaRepository,
+class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
                          private var view: PortfolioContract.View,
                          private var tickers: List<CryptoTypes>,
-                         private val moshi: Moshi) : PortfolioContract.Presenter {
+                         val cryptoAssetRepository: CryptoAssetRepository) : PortfolioContract.Presenter {
 
     private val TAG = "PortfolioPresenter"
     private var disposables: CompositeDisposable = CompositeDisposable()
@@ -38,16 +31,12 @@ class PortfolioPresenter(private var realm: Realm,
         view.setPresenter(this)
     }
 
-    override fun restoreTickerData(presenterState: Bundle) {
-        val tickerBundleData = presenterState.getString("PRESENTER_TICKER_DATA")
-
-        if (tickerBundleData.isNotEmpty()) {
-            tickerData = tickerDataJsonAdapter().fromJson(tickerBundleData)
-        }
+    override fun restoreTickerData(tickerData: MutableMap<CryptoTypes, CurrentTradingInfo>) {
+        this.tickerData = tickerData
     }
 
-    override fun saveTickerDataState(): String {
-        return tickerDataJsonAdapter().toJson(tickerData)
+    override fun saveTickerDataState(): MutableMap<CryptoTypes, CurrentTradingInfo> {
+        return tickerData
     }
 
     override fun startFeed() {
@@ -62,7 +51,7 @@ class PortfolioPresenter(private var realm: Realm,
 
                         result.ask.notNull {
                             addTickerData(result, ticker)
-                            view.updateUi(getOrderedTicker(ticker))
+                            view.updateUi(getOrderedTickerIndex(ticker))
                             Log.d("Result", ticker.toString() + " last price is ${result.last}")
                         }
 
@@ -79,12 +68,16 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun showCreateAssetDialog(position: Int) {
-        view.showCreateAssetDialog(getOrderedTicker(position), getCurrentHoldings(position).toString())
+        view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
     }
 
     override fun createAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
         createOrUpdateAsset(cryptoType, quantity, price)
-        view.updateUi(getOrderedTicker(cryptoType))
+        view.updateUi(getOrderedTickerIndex(cryptoType))
+    }
+
+    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
+        cryptoAssetRepository.createOrUpdateAsset(cryptoType, quantity, price)
     }
 
     override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
@@ -93,8 +86,8 @@ class PortfolioPresenter(private var realm: Realm,
         row.setTicker(getOrderedTicker(position).toString())
 
         currentTradingInfo.notNull {
-            val lastPrice = stringSafeBigDecimal(currentTradingInfo!!.last!!)
-            val holdings = getCurrentHoldings(position)
+            val lastPrice = stringSafeBigDecimal(currentTradingInfo!!.last)
+            val holdings = tickerQuantityForIndex(position)
 
             row.setLastPrice(currencyFormatter().format(lastPrice))
             row.setHoldings(holdings.toString())
@@ -103,9 +96,7 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun clearAssets() {
-        realm.executeTransaction {
-            realm.deleteAll()
-        }
+        cryptoAssetRepository.clearAllData()
         view.resetUi()
     }
 
@@ -113,7 +104,7 @@ class PortfolioPresenter(private var realm: Realm,
         var netWorth = BigDecimal(0.0)
 
         for ((ticker, data) in tickerData) {
-            netWorth += stringSafeBigDecimal(data.last!!) * tickerQuantity(ticker)
+            netWorth += stringSafeBigDecimal(data.last) * tickerQuantity(ticker)
         }
 
         return currencyFormatter().format(netWorth.setScale(2, BigDecimal.ROUND_HALF_UP))
@@ -124,74 +115,32 @@ class PortfolioPresenter(private var realm: Realm,
     }
 
     override fun onDetach() {
-        realm.close()
-    }
-
-    fun stringSafeBigDecimal(value: String): BigDecimal {
-        return if (value.isNumber()) BigDecimal(value) else BigDecimal(0.00)
-    }
-
-    fun tickerDataJsonAdapter(): JsonAdapter<MutableMap<CryptoTypes, CurrentTradingInfo>> {
-        val type = Types.newParameterizedType(MutableMap::class.java, CryptoTypes::class.java, CurrentTradingInfo::class.java)
-        return moshi.adapter<MutableMap<CryptoTypes, CurrentTradingInfo>>(type)
+        cryptoAssetRepository.close()
     }
 
     fun addTickerData(currentTradingInfo: CurrentTradingInfo, ticker: CryptoTypes) {
-        if (currentTradingInfo.last == null) {
+        if (currentTradingInfo.last.isEmpty()) {
             return
         }
 
         tickerData.put(ticker, currentTradingInfo)
     }
 
-
-    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
-        val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoType.toString()).findFirst()
-
-        if (asset == null) {
-            realm.executeTransaction {
-                val newAsset = realm.createObject(CryptoAsset::class.java)
-                newAsset.setAmount(stringSafeBigDecimal(quantity))
-                newAsset.setPurchasePrice(stringSafeBigDecimal(price))
-                newAsset.setCurrency(CurrencyTypes.CAD)
-                newAsset.setCrytpoType(cryptoType)
-            }
-        } else {
-            realm.executeTransaction {
-                asset.setAmount(stringSafeBigDecimal(quantity))
-                asset.setPurchasePrice(stringSafeBigDecimal(price))
-            }
-        }
+    fun tickerQuantity(ticker: CryptoTypes?): BigDecimal {
+        return cryptoAssetRepository.totalTickerQuantity(ticker)
     }
 
-    fun getCurrentHoldings(position: Int): BigDecimal {
-        val ticker = getOrderedTicker(position)
-
-        return if (ticker != null) {
-            tickerQuantity(ticker)
-        } else {
-            BigDecimal("0.0")
-        }
+    fun tickerQuantityForIndex(position: Int): BigDecimal {
+        return tickerQuantity(getOrderedTicker(position))
     }
 
     fun getCurrentTradingData(position: Int): CurrentTradingInfo? {
         return tickerData[getOrderedTicker(position)]
     }
 
-    fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
-
-        var total: BigDecimal = BigDecimal.valueOf(0.0)
-
-        val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
-        assets.forEach { asset -> total += asset.getAmount() }
-
-        return total
-    }
-
     fun netValue(price: BigDecimal, holdings: BigDecimal): BigDecimal {
         val value = price * holdings
         return value.setScale(2, BigDecimal.ROUND_HALF_UP)
-
     }
 
     fun getOrderedTicker(position: Int): CryptoTypes? {
@@ -202,14 +151,7 @@ class PortfolioPresenter(private var realm: Realm,
         }
     }
 
-    fun getOrderedTicker(cryptoType: CryptoTypes): Int {
+    fun getOrderedTickerIndex(cryptoType: CryptoTypes): Int {
         return tickers.indexOf(cryptoType)
     }
-
-    private fun currencyFormatter(): DecimalFormat {
-        return DecimalFormat("$###,###,##0.00")
-
-    }
-
-
 }

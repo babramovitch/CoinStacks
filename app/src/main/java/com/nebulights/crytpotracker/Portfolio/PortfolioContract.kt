@@ -1,7 +1,7 @@
 package com.nebulights.crytpotracker.Portfolio
 
-import android.os.Bundle
 import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 
 /**
  * Created by babramovitch on 10/23/2017.
@@ -24,8 +24,8 @@ class PortfolioContract {
     }
 
     interface Presenter {
-        fun restoreTickerData(savedInstanceState: Bundle)
-        fun saveTickerDataState(): String
+        fun restoreTickerData(tickerData: MutableMap<CryptoTypes, CurrentTradingInfo>)
+        fun saveTickerDataState(): MutableMap<CryptoTypes, CurrentTradingInfo>
         fun onDetach()
         fun startFeed()
         fun stopFeed()
@@ -35,6 +35,5 @@ class PortfolioContract {
         fun onBindRepositoryRowViewAtPosition(position: Int, row: ViewRow)
         fun showCreateAssetDialog(position: Int)
         fun clearAssets()
-
     }
 }
