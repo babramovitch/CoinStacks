@@ -1,18 +1,13 @@
 package com.nebulights.crytpotracker.Portfolio
 
-import android.util.Log
 import com.nebulights.crytpotracker.*
+import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaCallback
 import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaRepository
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.currencyFormatter
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 
 import java.math.BigDecimal
-import java.util.concurrent.TimeUnit
-import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Created by babramovitch on 10/23/2017.
@@ -21,50 +16,24 @@ import io.reactivex.disposables.CompositeDisposable
 class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
                          private var view: PortfolioContract.View,
                          private var tickers: List<CryptoTypes>,
-                         val cryptoAssetRepository: CryptoAssetRepository) : PortfolioContract.Presenter {
+                         val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, QuadrigaCallback {
 
     private val TAG = "PortfolioPresenter"
-    private var disposables: CompositeDisposable = CompositeDisposable()
-    private var tickerData: MutableMap<CryptoTypes, CurrentTradingInfo> = mutableMapOf()
 
     init {
         view.setPresenter(this)
     }
 
-    override fun restoreTickerData(tickerData: MutableMap<CryptoTypes, CurrentTradingInfo>) {
-        this.tickerData = tickerData
-    }
-
-    override fun saveTickerDataState(): MutableMap<CryptoTypes, CurrentTradingInfo> {
-        return tickerData
-    }
-
     override fun startFeed() {
-        tickers.forEach { ticker ->
-            Log.i(TAG, ticker.ticker)
-            val disposable: Disposable = quadrigaRepository.getTickerInfo(ticker.ticker)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
-                    .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({ result ->
+        quadrigaRepository.startFeed(tickers, this)
+    }
 
-                        result.ask.notNull {
-                            addTickerData(result, ticker)
-                            view.updateUi(getOrderedTickerIndex(ticker))
-                            Log.d("Result", ticker.toString() + " last price is ${result.last}")
-                        }
-
-                    }, { error ->
-                        error.printStackTrace()
-                    })
-
-            disposables.add(disposable)
-        }
+    override fun updateUi(ticker: CryptoTypes) {
+        view.updateUi(getOrderedTickerIndex(ticker))
     }
 
     override fun stopFeed() {
-        disposables.dispose()
+        quadrigaRepository.stopFeed()
     }
 
     override fun showCreateAssetDialog(position: Int) {
@@ -103,7 +72,7 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
     override fun getNetWorth(): String {
         var netWorth = BigDecimal(0.0)
 
-        for ((ticker, data) in tickerData) {
+        for ((ticker, data) in quadrigaRepository.getData()) {
             netWorth += stringSafeBigDecimal(data.last) * tickerQuantity(ticker)
         }
 
@@ -118,15 +87,7 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
         cryptoAssetRepository.close()
     }
 
-    fun addTickerData(currentTradingInfo: CurrentTradingInfo, ticker: CryptoTypes) {
-        if (currentTradingInfo.last.isEmpty()) {
-            return
-        }
-
-        tickerData.put(ticker, currentTradingInfo)
-    }
-
-    fun tickerQuantity(ticker: CryptoTypes?): BigDecimal {
+    fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
         return cryptoAssetRepository.totalTickerQuantity(ticker)
     }
 
@@ -135,7 +96,7 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
     }
 
     fun getCurrentTradingData(position: Int): CurrentTradingInfo? {
-        return tickerData[getOrderedTicker(position)]
+        return quadrigaRepository.getData()[getOrderedTicker(position)]
     }
 
     fun netValue(price: BigDecimal, holdings: BigDecimal): BigDecimal {
@@ -143,15 +104,15 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
         return value.setScale(2, BigDecimal.ROUND_HALF_UP)
     }
 
-    fun getOrderedTicker(position: Int): CryptoTypes? {
-        return if (position >= tickers.count() || position < 0) {
-            null
-        } else {
-            tickers[position]
-        }
+    fun getOrderedTicker(position: Int): CryptoTypes {
+        return tickers[position]
     }
 
     fun getOrderedTickerIndex(cryptoType: CryptoTypes): Int {
         return tickers.indexOf(cryptoType)
+    }
+
+    fun addTickerData(currentTradingInfo: CurrentTradingInfo, cryptoType: CryptoTypes) {
+        quadrigaRepository.updateData(cryptoType, currentTradingInfo)
     }
 }

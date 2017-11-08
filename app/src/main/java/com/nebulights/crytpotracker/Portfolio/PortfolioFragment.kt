@@ -13,12 +13,8 @@ import android.support.v7.widget.DividerItemDecoration
 import android.view.*
 import android.widget.EditText
 import com.nebulights.crytpotracker.CryptoTypes
-import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.notNull
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
@@ -29,8 +25,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     private lateinit var linearLayoutManager: LinearLayoutManager
 
     private var dialog: AlertDialog? = null
-
-    private val TICKER_DATA_SAVED_STATE = "PRESENTER_TICKER_DATA"
 
     companion object {
         fun newInstance(): PortfolioFragment {
@@ -52,10 +46,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
         val rootView = inflater!!.inflate(R.layout.fragment_crypto_list, container, false)
         ButterKnife.bind(this, rootView)
-
-        if (savedInstanceState != null) {
-            presenter.restoreTickerData(restoreTickerData(savedInstanceState))
-        }
 
         linearLayoutManager = LinearLayoutManager(activity)
 
@@ -133,11 +123,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi(position: Int) {
         netWorth.text = getString(R.string.networth, presenter.getNetWorth())
-        if (position != -1) {
-            recyclerView.adapter.notifyItemChanged(position)
-        } else {
-            recyclerView.adapter.notifyDataSetChanged()
-        }
+        recyclerView.adapter.notifyItemChanged(position)
     }
 
     override fun resetUi() {
@@ -145,32 +131,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         recyclerView.adapter.notifyDataSetChanged()
     }
 
-    fun tickerDataJsonAdapter(): JsonAdapter<MutableMap<CryptoTypes, CurrentTradingInfo>> {
-        val moshi = Moshi.Builder().build()
-        val type = Types.newParameterizedType(MutableMap::class.java, CryptoTypes::class.java, CurrentTradingInfo::class.java)
-        return moshi.adapter<MutableMap<CryptoTypes, CurrentTradingInfo>>(type)
-    }
-
-    fun restoreTickerData(savedInstanceState: Bundle): MutableMap<CryptoTypes, CurrentTradingInfo> {
-        val tickerBundleData = savedInstanceState.getString(TICKER_DATA_SAVED_STATE)
-
-        var tickerData: MutableMap<CryptoTypes, CurrentTradingInfo> = mutableMapOf()
-
-        if (tickerBundleData.isNotEmpty()) {
-            tickerData = tickerDataJsonAdapter().fromJson(tickerBundleData)
-        }
-
-        return tickerData
-    }
-
     override fun onPause() {
         presenter.stopFeed()
         super.onPause()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        outState!!.putString(TICKER_DATA_SAVED_STATE, tickerDataJsonAdapter().toJson(presenter.saveTickerDataState()))
     }
 
     override fun onDestroy() {

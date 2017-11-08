@@ -8,6 +8,8 @@ import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaService
  */
 object RepositoryProvider {
     fun provideQuadrigaRepository(): QuadrigaRepository {
-        return QuadrigaRepository(QuadrigaService.create())
+        val repository = QuadrigaRepository
+        repository.setService(QuadrigaService.create())
+        return repository
     }
 }

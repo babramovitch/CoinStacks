@@ -7,5 +7,4 @@ data class CurrentTradingInfo(val timestamp: String,
                               val high: String,
                               val ask: String,
                               val low: String,
-                              val bid: String
-)
+                              val bid: String)

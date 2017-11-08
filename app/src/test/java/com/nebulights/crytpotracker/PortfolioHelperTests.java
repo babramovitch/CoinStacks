@@ -1,5 +1,8 @@
 package com.nebulights.crytpotracker;
 
+import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo;
+import com.nebulights.crytpotracker.Network.RepositoryProvider;
+import com.nebulights.crytpotracker.Portfolio.PortfolioFragment;
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers;
 import com.nebulights.crytpotracker.Portfolio.PortfolioPresenter;
 
@@ -7,14 +10,10 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 public class PortfolioHelperTests {
 
     @Test
@@ -46,4 +45,5 @@ public class PortfolioHelperTests {
         BigDecimal result = PortfolioHelpers.Companion.stringSafeBigDecimal("5000000");
         assertEquals("$5,000,000.00", PortfolioHelpers.Companion.currencyFormatter().format(result));
     }
+
 }

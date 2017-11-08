@@ -11,9 +11,16 @@ import java.math.BigDecimal
  * Created by babramovitch on 11/6/2017.
  */
 
-class CryptoAssetRepository(val realm: Realm) {
+interface CryptoAssetContract {
+    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String)
+    fun totalTickerQuantity(ticker: CryptoTypes): BigDecimal
+    fun clearAllData()
+    fun close()
+}
 
-    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
+class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
+
+    override fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
         val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoType.toString()).findFirst()
 
         if (asset == null) {
@@ -21,6 +28,25 @@ class CryptoAssetRepository(val realm: Realm) {
         } else {
             updateAsset(asset, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
         }
+    }
+
+    override fun totalTickerQuantity(ticker: CryptoTypes): BigDecimal {
+        var total: BigDecimal = BigDecimal.valueOf(0.0)
+
+        val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
+        assets.forEach { asset -> total += asset.getAmount() }
+
+        return total
+    }
+
+    override fun clearAllData() {
+        realm.executeTransaction {
+            realm.deleteAll()
+        }
+    }
+
+    override fun close() {
+        realm.close()
     }
 
     private fun createAsset(cryptoType: CryptoTypes, quantity: BigDecimal, price: BigDecimal) {
@@ -38,28 +64,5 @@ class CryptoAssetRepository(val realm: Realm) {
             asset.setAmount(quantity)
             asset.setPurchasePrice(price)
         }
-    }
-
-    fun totalTickerQuantity(ticker: CryptoTypes?): BigDecimal {
-        var total: BigDecimal = BigDecimal.valueOf(0.0)
-
-        if (ticker == null) {
-            return total
-        }
-
-        val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
-        assets.forEach { asset -> total += asset.getAmount() }
-
-        return total
-    }
-
-    fun clearAllData() {
-        realm.executeTransaction {
-            realm.deleteAll()
-        }
-    }
-
-    fun close() {
-        realm.close()
     }
 }

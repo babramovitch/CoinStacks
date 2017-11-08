@@ -24,8 +24,6 @@ class PortfolioContract {
     }
 
     interface Presenter {
-        fun restoreTickerData(tickerData: MutableMap<CryptoTypes, CurrentTradingInfo>)
-        fun saveTickerDataState(): MutableMap<CryptoTypes, CurrentTradingInfo>
         fun onDetach()
         fun startFeed()
         fun stopFeed()
