@@ -1,5 +1,5 @@
 package com.nebulights.crytpotracker
 
 enum class CurrencyTypes {
-    CAD
+    CAD, USD, GBP, EUR
 }

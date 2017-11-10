@@ -5,16 +5,15 @@ import android.support.design.widget.TextInputLayout
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DividerItemDecoration
 import android.view.*
-import android.widget.EditText
-import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.CryptoPairs
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.notNull
+import android.widget.*
 
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
@@ -73,12 +72,16 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             R.id.clear -> {
                 presenter.clearAssets()
             }
+
+            R.id.add_ticker -> {
+                presenter.showAddNewAssetDialog()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    override fun showCreateAssetDialog(cryptoType: CryptoTypes?, currentQuantity: String) {
-        if (cryptoType == null) {
+    override fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String) {
+        if (cryptoPair == null) {
             showErrorDialogCouldNotFindCrypto()
         } else {
             val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
@@ -86,24 +89,65 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
             val price = input.findViewById<EditText>(R.id.crypto_price)
 
+            input.findViewById<LinearLayout>(R.id.spinner_exchange_layout).visibility = View.GONE
+            input.findViewById<LinearLayout>(R.id.spinner_crypto_layout).visibility = View.GONE
+
             quantityLayout.isHintAnimationEnabled = currentQuantity == ""
-            quantity.setText(if (currentQuantity == "0.0") "" else currentQuantity)
+            quantity.setText(if (currentQuantity == getString(R.string.zero_quantity)) "" else currentQuantity)
             quantity.setSelection(quantity.text.length)
 
             val builder = AlertDialog.Builder(activity)
-            builder.setTitle(getString(R.string.dialog_title, cryptoType.name))
+            builder.setTitle(getString(R.string.dialog_title, (cryptoPair.CryptoType.name + " : " + cryptoPair.currencyType.name)))
             builder.setView(input)
             builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-                presenter.createAsset(cryptoType, quantity.text.toString(), price.text.toString())
+                presenter.createAsset(cryptoPair, quantity.text.toString(), price.text.toString())
             })
             builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+            builder.setNeutralButton(getString(R.string.dialog_delete), { dialog, which ->
+                presenter.removeAsset(cryptoPair)
+            })
 
-            dialog = builder.create()
-            dialog.notNull {
-                dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-                dialog!!.show()
+            showDialog(builder.create(), true)
+        }
+    }
+
+    override fun showAddNewAssetDialog() {
+        val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
+        val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
+        val price = input.findViewById<EditText>(R.id.crypto_price)
+
+        val spinnerExchanges = input.findViewById<Spinner>(R.id.spinner_exchange)
+        val exchangeList = getResources().getStringArray(R.array.exchanges)
+        val spinnerExchangeArrayAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, exchangeList)
+
+        val spinnerCryptos = input.findViewById<Spinner>(R.id.spinner_crypto)
+        var cryptoList: List<String> = listOf()
+
+        spinnerExchanges.adapter = spinnerExchangeArrayAdapter
+        spinnerExchanges.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                cryptoList = presenter.getTickersForExchange(exchangeList[position])
+                spinnerCryptos.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, cryptoList)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
+
+        quantity.setSelection(quantity.text.length)
+
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(getString(R.string.dialog_add_item_title))
+        builder.setView(input)
+        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+            presenter.createAsset(exchangeList[spinnerExchanges.selectedItemPosition],
+                    cryptoList[spinnerCryptos.selectedItemPosition],
+                    quantity.text.toString(),
+                    price.text.toString())
+        })
+        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+
+        showDialog(builder.create(), true)
     }
 
     fun showErrorDialogCouldNotFindCrypto() {
@@ -114,9 +158,15 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             dialog.dismiss()
         })
 
-        dialog = builder.create()
+        showDialog(builder.create(), false)
+    }
+
+    fun showDialog(dialog: AlertDialog, raiseKeyboard: Boolean) {
+        this.dialog = dialog
         dialog.notNull {
-            dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            if (raiseKeyboard) {
+                dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            }
             dialog!!.show()
         }
     }
@@ -124,6 +174,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     override fun updateUi(position: Int) {
         netWorth.text = getString(R.string.networth, presenter.getNetWorth())
         recyclerView.adapter.notifyItemChanged(position)
+    }
+
+    override fun removeItem(position: Int) {
+        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
+        recyclerView.adapter.notifyItemRemoved(position)
     }
 
     override fun resetUi() {

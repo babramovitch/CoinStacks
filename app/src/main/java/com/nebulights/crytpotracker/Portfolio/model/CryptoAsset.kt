@@ -1,6 +1,6 @@
 package com.nebulights.crytpotracker.Portfolio.model
 
-import com.nebulights.crytpotracker.CryptoTypes
+import com.nebulights.crytpotracker.CryptoPairs
 import com.nebulights.crytpotracker.CurrencyTypes
 import java.math.BigDecimal
 import io.realm.RealmObject
@@ -8,25 +8,25 @@ import io.realm.RealmObject
 open class CryptoAsset : RealmObject() {
 
     private var currency: String? = null
-    private var type: String? = null
+    private var type: String = ""
 
     private var amount: String? = null
     private var purchasePrice: String? = null
 
-    fun setCrytpoType(cryptoTypes: CryptoTypes) {
-        this.type = cryptoTypes.toString()
+    fun setCrytpoType(cryptoPairs: CryptoPairs) {
+        this.type = cryptoPairs.toString()
     }
 
-    fun getType(): CryptoTypes? {
-        return if (type != null) CryptoTypes.valueOf(type!!) else null
+    fun getType(): CryptoPairs {
+        return CryptoPairs.valueOf(type)
     }
 
     fun setCurrency(currenncyType: CurrencyTypes) {
         this.currency = currenncyType.toString()
     }
 
-    fun getCurrency(): CryptoTypes? {
-        return if (currency != null) CryptoTypes.valueOf(currency!!) else null
+    fun getCurrency(): CryptoPairs? {
+        return if (currency != null) CryptoPairs.valueOf(currency!!) else null
     }
 
     fun getAmount(): BigDecimal {

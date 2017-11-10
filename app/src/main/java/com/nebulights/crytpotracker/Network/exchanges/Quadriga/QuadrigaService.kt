@@ -1,6 +1,6 @@
-package com.nebulights.crytpotracker.Network.Quadriga
+package com.nebulights.crytpotracker.Network.exchanges.Quadriga
 
-import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
+import com.nebulights.crytpotracker.Network.exchanges.Quadriga.model.CurrentTradingInfo
 import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory

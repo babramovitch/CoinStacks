@@ -1,17 +1,8 @@
 package com.nebulights.crytpotracker;
 
-import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo;
-import com.nebulights.crytpotracker.Network.RepositoryProvider;
-import com.nebulights.crytpotracker.Portfolio.PortfolioFragment;
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers;
-import com.nebulights.crytpotracker.Portfolio.PortfolioPresenter;
-
 import org.junit.Test;
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.*;
 
 public class PortfolioHelperTests {

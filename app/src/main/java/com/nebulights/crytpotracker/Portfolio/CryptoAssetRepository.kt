@@ -1,7 +1,6 @@
 package com.nebulights.crytpotracker.Portfolio
 
-import com.nebulights.crytpotracker.CryptoTypes
-import com.nebulights.crytpotracker.CurrencyTypes
+import com.nebulights.crytpotracker.CryptoPairs
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.crytpotracker.Portfolio.model.CryptoAsset
 import io.realm.Realm
@@ -12,31 +11,38 @@ import java.math.BigDecimal
  */
 
 interface CryptoAssetContract {
-    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String)
-    fun totalTickerQuantity(ticker: CryptoTypes): BigDecimal
+    fun createOrUpdateAsset(cryptoType: CryptoPairs, quantity: String, price: String)
+    fun totalTickerQuantity(ticker: CryptoPairs): BigDecimal
     fun clearAllData()
     fun close()
+    fun removeAsset(cryptoType: CryptoPairs)
+    fun getTickers(): MutableList<CryptoPairs>
 }
 
 class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
 
-    override fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
-        val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoType.toString()).findFirst()
+    override fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
+        val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findFirst()
 
         if (asset == null) {
-            createAsset(cryptoType, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
+            createAsset(cryptoPair, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
         } else {
             updateAsset(asset, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
         }
     }
 
-    override fun totalTickerQuantity(ticker: CryptoTypes): BigDecimal {
+    override fun totalTickerQuantity(ticker: CryptoPairs): BigDecimal {
         var total: BigDecimal = BigDecimal.valueOf(0.0)
 
         val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
         assets.forEach { asset -> total += asset.getAmount() }
 
         return total
+    }
+
+    override fun getTickers(): MutableList<CryptoPairs> {
+        val results = realm.where(CryptoAsset::class.java).findAll().map { it.getType() }
+        return results.toMutableList()
     }
 
     override fun clearAllData() {
@@ -49,13 +55,13 @@ class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
         realm.close()
     }
 
-    private fun createAsset(cryptoType: CryptoTypes, quantity: BigDecimal, price: BigDecimal) {
+    private fun createAsset(cryptoPair: CryptoPairs, quantity: BigDecimal, price: BigDecimal) {
         realm.executeTransaction {
             val newAsset = realm.createObject(CryptoAsset::class.java)
             newAsset.setAmount(quantity)
             newAsset.setPurchasePrice(price)
-            newAsset.setCurrency(CurrencyTypes.CAD)
-            newAsset.setCrytpoType(cryptoType)
+            newAsset.setCurrency(cryptoPair.currencyType)
+            newAsset.setCrytpoType(cryptoPair)
         }
     }
 
@@ -63,6 +69,12 @@ class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
         realm.executeTransaction {
             asset.setAmount(quantity)
             asset.setPurchasePrice(price)
+        }
+    }
+
+    override fun removeAsset(cryptoPair: CryptoPairs) {
+        realm.executeTransaction {
+            realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findAll().deleteAllFromRealm()
         }
     }
 }

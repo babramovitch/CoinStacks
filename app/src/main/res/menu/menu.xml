@@ -9,4 +9,10 @@
         android:title="Clear Assets"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/add_ticker"
+        android:icon="@drawable/ic_add_white_24dp"
+        android:title="Clear Assets"
+        app:showAsAction="always" />
+
 </menu>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -8,16 +9,32 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/recycler_exchange"
+            style="@style/title_style"
+            android:text="@string/dashes"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:text="QuadrigaCX" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/recycler_ticker"
             style="@style/title_style"
-            android:text="@string/dashes" />
+            android:text="@string/dashes"
+            tools:text="BTC : CAD" />
 
         <TextView
             android:id="@+id/recycler_last_price"
-            style="@style/value_style" />
+            style="@style/value_style"
+            tools:text="$1,2345.00" />
 
     </LinearLayout>
 
@@ -32,7 +49,8 @@
 
         <TextView
             android:id="@+id/recycler_holdings"
-            style="@style/value_style" />
+            style="@style/value_style"
+            tools:text="20.00" />
     </LinearLayout>
 
     <LinearLayout
@@ -48,7 +66,8 @@
         <TextView
             android:id="@+id/recycler_net_value"
             style="@style/value_style"
-            android:textStyle="bold|italic" />
+            android:textStyle="bold|italic"
+            tools:text="$1,2345.00" />
 
     </LinearLayout>
 </LinearLayout>

@@ -31,8 +31,12 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
+
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
+
+        @BindView(R.id.recycler_exchange)
+        lateinit var exchange: TextView
 
         @BindView(R.id.recycler_last_price)
         lateinit var lastPrice: TextView
@@ -45,6 +49,10 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         init {
             ButterKnife.bind(this, view)
+        }
+
+        override fun setExchange(exchange: String) {
+            this.exchange.text = exchange
         }
 
         override fun setTicker(ticker: String) {

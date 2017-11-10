@@ -9,3 +9,4 @@
 .externalNativeBuild
 .idea/
 gradle.properties
+app/src/main/java/com/nebulights/crytpotracker/Todo.java

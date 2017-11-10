@@ -6,10 +6,51 @@
     android:padding="16dp">
 
     <!--<LinearLayout-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:focusable="true"-->
-        <!--android:focusableInTouchMode="true" />-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:focusable="true"-->
+    <!--android:focusableInTouchMode="true" />-->
+
+    <LinearLayout
+        android:id="@+id/spinner_exchange_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Exchange: "/>
+
+        <Spinner
+            android:id="@+id/spinner_exchange"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/spinner_crypto_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="Pair: "/>
+
+        <Spinner
+            android:id="@+id/spinner_crypto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
+
+    </LinearLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/crypto_layout_quantity"
@@ -39,6 +80,5 @@
             android:inputType="numberDecimal|number" />
 
     </android.support.design.widget.TextInputLayout>
-
 
 </LinearLayout>

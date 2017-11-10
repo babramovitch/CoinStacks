@@ -1,9 +1,9 @@
 package com.nebulights.crytpotracker.Portfolio
 
 import com.nebulights.crytpotracker.*
-import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaCallback
-import com.nebulights.crytpotracker.Network.Quadriga.model.CurrentTradingInfo
-import com.nebulights.crytpotracker.Network.Quadriga.QuadrigaRepository
+import com.nebulights.crytpotracker.Network.Exchanges
+import com.nebulights.crytpotracker.Network.NetworkCompletionCallback
+import com.nebulights.crytpotracker.Network.exchanges.TradingInfo
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.currencyFormatter
 import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
 
@@ -13,54 +13,80 @@ import java.math.BigDecimal
  * Created by babramovitch on 10/23/2017.
  */
 
-class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
+class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
-                         private var tickers: List<CryptoTypes>,
-                         val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, QuadrigaCallback {
+                         val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, NetworkCompletionCallback {
 
     private val TAG = "PortfolioPresenter"
+    private var allTickers = enumValues<CryptoPairs>().map { it }
+    private var tickers: MutableList<CryptoPairs>
 
     init {
         view.setPresenter(this)
+        tickers = cryptoAssetRepository.getTickers()
     }
 
     override fun startFeed() {
-        quadrigaRepository.startFeed(tickers, this)
+        exchanges.startFeed(tickers, this)
     }
 
-    override fun updateUi(ticker: CryptoTypes) {
+    override fun updateUi(ticker: CryptoPairs) {
         view.updateUi(getOrderedTickerIndex(ticker))
     }
 
     override fun stopFeed() {
-        quadrigaRepository.stopFeed()
+        exchanges.stopFeed()
+    }
+
+    override fun showAddNewAssetDialog() {
+        view.showAddNewAssetDialog()
     }
 
     override fun showCreateAssetDialog(position: Int) {
         view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
     }
 
-    override fun createAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
-        createOrUpdateAsset(cryptoType, quantity, price)
-        view.updateUi(getOrderedTickerIndex(cryptoType))
+    override fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
+        createOrUpdateAsset(cryptoPair, quantity, price)
+        view.updateUi(getOrderedTickerIndex(cryptoPair))
     }
 
-    fun createOrUpdateAsset(cryptoType: CryptoTypes, quantity: String, price: String) {
-        cryptoAssetRepository.createOrUpdateAsset(cryptoType, quantity, price)
+    override fun createAsset(exchange: String, userTicker: String, quantity: String, price: String) {
+        val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
+
+        createOrUpdateAsset(cryptoPair!!, quantity, price)
+        updateUi(cryptoPair)
+
+        exchanges.startFeed(tickers, this)
+    }
+
+    fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
+        cryptoAssetRepository.createOrUpdateAsset(cryptoPair, quantity, price)
+
+        if (tickers.indexOf(cryptoPair) == -1) {
+            tickers.add(cryptoPair)
+        }
     }
 
     override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
         val currentTradingInfo = getCurrentTradingData(position)
 
-        row.setTicker(getOrderedTicker(position).toString())
+        val ticker = getOrderedTicker(position)
 
-        currentTradingInfo.notNull {
-            val lastPrice = stringSafeBigDecimal(currentTradingInfo!!.last)
-            val holdings = tickerQuantityForIndex(position)
+        row.setTicker(ticker.userTicker())
+        row.setExchange(ticker.exchange)
 
+        val holdings = tickerQuantityForIndex(position)
+        row.setHoldings(holdings.toString())
+
+        if (currentTradingInfo != null) {
+            val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
             row.setLastPrice(currencyFormatter().format(lastPrice))
             row.setHoldings(holdings.toString())
             row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
+        } else {
+            row.setLastPrice("---")
+            row.setNetValue("---")
         }
     }
 
@@ -72,8 +98,8 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
     override fun getNetWorth(): String {
         var netWorth = BigDecimal(0.0)
 
-        for ((ticker, data) in quadrigaRepository.getData()) {
-            netWorth += stringSafeBigDecimal(data.last) * tickerQuantity(ticker)
+        for ((ticker, data) in exchanges.getData()) {
+            netWorth += stringSafeBigDecimal(data.lastPrice) * tickerQuantity(ticker)
         }
 
         return currencyFormatter().format(netWorth.setScale(2, BigDecimal.ROUND_HALF_UP))
@@ -87,7 +113,7 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
         cryptoAssetRepository.close()
     }
 
-    fun tickerQuantity(ticker: CryptoTypes): BigDecimal {
+    fun tickerQuantity(ticker: CryptoPairs): BigDecimal {
         return cryptoAssetRepository.totalTickerQuantity(ticker)
     }
 
@@ -95,8 +121,8 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
         return tickerQuantity(getOrderedTicker(position))
     }
 
-    fun getCurrentTradingData(position: Int): CurrentTradingInfo? {
-        return quadrigaRepository.getData()[getOrderedTicker(position)]
+    fun getCurrentTradingData(position: Int): TradingInfo? {
+        return exchanges.getData()[getOrderedTicker(position)]
     }
 
     fun netValue(price: BigDecimal, holdings: BigDecimal): BigDecimal {
@@ -104,15 +130,38 @@ class PortfolioPresenter(private var quadrigaRepository: QuadrigaRepository,
         return value.setScale(2, BigDecimal.ROUND_HALF_UP)
     }
 
-    fun getOrderedTicker(position: Int): CryptoTypes {
+    fun getOrderedTicker(position: Int): CryptoPairs {
         return tickers[position]
     }
 
-    fun getOrderedTickerIndex(cryptoType: CryptoTypes): Int {
-        return tickers.indexOf(cryptoType)
+    fun getOrderedTickerIndex(cryptoPair: CryptoPairs): Int {
+        return tickers.indexOf(cryptoPair)
     }
 
-    fun addTickerData(currentTradingInfo: CurrentTradingInfo, cryptoType: CryptoTypes) {
-        quadrigaRepository.updateData(cryptoType, currentTradingInfo)
+    fun addTickerData(tradingInfo: TradingInfo, cryptoPair: CryptoPairs) {
+        exchanges.updateData(cryptoPair, tradingInfo)
+    }
+
+    override fun getTickers(): List<CryptoPairs> {
+        return tickers
+    }
+
+    override fun getTickersForExchange(exchange: String): List<String> {
+        return allTickers.filter { ticker ->
+            ticker.exchange.toLowerCase() == exchange.toLowerCase()
+        }.map { ticker -> ticker.userTicker() }
+    }
+
+    override fun removeAsset(cryptoPair: CryptoPairs) {
+        cryptoAssetRepository.removeAsset(cryptoPair)
+        val position = tickers.indexOf(cryptoPair)
+        tickers.remove(cryptoPair)
+        view.removeItem(position)
+
+        if (tickers.isNotEmpty()) {
+            startFeed()
+        } else {
+            stopFeed()
+        }
     }
 }

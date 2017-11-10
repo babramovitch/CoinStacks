@@ -15,6 +15,12 @@ buildscript {
 }
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'CryptoTracker'
+            storeFile file('C:/Users/babramovitch/AndroidStudioProjects/CryptoTracker.jks')
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -37,19 +43,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-
     testImplementation 'junit:junit:4.12'
-
     androidTestImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.google.code.findbugs'
     })
-
     compile 'com.android.support:support-v4:26.1.0'
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -57,19 +59,16 @@ dependencies {
     compile 'com.android.support:design:26.1.0'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-moshi:2.3.0'
-    compile "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
-
-
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
-
     compile 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
-
     compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true;
     }
-    
+
+    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 }
 repositories {
     mavenCentral()

@@ -2,8 +2,8 @@ package com.nebulights.crytpotracker.Portfolio
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.nebulights.crytpotracker.CryptoTypes
-import com.nebulights.crytpotracker.Network.RepositoryProvider
+import com.nebulights.crytpotracker.Network.ExchangeProvider
+import com.nebulights.crytpotracker.Network.Exchanges
 import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.addFragment
 import io.realm.Realm
@@ -27,9 +27,12 @@ class PortfolioActivity : AppCompatActivity() {
     }
 
     private fun createPresenter(portfolioFragment: PortfolioFragment): PortfolioPresenter {
-        return PortfolioPresenter(RepositoryProvider.provideQuadrigaRepository(),
+
+        val exchanges = Exchanges
+        exchanges.loadRepositories(ExchangeProvider)
+
+        return PortfolioPresenter(exchanges,
                 portfolioFragment,
-                listOf(CryptoTypes.BTC, CryptoTypes.BCH, CryptoTypes.ETH, CryptoTypes.LTC),
                 CryptoAssetRepository(Realm.getDefaultInstance()))
     }
 }
