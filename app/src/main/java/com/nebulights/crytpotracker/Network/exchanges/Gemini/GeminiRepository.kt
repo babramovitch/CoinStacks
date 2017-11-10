@@ -36,13 +36,12 @@ class GeminiRepository(val service: GeminiService) : Exchange {
             disposables.clear()
         }
 
-
         tickers.forEach { ticker ->
             Log.i(TAG, ticker.ticker)
             val disposable: Disposable = getCurrentTradingInfo(ticker.ticker)
                     .observeOn(AndroidSchedulers.mainThread())
                     .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
-                    // .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
+                    .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
                     .subscribeOn(Schedulers.io())
                     .subscribe({ result ->
                         Log.d("Result", ticker.toString() + "last price is ${result.lastPrice()}")
