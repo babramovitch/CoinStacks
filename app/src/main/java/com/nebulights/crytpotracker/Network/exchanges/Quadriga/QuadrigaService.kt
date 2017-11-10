@@ -2,6 +2,7 @@ package com.nebulights.crytpotracker.Network.exchanges.Quadriga
 
 import com.nebulights.crytpotracker.Network.exchanges.Quadriga.model.CurrentTradingInfo
 import io.reactivex.Observable
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -17,8 +18,9 @@ interface QuadrigaService {
     fun getCurrentTradingInfo(@Query("book") orderBook: String): Observable<CurrentTradingInfo>
 
     companion object Factory {
-        fun create(): QuadrigaService {
+        fun create(client: OkHttpClient): QuadrigaService {
             val retrofit = Retrofit.Builder()
+                    .client(client)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(MoshiConverterFactory.create())
                     .baseUrl("https://api.quadrigacx.com")

@@ -8,7 +8,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 
 /**
  * Created by babramovitch on 10/23/2017.
@@ -19,15 +18,9 @@ interface GeminiService {
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
 
     companion object Factory {
-        fun create(): GeminiService {
-
-//            val interceptor = HttpLoggingInterceptor()
-//            interceptor.level = HttpLoggingInterceptor.Level.BODY
-//            val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
-
-
+        fun create(client: OkHttpClient): GeminiService {
             val retrofit = Retrofit.Builder()
-                   // .client(client)
+                    .client(client)
                     .addConverterFactory(MoshiConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .baseUrl("https://api.gemini.com/")
@@ -38,4 +31,3 @@ interface GeminiService {
     }
 }
 
-//https://api.gemini.com/v1/pubticker/btcusd

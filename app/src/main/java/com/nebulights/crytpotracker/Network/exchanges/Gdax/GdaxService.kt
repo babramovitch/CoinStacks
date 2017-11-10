@@ -2,6 +2,7 @@ package com.nebulights.crytpotracker.Network.exchanges.Gdax
 
 import com.nebulights.crytpotracker.Network.exchanges.Gdax.model.CurrentTradingInfo
 import io.reactivex.Observable
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -17,8 +18,9 @@ interface GdaxService {
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
 
     companion object Factory {
-        fun create(): GdaxService {
+        fun create(client: OkHttpClient): GdaxService {
             val retrofit = Retrofit.Builder()
+                    .client(client)
                     .addConverterFactory(MoshiConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .baseUrl("https://api.gdax.com/")

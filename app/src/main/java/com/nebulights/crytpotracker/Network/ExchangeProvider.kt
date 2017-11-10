@@ -8,6 +8,8 @@ import com.nebulights.crytpotracker.Network.exchanges.Gemini.GeminiRepository
 import com.nebulights.crytpotracker.Network.exchanges.Gemini.GeminiService
 import com.nebulights.crytpotracker.Network.exchanges.Quadriga.QuadrigaRepository
 import com.nebulights.crytpotracker.Network.exchanges.Quadriga.QuadrigaService
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 /**
  * Created by babramovitch on 10/25/2017.
@@ -15,20 +17,28 @@ import com.nebulights.crytpotracker.Network.exchanges.Quadriga.QuadrigaService
 
 object ExchangeProvider {
 
+    val client: OkHttpClient = setupOkHttpClient()
+
+    fun setupOkHttpClient(): OkHttpClient {
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.NONE // .BODY for full log output
+        return OkHttpClient.Builder().addInterceptor(interceptor).build()
+    }
+
     fun provideQuadrigaRepository(): QuadrigaRepository {
-        return QuadrigaRepository(QuadrigaService.create())
+        return QuadrigaRepository(QuadrigaService.create(client))
     }
 
     fun provideBitFinixRepository(): BitFinexRepository {
-        return BitFinexRepository(BitFinexService.create())
+        return BitFinexRepository(BitFinexService.create(client))
     }
 
     fun provideGdaxRepository(): GdaxRepository {
-        return GdaxRepository(GdaxService.create())
+        return GdaxRepository(GdaxService.create(client))
     }
 
     fun provideGeminiRepository(): GeminiRepository {
-        return GeminiRepository(GeminiService.create())
+        return GeminiRepository(GeminiService.create(client))
     }
 
     fun getAllRepositories(): List<Exchange> {
@@ -39,5 +49,4 @@ object ExchangeProvider {
         repositories.add(provideGeminiRepository())
         return repositories
     }
-
 }

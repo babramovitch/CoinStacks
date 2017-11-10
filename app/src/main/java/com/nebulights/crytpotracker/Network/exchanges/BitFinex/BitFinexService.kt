@@ -3,6 +3,7 @@ package com.nebulights.crytpotracker.Network.Bitfinex
 
 import com.nebulights.crytpotracker.Network.Bitfinex.model.CurrentTradingInfo
 import io.reactivex.Observable
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -18,8 +19,9 @@ interface BitFinexService {
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
 
     companion object Factory {
-        fun create(): BitFinexService {
+        fun create(client: OkHttpClient): BitFinexService {
             val retrofit = Retrofit.Builder()
+                    .client(client)
                     .addConverterFactory(MoshiConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .baseUrl("https://api.bitfinex.com/")
