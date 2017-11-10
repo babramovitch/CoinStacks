@@ -1,6 +1,6 @@
 package com.nebulights.crytpotracker.Network.exchanges.Gemini.model
 
-import com.nebulights.crytpotracker.Network.Bitfinex.model.normalizedData
+import com.nebulights.crytpotracker.Network.exchanges.BitFinex.model.normalizedData
 
 data class CurrentTradingInfo(val ask: String,
                               val bid: String,

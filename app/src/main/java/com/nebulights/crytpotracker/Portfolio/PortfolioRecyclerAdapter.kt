@@ -10,8 +10,8 @@ import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.inflate
 
 /**
- * Created by babramovitch on 10/26/2017.
- */
+* Created by babramovitch on 10/26/2017.
+*/
 
 class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<PortfolioRecyclerAdapter.ViewHolder>() {
 

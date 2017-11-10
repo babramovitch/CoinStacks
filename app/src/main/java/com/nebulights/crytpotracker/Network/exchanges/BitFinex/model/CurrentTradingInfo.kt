@@ -1,4 +1,4 @@
-package com.nebulights.crytpotracker.Network.Bitfinex.model
+package com.nebulights.crytpotracker.Network.exchanges.BitFinex.model
 
 interface normalizedData {
     fun lastPrice(): String

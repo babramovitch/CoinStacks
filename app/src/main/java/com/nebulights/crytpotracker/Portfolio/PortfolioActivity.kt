@@ -9,6 +9,7 @@ import com.nebulights.crytpotracker.addFragment
 import io.realm.Realm
 
 class PortfolioActivity : AppCompatActivity() {
+
     private var TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {

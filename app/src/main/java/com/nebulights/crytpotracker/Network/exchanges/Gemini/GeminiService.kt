@@ -10,8 +10,8 @@ import retrofit2.http.Path
 import okhttp3.OkHttpClient
 
 /**
- * Created by babramovitch on 10/23/2017.
- */
+* Created by babramovitch on 10/23/2017.
+*/
 
 interface GeminiService {
     @GET("v1/pubticker/{book}")

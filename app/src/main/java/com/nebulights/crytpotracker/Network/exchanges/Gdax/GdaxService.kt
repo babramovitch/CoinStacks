@@ -10,8 +10,8 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 /**
- * Created by babramovitch on 10/23/2017.
- */
+* Created by babramovitch on 10/23/2017.
+*/
 
 interface GdaxService {
     @GET("/products/{book}/ticker")

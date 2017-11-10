@@ -1,7 +1,6 @@
 package com.nebulights.crytpotracker.Network.exchanges.Gdax.model
 
-import com.nebulights.crytpotracker.Network.Bitfinex.model.normalizedData
-
+import com.nebulights.crytpotracker.Network.exchanges.BitFinex.model.normalizedData
 
 data class CurrentTradingInfo(val trade_id: String,
                               val price: String,

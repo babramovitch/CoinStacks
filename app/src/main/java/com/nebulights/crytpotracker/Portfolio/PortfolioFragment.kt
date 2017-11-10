@@ -1,5 +1,6 @@
 package com.nebulights.crytpotracker.Portfolio
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
 import android.support.v4.app.Fragment
@@ -15,6 +16,7 @@ import com.nebulights.crytpotracker.R
 import com.nebulights.crytpotracker.notNull
 import android.widget.*
 
+@Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     @BindView(R.id.net_worth) lateinit var netWorth: TextView
@@ -80,6 +82,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("InflateParams")
     override fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String) {
         if (cryptoPair == null) {
             showErrorDialogCouldNotFindCrypto()
@@ -112,12 +115,12 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun showAddNewAssetDialog() {
-        val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
+        val input = View.inflate(activity, R.layout.add_asset_dialog, null)
         val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
         val price = input.findViewById<EditText>(R.id.crypto_price)
 
         val spinnerExchanges = input.findViewById<Spinner>(R.id.spinner_exchange)
-        val exchangeList = getResources().getStringArray(R.array.exchanges)
+        val exchangeList = resources.getStringArray(R.array.exchanges)
         val spinnerExchangeArrayAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, exchangeList)
 
         val spinnerCryptos = input.findViewById<Spinner>(R.id.spinner_crypto)
@@ -150,7 +153,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         showDialog(builder.create(), true)
     }
 
-    fun showErrorDialogCouldNotFindCrypto() {
+    private fun showErrorDialogCouldNotFindCrypto() {
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(getString(R.string.dialog_title_error))
         builder.setMessage(getString(R.string.dialog_message_error))
@@ -161,13 +164,13 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         showDialog(builder.create(), false)
     }
 
-    fun showDialog(dialog: AlertDialog, raiseKeyboard: Boolean) {
+    private fun showDialog(dialog: AlertDialog, raiseKeyboard: Boolean) {
         this.dialog = dialog
         dialog.notNull {
             if (raiseKeyboard) {
-                dialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+                dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             }
-            dialog!!.show()
+            dialog.show()
         }
     }
 

@@ -1,8 +1,8 @@
-package com.nebulights.crytpotracker.Network.Bitfinex
+package com.nebulights.crytpotracker.Network.exchanges.BitFinex
 
 import android.util.Log
 import com.nebulights.crytpotracker.CryptoPairs
-import com.nebulights.crytpotracker.Network.Bitfinex.model.CurrentTradingInfo
+import com.nebulights.crytpotracker.Network.exchanges.BitFinex.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.Network.NetworkCompletionCallback
 import com.nebulights.crytpotracker.Network.NetworkDataUpdate
 import com.nebulights.crytpotracker.Network.Exchange
@@ -15,8 +15,8 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 /**
- * Created by babramovitch on 10/25/2017.
- */
+* Created by babramovitch on 10/25/2017.
+*/
 
 class BitFinexRepository(val service: BitFinexService) : Exchange {
     private var TAG = "QuadrigaRepository"

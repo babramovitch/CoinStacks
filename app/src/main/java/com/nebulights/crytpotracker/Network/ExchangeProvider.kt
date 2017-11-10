@@ -1,7 +1,7 @@
 package com.nebulights.crytpotracker.Network
 
-import com.nebulights.crytpotracker.Network.Bitfinex.BitFinexRepository
-import com.nebulights.crytpotracker.Network.Bitfinex.BitFinexService
+import com.nebulights.crytpotracker.Network.exchanges.BitFinex.BitFinexService
+import com.nebulights.crytpotracker.Network.exchanges.BitFinex.BitFinexRepository
 import com.nebulights.crytpotracker.Network.exchanges.Gdax.GdaxRepository
 import com.nebulights.crytpotracker.Network.exchanges.Gdax.GdaxService
 import com.nebulights.crytpotracker.Network.exchanges.Gemini.GeminiRepository
@@ -12,14 +12,14 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
 /**
- * Created by babramovitch on 10/25/2017.
- */
+* Created by babramovitch on 10/25/2017.
+*/
 
 object ExchangeProvider {
 
-    val client: OkHttpClient = setupOkHttpClient()
+    private val client: OkHttpClient = setupOkHttpClient()
 
-    fun setupOkHttpClient(): OkHttpClient {
+    private fun setupOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.NONE // .BODY for full log output
         return OkHttpClient.Builder().addInterceptor(interceptor).build()

@@ -4,8 +4,8 @@ import com.nebulights.crytpotracker.CryptoPairs
 import com.nebulights.crytpotracker.Network.exchanges.TradingInfo
 
 /**
- * Created by babramovitch on 11/9/2017.
- */
+* Created by babramovitch on 11/9/2017.
+*/
 
 interface NetworkDataUpdate {
     fun updateData(ticker: CryptoPairs, data: TradingInfo)
@@ -41,7 +41,7 @@ object Exchanges : NetworkDataUpdate {
         }
     }
 
-    fun getTickers(tickers: List<CryptoPairs>, exchange: String): List<CryptoPairs> {
+    private fun getTickers(tickers: List<CryptoPairs>, exchange: String): List<CryptoPairs> {
         return tickers.filter { ticker ->
             ticker.exchange == exchange
         }

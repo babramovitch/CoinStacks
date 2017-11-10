@@ -15,8 +15,8 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 /**
- * Created by babramovitch on 10/25/2017.
- */
+* Created by babramovitch on 10/25/2017.
+*/
 
 class QuadrigaRepository(val service: QuadrigaService) : Exchange {
     private var TAG = "QuadrigaRepository"

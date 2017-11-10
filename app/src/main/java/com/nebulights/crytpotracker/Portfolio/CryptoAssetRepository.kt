@@ -7,15 +7,15 @@ import io.realm.Realm
 import java.math.BigDecimal
 
 /**
- * Created by babramovitch on 11/6/2017.
- */
+* Created by babramovitch on 11/6/2017.
+*/
 
 interface CryptoAssetContract {
-    fun createOrUpdateAsset(cryptoType: CryptoPairs, quantity: String, price: String)
+    fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String)
     fun totalTickerQuantity(ticker: CryptoPairs): BigDecimal
     fun clearAllData()
     fun close()
-    fun removeAsset(cryptoType: CryptoPairs)
+    fun removeAsset(cryptoPair: CryptoPairs)
     fun getTickers(): MutableList<CryptoPairs>
 }
 

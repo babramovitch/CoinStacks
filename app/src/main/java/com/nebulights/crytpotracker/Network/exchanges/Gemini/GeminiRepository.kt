@@ -15,9 +15,8 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 /**
- * Created by babramovitch on 10/25/2017.
- */
-
+* Created by babramovitch on 10/25/2017.
+*/
 
 class GeminiRepository(val service: GeminiService) : Exchange {
     private var TAG = "QuadrigaRepository"

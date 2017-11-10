@@ -10,8 +10,8 @@ import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringS
 import java.math.BigDecimal
 
 /**
- * Created by babramovitch on 10/23/2017.
- */
+* Created by babramovitch on 10/23/2017.
+*/
 
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
