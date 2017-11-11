@@ -97,7 +97,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             quantity.setSelection(quantity.text.length)
 
             val builder = AlertDialog.Builder(activity)
-            builder.setTitle(getString(R.string.dialog_title, cryptoPair.exchange, (cryptoPair.CryptoType.name + " : " + cryptoPair.currencyType.name)))
+            builder.setTitle(getString(R.string.dialog_title, cryptoPair.exchange, (cryptoPair.cryptoType.name + " : " + cryptoPair.currencyType.name)))
             builder.setView(input)
             builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
                 presenter.createAsset(cryptoPair, quantity.text.toString(), price.text.toString())

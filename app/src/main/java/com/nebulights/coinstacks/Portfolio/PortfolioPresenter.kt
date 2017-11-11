@@ -5,6 +5,7 @@ import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.exchanges.TradingInfo
 import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.currencyFormatter
+import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.smallCurrencyFormatter
 import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
 
 import java.math.BigDecimal
@@ -81,7 +82,11 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         if (currentTradingInfo != null) {
             val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
-            row.setLastPrice(currencyFormatter().format(lastPrice))
+            if (lastPrice < BigDecimal.TEN) {
+                row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
+            } else {
+                row.setLastPrice(currencyFormatter().format(lastPrice))
+            }
             row.setHoldings(holdings.toString())
             row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
         } else {

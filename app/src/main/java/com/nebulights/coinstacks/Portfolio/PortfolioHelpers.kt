@@ -5,8 +5,8 @@ import java.math.BigDecimal
 import java.text.DecimalFormat
 
 /**
-* Created by babramovitch on 11/6/2017.
-*/
+ * Created by babramovitch on 11/6/2017.
+ */
 
 class PortfolioHelpers {
 
@@ -17,6 +17,10 @@ class PortfolioHelpers {
 
         fun currencyFormatter(): DecimalFormat {
             return DecimalFormat("$###,###,##0.00")
+        }
+
+        fun smallCurrencyFormatter(): DecimalFormat {
+            return DecimalFormat("$###,###,##0.00000")
         }
     }
 }
