@@ -11,4 +11,6 @@
     <string name="dialog_delete">Delete</string>
     <string name="zero_quantity">0.0</string>
     <string name="dialog_add_item_title">Add Coin Stack</string>
+    <string name="menu_add_assets">Add Assets</string>
+    <string name="menu_clear_assets">Clear Assets</string>
 </resources>
