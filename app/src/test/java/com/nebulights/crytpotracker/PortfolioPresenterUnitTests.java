@@ -8,7 +8,9 @@ import com.nebulights.crytpotracker.Portfolio.PortfolioPresenter;
 import com.nebulights.crytpotracker.mock.FakeCryptoAssetRepository;
 
 import org.junit.Test;
+
 import java.math.BigDecimal;
+
 import static org.junit.Assert.assertEquals;
 
 public class PortfolioPresenterUnitTests {
@@ -124,8 +126,8 @@ public class PortfolioPresenterUnitTests {
 
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "50.50974687", "1756.87");
 
-        String networth = presenter.getNetWorth();
-        assertEquals("$5,076.23", networth);
+        String networth = presenter.getNetWorthDisplayString();
+        assertEquals("$5,076.23 CAD", networth);
     }
 
     @Test
@@ -141,8 +143,8 @@ public class PortfolioPresenterUnitTests {
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "50.50974687", "1756.87");
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BCH_CAD, "20.55", "1756.87");
 
-        String networth = presenter.getNetWorth();
-        assertEquals("$6,115.03", networth);
+        String networth = presenter.getNetWorthDisplayString();
+        assertEquals("$6,115.03 CAD", networth);
     }
 
     @Test
@@ -155,8 +157,8 @@ public class PortfolioPresenterUnitTests {
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "50.50974687", "1756.87");
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BCH_CAD, "20.55", "1756.87");
 
-        String networth = presenter.getNetWorth();
-        assertEquals("$5,076.23", networth);
+        String networth = presenter.getNetWorthDisplayString();
+        assertEquals("$5,076.23 CAD", networth);
     }
 
     @Test
@@ -166,7 +168,7 @@ public class PortfolioPresenterUnitTests {
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "50.50974687", "1756.87");
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BCH_CAD, "20.55", "1756.87");
 
-        String networth = presenter.getNetWorth();
+        String networth = presenter.getNetWorthDisplayString();
         assertEquals("$0.00", networth);
     }
 
@@ -182,7 +184,7 @@ public class PortfolioPresenterUnitTests {
 
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_LTC_CAD, "50.50974687", "1756.87");
 
-        String networth = presenter.getNetWorth();
+        String networth = presenter.getNetWorthDisplayString();
         assertEquals("$0.00", networth);
     }
 
@@ -197,7 +199,7 @@ public class PortfolioPresenterUnitTests {
         TradingInfo currentTradingInfoBCH = new TradingInfo("50.55", "");
         presenter.addTickerData(currentTradingInfoBCH, CryptoPairs.QUADRIGA_BCH_CAD);
 
-        String networth = presenter.getNetWorth();
+        String networth = presenter.getNetWorthDisplayString();
         assertEquals("$0.00", networth);
     }
 
@@ -209,13 +211,28 @@ public class PortfolioPresenterUnitTests {
         presenter.addTickerData(currentTradingInfo, CryptoPairs.QUADRIGA_BTC_CAD);
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "50.50974687", "1756.87");
 
-        String networth = presenter.getNetWorth();
+        String networth = presenter.getNetWorthDisplayString();
         assertEquals("$0.00", networth);
     }
 
+    @Test
+    public void netWorthTwoCurrencies() throws Exception {
+        PortfolioPresenter presenter = createPresenter();
 
+        TradingInfo currentTradingInfoBTC = new TradingInfo("100.50", "");
+        presenter.addTickerData(currentTradingInfoBTC, CryptoPairs.QUADRIGA_BTC_CAD);
+
+        TradingInfo currentTradingInfoBCH = new TradingInfo("50.55", "");
+        presenter.addTickerData(currentTradingInfoBCH, CryptoPairs.GDAX_BTC_USD);
+
+        presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "500", "1756.87");
+        presenter.createOrUpdateAsset(CryptoPairs.GDAX_BTC_USD, "100", "1756.87");
+
+        String networth = presenter.getNetWorthDisplayString();
+        assertEquals("$50,250.00 CAD\n$5,055.00 USD", networth);
+    }
+    
     //****** Helper Functions ******
-
 
     private PortfolioPresenter createPresenter() {
 

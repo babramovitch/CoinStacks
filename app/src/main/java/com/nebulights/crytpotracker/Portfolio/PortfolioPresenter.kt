@@ -10,8 +10,8 @@ import com.nebulights.crytpotracker.Portfolio.PortfolioHelpers.Companion.stringS
 import java.math.BigDecimal
 
 /**
-* Created by babramovitch on 10/23/2017.
-*/
+ * Created by babramovitch on 10/23/2017.
+ */
 
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
@@ -92,17 +92,37 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     override fun clearAssets() {
         cryptoAssetRepository.clearAllData()
+        tickers.clear()
         view.resetUi()
     }
 
-    override fun getNetWorth(): String {
-        var netWorth = BigDecimal(0.0)
+    override fun getNetWorthDisplayString(): String {
+        val networth = getNetWorth()
+
+        var combinedString = ""
+        networth.forEach { combinedString = combinedString + it + "\n" }
+
+        return if (combinedString.trim().equals("")) "$0.00" else combinedString.trim()
+    }
+
+    fun getNetWorth(): List<String> {
+        var netWorth: MutableMap<CurrencyTypes, BigDecimal> = mutableMapOf()
 
         for ((ticker, data) in exchanges.getData()) {
-            netWorth += stringSafeBigDecimal(data.lastPrice) * tickerQuantity(ticker)
+            var subTotal = netWorth[ticker.currencyType]
+
+            if (subTotal == null) {
+                subTotal = BigDecimal("0.0")
+            }
+
+            subTotal = subTotal + stringSafeBigDecimal(data.lastPrice) * tickerQuantity(ticker)
+
+            if (subTotal.compareTo(BigDecimal.ZERO) != 0) {
+                netWorth.put(ticker.currencyType, subTotal)
+            }
         }
 
-        return currencyFormatter().format(netWorth.setScale(2, BigDecimal.ROUND_HALF_UP))
+        return netWorth.map { currencyFormatter().format(it.value.setScale(2, BigDecimal.ROUND_HALF_UP)) + " " + it.key.name }
     }
 
     override fun tickerCount(): Int {

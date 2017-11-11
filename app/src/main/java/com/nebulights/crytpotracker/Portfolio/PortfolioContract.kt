@@ -3,8 +3,8 @@ package com.nebulights.crytpotracker.Portfolio
 import com.nebulights.crytpotracker.CryptoPairs
 
 /**
-* Created by babramovitch on 10/23/2017.
-*/
+ * Created by babramovitch on 10/23/2017.
+ */
 
 class PortfolioContract {
 
@@ -29,7 +29,7 @@ class PortfolioContract {
         fun onDetach()
         fun startFeed()
         fun stopFeed()
-        fun getNetWorth(): String
+        fun getNetWorthDisplayString(): String
         fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String)
         fun createAsset(exchange: String, userTicker: String, quantity: String, price: String)
         fun tickerCount(): Int

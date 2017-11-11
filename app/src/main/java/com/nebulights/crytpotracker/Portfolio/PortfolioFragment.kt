@@ -19,7 +19,7 @@ import android.widget.*
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
-    @BindView(R.id.net_worth) lateinit var netWorth: TextView
+    @BindView(R.id.net_worth_amount) lateinit var netWorth: TextView
     @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
 
     private lateinit var presenter: PortfolioContract.Presenter
@@ -54,7 +54,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
 
-        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
+        netWorth.text = presenter.getNetWorthDisplayString()
 
         return rootView
     }
@@ -88,19 +88,17 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             showErrorDialogCouldNotFindCrypto()
         } else {
             val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
-            val quantityLayout = input.findViewById<TextInputLayout>(R.id.crypto_layout_quantity)
             val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
             val price = input.findViewById<EditText>(R.id.crypto_price)
 
             input.findViewById<LinearLayout>(R.id.spinner_exchange_layout).visibility = View.GONE
             input.findViewById<LinearLayout>(R.id.spinner_crypto_layout).visibility = View.GONE
 
-            quantityLayout.isHintAnimationEnabled = currentQuantity == ""
             quantity.setText(if (currentQuantity == getString(R.string.zero_quantity)) "" else currentQuantity)
             quantity.setSelection(quantity.text.length)
 
             val builder = AlertDialog.Builder(activity)
-            builder.setTitle(getString(R.string.dialog_title, (cryptoPair.CryptoType.name + " : " + cryptoPair.currencyType.name)))
+            builder.setTitle(getString(R.string.dialog_title, cryptoPair.exchange, (cryptoPair.CryptoType.name + " : " + cryptoPair.currencyType.name)))
             builder.setView(input)
             builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
                 presenter.createAsset(cryptoPair, quantity.text.toString(), price.text.toString())
@@ -121,7 +119,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
         val spinnerExchanges = input.findViewById<Spinner>(R.id.spinner_exchange)
         val exchangeList = resources.getStringArray(R.array.exchanges)
-        val spinnerExchangeArrayAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, exchangeList)
+        val spinnerExchangeArrayAdapter = ArrayAdapter(activity, R.layout.spinner_item, exchangeList)
 
         val spinnerCryptos = input.findViewById<Spinner>(R.id.spinner_crypto)
         var cryptoList: List<String> = listOf()
@@ -130,7 +128,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         spinnerExchanges.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 cryptoList = presenter.getTickersForExchange(exchangeList[position])
-                spinnerCryptos.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, cryptoList)
+                spinnerCryptos.adapter = ArrayAdapter(activity, R.layout.spinner_item, cryptoList)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -175,17 +173,17 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun updateUi(position: Int) {
-        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
+        netWorth.text = presenter.getNetWorthDisplayString()
         recyclerView.adapter.notifyItemChanged(position)
     }
 
     override fun removeItem(position: Int) {
-        netWorth.text = getString(R.string.networth, presenter.getNetWorth())
+        netWorth.text = presenter.getNetWorthDisplayString()
         recyclerView.adapter.notifyItemRemoved(position)
     }
 
     override fun resetUi() {
-        netWorth.text = getString(R.string.networth, getString(R.string.zero_dollar))
+        netWorth.text = getString(R.string.zero_dollar)
         recyclerView.adapter.notifyDataSetChanged()
     }
 
