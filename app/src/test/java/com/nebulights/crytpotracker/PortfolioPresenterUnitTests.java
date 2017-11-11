@@ -231,7 +231,7 @@ public class PortfolioPresenterUnitTests {
         String networth = presenter.getNetWorthDisplayString();
         assertEquals("$50,250.00 CAD\n$5,055.00 USD", networth);
     }
-    
+
     //****** Helper Functions ******
 
     private PortfolioPresenter createPresenter() {

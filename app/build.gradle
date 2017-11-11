@@ -15,12 +15,6 @@ buildscript {
 }
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'CryptoTracker'
-            storeFile file('C:/Users/babramovitch/AndroidStudioProjects/CryptoTracker.jks')
-        }
-    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
