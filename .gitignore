@@ -10,3 +10,4 @@
 .idea/
 gradle.properties
 app/src/main/java/com/nebulights/crytpotracker/Todo.java
+app/src/main/java/com/nebulights/coinstacks/Todo.java
