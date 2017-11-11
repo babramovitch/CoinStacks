@@ -29,6 +29,15 @@ enum class CryptoPairs(val CryptoType: CryptoTypes, val currencyType: CurrencyTy
     GEMINI_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "btcusd", "Gemini"),
     GEMINI_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ethusd", "Gemini"),
 
+    // Bitstamp
+    BITSTAMP_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "btcusd", "Bitstamp"),
+    BITSTAMP_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ethusd", "Bitstamp"),
+    BITSTAMP_LTC_USD(CryptoTypes.LTC, CurrencyTypes.USD, "ltcusd", "Bitstamp"),
+
+    BITSTAMP_BTC_EUR(CryptoTypes.BTC, CurrencyTypes.EUR, "btceur", "Bitstamp"),
+    BITSTAMP_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "etheur", "Bitstamp"),
+    BITSTAMP_LTC_EUR(CryptoTypes.LTC, CurrencyTypes.EUR, "ltceur", "Bitstamp"),
+
 }
 
 fun CryptoPairs.userTicker(): String {

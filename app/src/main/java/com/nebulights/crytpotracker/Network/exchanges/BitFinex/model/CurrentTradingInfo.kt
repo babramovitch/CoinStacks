@@ -18,6 +18,6 @@ data class CurrentTradingInfo(val mid: String,
     }
 
     override fun timeStamp(): String {
-        return timeStamp()
+        return timestamp
     }
 }

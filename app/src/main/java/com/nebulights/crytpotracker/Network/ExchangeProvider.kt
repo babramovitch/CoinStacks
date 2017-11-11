@@ -2,6 +2,8 @@ package com.nebulights.crytpotracker.Network
 
 import com.nebulights.crytpotracker.Network.exchanges.BitFinex.BitFinexService
 import com.nebulights.crytpotracker.Network.exchanges.BitFinex.BitFinexRepository
+import com.nebulights.crytpotracker.Network.exchanges.Bitstamp.BitstampRepository
+import com.nebulights.crytpotracker.Network.exchanges.Bitstamp.BitstampService
 import com.nebulights.crytpotracker.Network.exchanges.Gdax.GdaxRepository
 import com.nebulights.crytpotracker.Network.exchanges.Gdax.GdaxService
 import com.nebulights.crytpotracker.Network.exchanges.Gemini.GeminiRepository
@@ -12,8 +14,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
 /**
-* Created by babramovitch on 10/25/2017.
-*/
+ * Created by babramovitch on 10/25/2017.
+ */
 
 object ExchangeProvider {
 
@@ -41,12 +43,17 @@ object ExchangeProvider {
         return GeminiRepository(GeminiService.create(client))
     }
 
+    fun provideBitstampRepository(): BitstampRepository {
+        return BitstampRepository(BitstampService.create(client))
+    }
+
     fun getAllRepositories(): List<Exchange> {
         val repositories: MutableList<Exchange> = mutableListOf()
         repositories.add(provideQuadrigaRepository())
         repositories.add(provideBitFinixRepository())
         repositories.add(provideGdaxRepository())
         repositories.add(provideGeminiRepository())
+        repositories.add(provideBitstampRepository())
         return repositories
     }
 }

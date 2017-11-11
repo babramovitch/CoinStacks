@@ -1,11 +1,12 @@
-package com.nebulights.crytpotracker.Network.exchanges.BitFinex
+package com.nebulights.crytpotracker.Network.exchanges.Bitstamp
 
 import android.util.Log
 import com.nebulights.crytpotracker.CryptoPairs
-import com.nebulights.crytpotracker.Network.exchanges.BitFinex.model.CurrentTradingInfo
+
 import com.nebulights.crytpotracker.Network.NetworkCompletionCallback
 import com.nebulights.crytpotracker.Network.NetworkDataUpdate
 import com.nebulights.crytpotracker.Network.Exchange
+import com.nebulights.crytpotracker.Network.exchanges.Bitstamp.model.CurrentTradingInfo
 import com.nebulights.crytpotracker.Network.exchanges.TradingInfo
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -15,15 +16,15 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 /**
-* Created by babramovitch on 10/25/2017.
-*/
+ * Created by babramovitch on 10/25/2017.
+ */
 
-class BitFinexRepository(val service: BitFinexService) : Exchange {
+class BitstampRepository(val service: BitstampService) : Exchange {
     private var TAG = "QuadrigaRepository"
     private var disposables: CompositeDisposable = CompositeDisposable()
 
     override fun feedType(): String {
-        return CryptoPairs.BITFINEX_BTC_USD.exchange
+        return CryptoPairs.BITSTAMP_BTC_USD.exchange
     }
 
     fun getCurrentTradingInfo(ticker: String): Observable<CurrentTradingInfo> {
