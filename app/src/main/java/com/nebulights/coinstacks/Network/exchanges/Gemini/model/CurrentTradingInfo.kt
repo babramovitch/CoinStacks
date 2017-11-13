@@ -1,11 +1,11 @@
 package com.nebulights.coinstacks.Network.exchanges.Gemini.model
 
-import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.normalizedData
+import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.NormalizedTickerData
 
 data class CurrentTradingInfo(val ask: String,
                               val bid: String,
                               val last: String,
-                              val volume: Volume) : normalizedData {
+                              val volume: Volume) : NormalizedTickerData {
     override fun lastPrice(): String {
         return last
     }

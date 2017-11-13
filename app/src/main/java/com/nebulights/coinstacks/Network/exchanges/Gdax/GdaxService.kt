@@ -16,19 +16,6 @@ import retrofit2.http.Path
 interface GdaxService {
     @GET("/products/{book}/ticker")
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
-
-    companion object Factory {
-        fun create(client: OkHttpClient): GdaxService {
-            val retrofit = Retrofit.Builder()
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .baseUrl("https://api.gdax.com/")
-                    .build()
-
-            return retrofit.create(GdaxService::class.java)
-        }
-    }
 }
 
 

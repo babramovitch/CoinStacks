@@ -1,6 +1,6 @@
 package com.nebulights.coinstacks.Network.exchanges.BitFinex.model
 
-interface normalizedData {
+interface NormalizedTickerData {
     fun lastPrice(): String
     fun timeStamp(): String
 }
@@ -12,7 +12,7 @@ data class CurrentTradingInfo(val mid: String,
                               val low: String,
                               val high: String,
                               val volume: String,
-                              val timestamp: String) : normalizedData {
+                              val timestamp: String) : NormalizedTickerData {
     override fun lastPrice(): String {
         return last_price
     }

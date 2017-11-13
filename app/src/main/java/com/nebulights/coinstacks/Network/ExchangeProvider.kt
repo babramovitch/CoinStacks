@@ -12,6 +12,9 @@ import com.nebulights.coinstacks.Network.exchanges.Quadriga.QuadrigaRepository
 import com.nebulights.coinstacks.Network.exchanges.Quadriga.QuadrigaService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 /**
  * Created by babramovitch on 10/25/2017.
@@ -27,24 +30,35 @@ object ExchangeProvider {
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
 
+    private fun <T> create(service: Class<T>, baseUrl: String): T {
+        val retrofit = Retrofit.Builder()
+                .client(client)
+                .addConverterFactory(MoshiConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .baseUrl(baseUrl)
+                .build()
+
+        return retrofit.create(service)
+    }
+
     fun provideQuadrigaRepository(): QuadrigaRepository {
-        return QuadrigaRepository(QuadrigaService.create(client))
+        return QuadrigaRepository(create(QuadrigaService::class.java, "https://api.quadrigacx.com"))
     }
 
     fun provideBitFinixRepository(): BitFinexRepository {
-        return BitFinexRepository(BitFinexService.create(client))
+        return BitFinexRepository(create(BitFinexService::class.java, "https://api.bitfinex.com/"))
     }
 
     fun provideGdaxRepository(): GdaxRepository {
-        return GdaxRepository(GdaxService.create(client))
+        return GdaxRepository(create(GdaxService::class.java, "https://api.gdax.com/"))
     }
 
     fun provideGeminiRepository(): GeminiRepository {
-        return GeminiRepository(GeminiService.create(client))
+        return GeminiRepository(create(GeminiService::class.java, "https://api.gemini.com/"))
     }
 
     fun provideBitstampRepository(): BitstampRepository {
-        return BitstampRepository(BitstampService.create(client))
+        return BitstampRepository(create(BitstampService::class.java, "https://www.bitstamp.net/"))
     }
 
     fun getAllRepositories(): List<Exchange> {
@@ -56,4 +70,6 @@ object ExchangeProvider {
         repositories.add(provideBitstampRepository())
         return repositories
     }
+
+    
 }

@@ -18,16 +18,4 @@ interface BitFinexService {
     @GET("v1/pubticker/{book}")
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
 
-    companion object Factory {
-        fun create(client: OkHttpClient): BitFinexService {
-            val retrofit = Retrofit.Builder()
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .baseUrl("https://api.bitfinex.com/")
-                    .build()
-
-            return retrofit.create(BitFinexService::class.java)
-        }
-    }
 }

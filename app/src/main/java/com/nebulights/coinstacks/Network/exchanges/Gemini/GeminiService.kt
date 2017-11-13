@@ -16,18 +16,5 @@ import okhttp3.OkHttpClient
 interface GeminiService {
     @GET("v1/pubticker/{book}")
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
-
-    companion object Factory {
-        fun create(client: OkHttpClient): GeminiService {
-            val retrofit = Retrofit.Builder()
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .baseUrl("https://api.gemini.com/")
-                    .build()
-
-            return retrofit.create(GeminiService::class.java)
-        }
-    }
 }
 
