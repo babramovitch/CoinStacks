@@ -3,6 +3,7 @@
     <string-array name="exchanges">
         <item>Bitfinex</item>
         <item>Bitstamp</item>
+        <item>CEX.IO</item>
         <item>GDAX</item>
         <item>Gemini</item>
         <item>QuadrigaCX</item>

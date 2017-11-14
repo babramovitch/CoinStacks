@@ -44,6 +44,15 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
     BITSTAMP_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "etheur", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_LTC_EUR(CryptoTypes.LTC, CurrencyTypes.EUR, "ltceur", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_XRP_EUR(CryptoTypes.XRP, CurrencyTypes.EUR, "xrpeur", ExchangeProvider.BITSTAMP_NAME),
+
+    // CEX.IO
+    CEXIO_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "BTC/USD", ExchangeProvider.CEXIO_NAME),
+    CEXIO_BTC_EUR(CryptoTypes.BTC, CurrencyTypes.EUR, "BTC/EUR", ExchangeProvider.CEXIO_NAME),
+    CEXIO_BTC_GBP(CryptoTypes.BTC, CurrencyTypes.GBP, "BTC/GBP", ExchangeProvider.CEXIO_NAME),
+    CEXIO_BTC_RUB(CryptoTypes.BTC, CurrencyTypes.RUB, "BTC/RUB", ExchangeProvider.CEXIO_NAME),
+
+    CEXIO_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "ETH/EUR", ExchangeProvider.CEXIO_NAME),
+    CEXIO_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ETH/USD", ExchangeProvider.CEXIO_NAME),
 }
 
 fun CryptoPairs.userTicker(): String {

@@ -4,6 +4,8 @@ import com.nebulights.coinstacks.Network.exchanges.BitFinex.BitFinexService
 import com.nebulights.coinstacks.Network.exchanges.BitFinex.BitFinexRepository
 import com.nebulights.coinstacks.Network.exchanges.Bitstamp.BitstampRepository
 import com.nebulights.coinstacks.Network.exchanges.Bitstamp.BitstampService
+import com.nebulights.coinstacks.Network.exchanges.CexIo.CexIoRepository
+import com.nebulights.coinstacks.Network.exchanges.CexIo.CexIoService
 import com.nebulights.coinstacks.Network.exchanges.Gdax.GdaxRepository
 import com.nebulights.coinstacks.Network.exchanges.Gdax.GdaxService
 import com.nebulights.coinstacks.Network.exchanges.Gemini.GeminiRepository
@@ -26,12 +28,14 @@ object ExchangeProvider {
 
     val BITFINEX_NAME = "BitFinex"
     val BITSTAMP_NAME = "Bitstamp"
+    val CEXIO_NAME = "CEX.IO"
     val GDAX_NAME = "GDAX"
     val GEMINI_NAME = "Gemini"
     val QUADRIGACX_NAME = "QuadrigaCX"
 
     val BITFINEX_URL = "https://api.bitfinex.com/"
     val BITSTAMP_URL = "https://www.bitstamp.net/"
+    val CEXIO_URL = "https://cex.io/"
     val GDAX_URL = "https://api.gdax.com/"
     val GEMINI_URL = "https://api.gemini.com/"
     val QUADRIGACX_URL = "https://api.quadrigacx.com"
@@ -73,6 +77,10 @@ object ExchangeProvider {
         return BitstampRepository(create(BitstampService::class.java, BITSTAMP_URL))
     }
 
+    fun provideCexIoRepository(): CexIoRepository {
+        return CexIoRepository(create(CexIoService::class.java, CEXIO_URL))
+    }
+
     fun getAllRepositories(): List<Exchange> {
         val repositories: MutableList<Exchange> = mutableListOf()
         repositories.add(provideQuadrigaRepository())
@@ -80,6 +88,7 @@ object ExchangeProvider {
         repositories.add(provideGdaxRepository())
         repositories.add(provideGeminiRepository())
         repositories.add(provideBitstampRepository())
+        repositories.add(provideCexIoRepository())
         return repositories
     }
 }
