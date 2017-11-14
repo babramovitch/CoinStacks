@@ -82,7 +82,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         if (currentTradingInfo != null) {
             val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
-            if (lastPrice < BigDecimal.TEN) {
+            if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
                 row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
             } else {
                 row.setLastPrice(currencyFormatter().format(lastPrice))
