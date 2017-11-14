@@ -10,6 +10,10 @@ import java.math.BigDecimal
  */
 
 class FakeCryptoAssetRepository : CryptoAssetContract {
+    override fun lastUsedExchange(): String {
+        return ""
+    }
+
     var assets: MutableMap<CryptoPairs, BigDecimal> = mutableMapOf()
 
     override fun removeAsset(cryptoPair: CryptoPairs) {

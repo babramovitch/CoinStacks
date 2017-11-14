@@ -40,6 +40,7 @@ class PortfolioContract {
         fun getTickers(): List<CryptoPairs>
         fun getTickersForExchange(exchange: String): List<String>
         fun removeAsset(cryptoPair: CryptoPairs)
+        fun lastUsedExchange(exchanges: Array<String>): Int
     }
 }
 

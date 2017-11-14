@@ -1,7 +1,9 @@
 package com.nebulights.coinstacks.Portfolio
 
+import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.R
@@ -34,6 +36,6 @@ class PortfolioActivity : AppCompatActivity() {
 
         return PortfolioPresenter(exchanges,
                 portfolioFragment,
-                CryptoAssetRepository(Realm.getDefaultInstance()))
+                CryptoAssetRepository(Realm.getDefaultInstance(), PreferenceManager.getDefaultSharedPreferences(applicationContext)))
     }
 }

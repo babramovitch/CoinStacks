@@ -17,7 +17,6 @@ import java.math.BigDecimal
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
                          val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, NetworkCompletionCallback {
-
     private val TAG = "PortfolioPresenter"
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickers: MutableList<CryptoPairs>
@@ -66,6 +65,16 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         if (tickers.indexOf(cryptoPair) == -1) {
             tickers.add(cryptoPair)
+        }
+    }
+
+    override fun lastUsedExchange(exchanges: Array<String>): Int {
+        val exchange = cryptoAssetRepository.lastUsedExchange()
+        val exchangeIndex = exchanges.indexOf(exchange)
+        if (exchangeIndex == -1) {
+            return 0
+        } else {
+            return exchangeIndex
         }
     }
 

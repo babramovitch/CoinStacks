@@ -1,14 +1,16 @@
 package com.nebulights.coinstacks.Portfolio
 
+import android.content.SharedPreferences
 import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.model.CryptoAsset
+import com.nebulights.coinstacks.applyMe
 import io.realm.Realm
 import java.math.BigDecimal
 
 /**
-* Created by babramovitch on 11/6/2017.
-*/
+ * Created by babramovitch on 11/6/2017.
+ */
 
 interface CryptoAssetContract {
     fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String)
@@ -17,12 +19,17 @@ interface CryptoAssetContract {
     fun close()
     fun removeAsset(cryptoPair: CryptoPairs)
     fun getTickers(): MutableList<CryptoPairs>
+    fun lastUsedExchange(): String
 }
 
-class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
+class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
+
+    val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
 
     override fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
         val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findFirst()
+
+        setLastExchangeUsed(cryptoPair.exchange)
 
         if (asset == null) {
             createAsset(cryptoPair, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
@@ -76,5 +83,13 @@ class CryptoAssetRepository(val realm: Realm) : CryptoAssetContract {
         realm.executeTransaction {
             realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findAll().deleteAllFromRealm()
         }
+    }
+
+    private fun setLastExchangeUsed(exchange: String) {
+        sharedPreferences.applyMe { putString(PREF_LAST_EXCHANGE_SAVED, exchange) }
+    }
+
+    override fun lastUsedExchange(): String {
+        return sharedPreferences.getString(PREF_LAST_EXCHANGE_SAVED, "")
     }
 }

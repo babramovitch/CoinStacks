@@ -1,6 +1,7 @@
 package com.nebulights.coinstacks;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.LayoutInflater;
@@ -127,6 +128,6 @@ public class PortfolioPresenterTests {
 
         return new PortfolioPresenter(exchange,
                 PortfolioFragment.Companion.newInstance(),
-                new CryptoAssetRepository(realm));
+                new CryptoAssetRepository(realm, PreferenceManager.getDefaultSharedPreferences(InstrumentationRegistry.getContext())));
     }
 }

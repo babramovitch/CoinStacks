@@ -1,6 +1,5 @@
 package com.nebulights.coinstacks.Portfolio
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -81,12 +80,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         return super.onOptionsItemSelected(item)
     }
 
-    @SuppressLint("InflateParams")
     override fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String) {
         if (cryptoPair == null) {
             showErrorDialogCouldNotFindCrypto()
         } else {
-            val input = activity.layoutInflater.inflate(R.layout.add_asset_dialog, null)
+            val input = View.inflate(activity, R.layout.add_asset_dialog, null)
             val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
             val price = input.findViewById<EditText>(R.id.crypto_price)
 
@@ -117,13 +115,14 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         val price = input.findViewById<EditText>(R.id.crypto_price)
 
         val spinnerExchanges = input.findViewById<Spinner>(R.id.spinner_exchange)
-        val exchangeList = resources.getStringArray(R.array.exchanges)
-        val spinnerExchangeArrayAdapter = ArrayAdapter(activity, R.layout.spinner_item, exchangeList)
-
         val spinnerCryptos = input.findViewById<Spinner>(R.id.spinner_crypto)
+
+        val exchangeList = resources.getStringArray(R.array.exchanges)
         var cryptoList: List<String> = listOf()
 
-        spinnerExchanges.adapter = spinnerExchangeArrayAdapter
+        spinnerExchanges.adapter = ArrayAdapter(activity, R.layout.spinner_item, exchangeList)
+        spinnerExchanges.setSelection(presenter.lastUsedExchange(exchangeList))
+
         spinnerExchanges.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 cryptoList = presenter.getTickersForExchange(exchangeList[position])
@@ -163,12 +162,10 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     private fun showDialog(dialog: AlertDialog, raiseKeyboard: Boolean) {
         this.dialog = dialog
-        dialog.notNull {
-            if (raiseKeyboard) {
-                dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            }
-            dialog.show()
+        if (raiseKeyboard) {
+            dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         }
+        dialog.show()
     }
 
     override fun updateUi(position: Int) {
