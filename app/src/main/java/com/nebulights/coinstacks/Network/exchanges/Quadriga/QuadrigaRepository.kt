@@ -1,6 +1,7 @@
 package com.nebulights.coinstacks.Network.exchanges.Quadriga
 
 import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.NetworkDataUpdate
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
@@ -11,7 +12,7 @@ import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 
 class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() {
     override fun feedType(): String {
-        return CryptoPairs.QUADRIGA_BTC_CAD.exchange
+        return ExchangeProvider.QUADRIGACX_NAME
     }
 
     override fun startFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {

@@ -4,6 +4,7 @@ import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.NetworkDataUpdate
 import com.nebulights.coinstacks.Network.Exchange
+import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 
 /**
@@ -13,7 +14,7 @@ import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchange {
 
     override fun feedType(): String {
-        return CryptoPairs.BITFINEX_BTC_USD.exchange
+        return ExchangeProvider.BITFINEX_NAME
     }
 
     override fun startFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {

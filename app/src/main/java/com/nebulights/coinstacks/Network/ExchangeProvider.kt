@@ -24,6 +24,18 @@ object ExchangeProvider {
 
     private val client: OkHttpClient = setupOkHttpClient()
 
+    val BITFINEX_NAME = "BitFinex"
+    val BITSTAMP_NAME = "Bitstamp"
+    val GDAX_NAME = "GDAX"
+    val GEMINI_NAME = "Gemini"
+    val QUADRIGACX_NAME = "QuadrigaCX"
+
+    val BITFINEX_URL = "https://api.bitfinex.com/"
+    val BITSTAMP_URL = "https://www.bitstamp.net/"
+    val GDAX_URL = "https://api.gdax.com/"
+    val GEMINI_URL = "https://api.gemini.com/"
+    val QUADRIGACX_URL = "https://api.quadrigacx.com"
+
     private fun setupOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.NONE // .BODY for full log output
@@ -42,23 +54,23 @@ object ExchangeProvider {
     }
 
     fun provideQuadrigaRepository(): QuadrigaRepository {
-        return QuadrigaRepository(create(QuadrigaService::class.java, "https://api.quadrigacx.com"))
+        return QuadrigaRepository(create(QuadrigaService::class.java, QUADRIGACX_URL))
     }
 
     fun provideBitFinixRepository(): BitFinexRepository {
-        return BitFinexRepository(create(BitFinexService::class.java, "https://api.bitfinex.com/"))
+        return BitFinexRepository(create(BitFinexService::class.java, BITFINEX_URL))
     }
 
     fun provideGdaxRepository(): GdaxRepository {
-        return GdaxRepository(create(GdaxService::class.java, "https://api.gdax.com/"))
+        return GdaxRepository(create(GdaxService::class.java, GDAX_URL))
     }
 
     fun provideGeminiRepository(): GeminiRepository {
-        return GeminiRepository(create(GeminiService::class.java, "https://api.gemini.com/"))
+        return GeminiRepository(create(GeminiService::class.java, GEMINI_URL))
     }
 
     fun provideBitstampRepository(): BitstampRepository {
-        return BitstampRepository(create(BitstampService::class.java, "https://www.bitstamp.net/"))
+        return BitstampRepository(create(BitstampService::class.java, BITSTAMP_URL))
     }
 
     fun getAllRepositories(): List<Exchange> {
@@ -70,6 +82,4 @@ object ExchangeProvider {
         repositories.add(provideBitstampRepository())
         return repositories
     }
-
-    
 }
