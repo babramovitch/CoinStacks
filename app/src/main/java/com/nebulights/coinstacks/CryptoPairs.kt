@@ -51,6 +51,8 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
     CEXIO_BTC_GBP(CryptoTypes.BTC, CurrencyTypes.GBP, "BTC/GBP", ExchangeProvider.CEXIO_NAME),
     CEXIO_BTC_RUB(CryptoTypes.BTC, CurrencyTypes.RUB, "BTC/RUB", ExchangeProvider.CEXIO_NAME),
 
+    CEXIO_BCH_USD(CryptoTypes.BCH, CurrencyTypes.USD, "BCH/USD", ExchangeProvider.CEXIO_NAME),
+
     CEXIO_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "ETH/EUR", ExchangeProvider.CEXIO_NAME),
     CEXIO_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ETH/USD", ExchangeProvider.CEXIO_NAME),
 }
