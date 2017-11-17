@@ -2,10 +2,11 @@
 
 An open source cryptocurrency net worth / portfolio tracker.
 
-It currently supports the below 5 exchanges with more to come, as well as more trading pairs.
+It currently supports the below 6 exchanges with more to come, as well as more trading pairs.
 
 * Bitfinex
 * Bitstamp 
+* CEX.IO
 * GDAX 
 * Gemini 
 * QuadrigaCX
