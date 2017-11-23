@@ -151,7 +151,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun showUnlockDialog(firstAttempt: Boolean) {
         val input = View.inflate(activity, R.layout.password_dialog, null)
-        input.findViewById<EditText>(R.id.new_password_confirm).visibility = View.GONE
+        input.findViewById<LinearLayout>(R.id.new_password_confirm_layout).visibility = View.GONE
 
         val password = input.findViewById<EditText>(R.id.password)
         val passwordObservable = RxTextView.textChanges(password).skip(1)
@@ -189,8 +189,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         val isPasswordValid: Observable<Boolean> = Observable.combineLatest(
                 passwordObservable,
                 confirmPasswordObservable,
-                BiFunction { u, p -> u.isNotEmpty() && p.isNotEmpty() && u.length == 4 && u.toString() == p.toString() })
-
+                BiFunction { password, confirmPassword -> password.length == 4 && password.toString() == confirmPassword.toString() })
 
         isPasswordValid.subscribe { isValid ->
             dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = isValid
@@ -205,10 +204,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
         builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
 
-
         showDialog(builder.create(), true)
         dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
-
     }
 
     override fun showAddNewAssetDialog() {

@@ -3,5 +3,6 @@
     <dimen name="net_worth_font_size">20sp</dimen>
     <dimen name="default_margin">16dp</dimen>
     <dimen name="default_margin_half">8dp</dimen>
+    <dimen name="dialog_text_size">16sp</dimen>
 
 </resources>
