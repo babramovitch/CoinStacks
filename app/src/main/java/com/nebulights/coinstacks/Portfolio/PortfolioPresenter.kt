@@ -22,20 +22,32 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickers: MutableList<CryptoPairs>
 
+    private var timeStopped = System.currentTimeMillis()
+    private val MINUTE_IN_MILLIS = 60000
+
     init {
         view.setPresenter(this)
         tickers = cryptoAssetRepository.getTickers()
     }
 
     override fun startFeed() {
+        if (shouldSecureData(timeStopped)) {
+            lockData()
+        }
+
         exchanges.startFeed(tickers, this)
     }
+
+    fun shouldSecureData(timeSincePaued: Long): Boolean =
+            (System.currentTimeMillis() - MINUTE_IN_MILLIS > timeSincePaued)
+                    && cryptoAssetRepository.isPasswordSet()
 
     override fun updateUi(ticker: CryptoPairs) {
         view.updateUi(getOrderedTickerIndex(ticker))
     }
 
     override fun stopFeed() {
+        timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
     }
 
@@ -217,8 +229,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     override fun savePassword(password: String) {
         cryptoAssetRepository.savePassword(password)
-        setAssetsVisibility(false)
-        view.showAssetQuantites(cryptoAssetRepository.assetsVisible())
+        cryptoAssetRepository.setAssetsVisibility(true)
     }
 
     override fun setAssetLockedState() {
@@ -232,7 +243,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun setAssetsVisibility(isVisible: Boolean) {
         cryptoAssetRepository.setAssetsVisibility(isVisible)
     }
-
 
     override fun lockData() {
         if (!cryptoAssetRepository.isPasswordSet()) {

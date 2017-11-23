@@ -200,6 +200,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         builder.setView(input)
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
             presenter.savePassword(password.text.toString())
+            activity.recreate() //recreating to force the secure screen which requires a restart
         })
 
         builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })

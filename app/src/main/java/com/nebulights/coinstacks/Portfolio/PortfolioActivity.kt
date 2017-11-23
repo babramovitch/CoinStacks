@@ -3,6 +3,7 @@ package com.nebulights.coinstacks.Portfolio
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.WindowManager
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.R
@@ -33,9 +34,16 @@ class PortfolioActivity : AppCompatActivity() {
         val exchanges = Exchanges
         exchanges.loadRepositories(ExchangeProvider)
 
+        val cryptoAssetRepository = CryptoAssetRepository(Realm.getDefaultInstance(),
+                PreferenceManager.getDefaultSharedPreferences(applicationContext))
+
         presenter = PortfolioPresenter(exchanges,
-                portfolioFragment,
-                CryptoAssetRepository(Realm.getDefaultInstance(), PreferenceManager.getDefaultSharedPreferences(applicationContext)))
+                portfolioFragment, cryptoAssetRepository)
+
+        if (cryptoAssetRepository.isPasswordSet()) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 
     override fun onBackPressed() {
