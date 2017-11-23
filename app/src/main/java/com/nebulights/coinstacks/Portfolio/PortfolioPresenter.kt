@@ -56,7 +56,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showCreateAssetDialog(position: Int) {
-        if (cryptoAssetRepository.assetsVisible()) {
+        if (cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet()) {
             view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
         }
     }
