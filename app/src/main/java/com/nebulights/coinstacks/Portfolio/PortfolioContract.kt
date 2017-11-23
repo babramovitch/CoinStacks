@@ -51,13 +51,11 @@ class PortfolioContract {
 
         //Password related items
         fun setAssetsVisibility(isVisible: Boolean)
-
         fun setAssetLockedState()
         fun savePassword(password: String)
         fun lockData()
         fun unlockData()
         fun unlockData(password: String)
-
 
     }
 }

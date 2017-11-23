@@ -293,6 +293,4 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         dialog.notNull { dialog!!.dismiss() }
         super.onDestroy()
     }
-
-
 }
