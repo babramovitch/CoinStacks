@@ -17,6 +17,7 @@ import java.math.BigDecimal
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
                          val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, NetworkCompletionCallback {
+
     private val TAG = "PortfolioPresenter"
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickers: MutableList<CryptoPairs>
@@ -43,7 +44,9 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showCreateAssetDialog(position: Int) {
-        view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
+        if (cryptoAssetRepository.assetsVisible()) {
+            view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
+        }
     }
 
     override fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
@@ -102,10 +105,23 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             row.setLastPrice("---")
             row.setNetValue("---")
         }
+
+        row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+    }
+
+    override fun showConfirmDeleteAllDialog() {
+        view.showConfirmDeleteAllDialog()
     }
 
     override fun clearAssets() {
         cryptoAssetRepository.clearAllData()
+
+        if (!cryptoAssetRepository.assetsVisible()) {
+            cryptoAssetRepository.savePassword("")
+            cryptoAssetRepository.setAssetsVisibility(true)
+            view.showAssetQuantites(true)
+        }
+
         tickers.clear()
         view.resetUi()
     }
@@ -196,6 +212,47 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             startFeed()
         } else {
             stopFeed()
+        }
+    }
+
+    override fun savePassword(password: String) {
+        cryptoAssetRepository.savePassword(password)
+        setAssetsVisibility(false)
+        view.showAssetQuantites(cryptoAssetRepository.assetsVisible())
+    }
+
+    override fun setAssetLockedState() {
+        if (cryptoAssetRepository.isPasswordSet()) {
+            view.showAssetQuantites(cryptoAssetRepository.assetsVisible())
+        } else {
+            view.showAssetQuantites(true)
+        }
+    }
+
+    override fun setAssetsVisibility(isVisible: Boolean) {
+        cryptoAssetRepository.setAssetsVisibility(isVisible)
+    }
+
+
+    override fun lockData() {
+        if (!cryptoAssetRepository.isPasswordSet()) {
+            view.showAddNewPasswordDialog()
+        } else {
+            cryptoAssetRepository.setAssetsVisibility(false)
+            view.showAssetQuantites(false)
+        }
+    }
+
+    override fun unlockData() {
+        view.showUnlockDialog(true)
+    }
+
+    override fun unlockData(password: String) {
+        if (cryptoAssetRepository.isPasswordValid(password)) {
+            cryptoAssetRepository.setAssetsVisibility(true)
+            view.showAssetQuantites(true)
+        } else {
+            view.showUnlockDialog(false)
         }
     }
 }

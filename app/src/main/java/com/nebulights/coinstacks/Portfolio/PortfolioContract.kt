@@ -15,6 +15,11 @@ class PortfolioContract {
         fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String)
         fun showAddNewAssetDialog()
         fun removeItem(position: Int)
+        fun showAssetQuantites(isVisible: Boolean)
+
+        fun showAddNewPasswordDialog()
+        fun showUnlockDialog(firstAttempt: Boolean)
+        fun showConfirmDeleteAllDialog()
     }
 
     interface ViewRow {
@@ -23,6 +28,7 @@ class PortfolioContract {
         fun setLastPrice(lastPrice: String)
         fun setNetValue(netValue: String)
         fun setExchange(exchange: String)
+        fun showQuantities(visible: Boolean)
     }
 
     interface Presenter {
@@ -41,6 +47,18 @@ class PortfolioContract {
         fun getTickersForExchange(exchange: String): List<String>
         fun removeAsset(cryptoPair: CryptoPairs)
         fun lastUsedExchange(exchanges: Array<String>): Int
+        fun showConfirmDeleteAllDialog()
+
+        //Password related items
+        fun setAssetsVisibility(isVisible: Boolean)
+
+        fun setAssetLockedState()
+        fun savePassword(password: String)
+        fun lockData()
+        fun unlockData()
+        fun unlockData(password: String)
+
+
     }
 }
 

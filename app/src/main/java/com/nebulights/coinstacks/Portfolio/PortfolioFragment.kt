@@ -13,15 +13,20 @@ import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.notNull
 import android.widget.*
+import com.jakewharton.rxbinding2.widget.RxTextView
+import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     @BindView(R.id.net_worth_amount) lateinit var netWorth: TextView
+    @BindView(R.id.net_worth_amount_layout) lateinit var netWorthLayout: LinearLayout
     @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
 
     private lateinit var presenter: PortfolioContract.Presenter
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var menu: Menu
 
     private var dialog: AlertDialog? = null
 
@@ -57,8 +62,10 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         return rootView
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        this.menu = menu
         inflater.inflate(R.menu.menu, menu)
+        presenter.setAssetLockedState()
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -67,17 +74,50 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         super.onResume()
     }
 
+    override fun showAssetQuantites(isVisible: Boolean) {
+        menu.findItem(R.id.locked_data).isVisible = !isVisible
+        menu.findItem(R.id.add_ticker).isVisible = isVisible
+        menu.findItem(R.id.unlocked_data).isVisible = isVisible
+        menu.findItem(R.id.clear).isVisible = isVisible
+
+        recyclerView.adapter.notifyDataSetChanged()
+
+        netWorth.text = presenter.getNetWorthDisplayString()
+        netWorthLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.clear -> {
-                presenter.clearAssets()
+                presenter.showConfirmDeleteAllDialog()
             }
 
             R.id.add_ticker -> {
                 presenter.showAddNewAssetDialog()
             }
+
+            R.id.locked_data -> {
+                presenter.unlockData()
+            }
+
+            R.id.unlocked_data -> {
+                presenter.lockData()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun showConfirmDeleteAllDialog() {
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(getString(R.string.remove_assets_title))
+        builder.setMessage(getString(R.string.remove_all_assets_message))
+        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+            presenter.clearAssets()
+        })
+
+        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+
+        showDialog(builder.create(), false)
     }
 
     override fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String) {
@@ -107,6 +147,68 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
             showDialog(builder.create(), true)
         }
+    }
+
+    override fun showUnlockDialog(firstAttempt: Boolean) {
+        val input = View.inflate(activity, R.layout.password_dialog, null)
+        input.findViewById<EditText>(R.id.new_password_confirm).visibility = View.GONE
+
+        val password = input.findViewById<EditText>(R.id.password)
+        val passwordObservable = RxTextView.textChanges(password).skip(1)
+
+        passwordObservable.subscribe({ text ->
+            dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = text.length == 4
+        })
+
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(if (firstAttempt) getString(R.string.enter_password) else getString(R.string.invalid_password))
+        builder.setView(input)
+        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+            presenter.unlockData(password.text.toString())
+        })
+
+        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+
+        builder.setNeutralButton(getString(R.string.forgot_password), { dialog, which ->
+            presenter.clearAssets()
+        })
+
+        showDialog(builder.create(), true)
+        dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+    }
+
+    override fun showAddNewPasswordDialog() {
+
+        val input = View.inflate(activity, R.layout.password_dialog, null)
+        val password = input.findViewById<EditText>(R.id.password)
+        val passwordConfirm = input.findViewById<EditText>(R.id.new_password_confirm)
+
+        val passwordObservable = RxTextView.textChanges(password).skip(1)
+        val confirmPasswordObservable = RxTextView.textChanges(passwordConfirm).skip(1)
+
+        val isPasswordValid: Observable<Boolean> = Observable.combineLatest(
+                passwordObservable,
+                confirmPasswordObservable,
+                BiFunction { u, p -> u.isNotEmpty() && p.isNotEmpty() && u.length == 4 && u.toString() == p.toString() })
+
+
+        isPasswordValid.subscribe { isValid ->
+            dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = isValid
+        }
+
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(getString(R.string.add_password_dialog_title))
+        builder.setView(input)
+        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+            presenter.savePassword(password.text.toString())
+        })
+
+        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+
+
+        showDialog(builder.create(), true)
+        dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+
     }
 
     override fun showAddNewAssetDialog() {
@@ -193,4 +295,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         dialog.notNull { dialog!!.dismiss() }
         super.onDestroy()
     }
+
+
 }

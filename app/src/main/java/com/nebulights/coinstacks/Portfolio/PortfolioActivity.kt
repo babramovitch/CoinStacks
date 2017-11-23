@@ -1,6 +1,5 @@
 package com.nebulights.coinstacks.Portfolio
 
-import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -13,6 +12,7 @@ import io.realm.Realm
 class PortfolioActivity : AppCompatActivity() {
 
     private var TAG = "MainActivity"
+    private lateinit var presenter: PortfolioPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,13 +29,18 @@ class PortfolioActivity : AppCompatActivity() {
         }
     }
 
-    private fun createPresenter(portfolioFragment: PortfolioFragment): PortfolioPresenter {
-
+    private fun createPresenter(portfolioFragment: PortfolioFragment) {
         val exchanges = Exchanges
         exchanges.loadRepositories(ExchangeProvider)
 
-        return PortfolioPresenter(exchanges,
+        presenter = PortfolioPresenter(exchanges,
                 portfolioFragment,
                 CryptoAssetRepository(Realm.getDefaultInstance(), PreferenceManager.getDefaultSharedPreferences(applicationContext)))
+    }
+
+    override fun onBackPressed() {
+        presenter.setAssetsVisibility(false)
+        presenter.setAssetLockedState()
+        super.onBackPressed()
     }
 }

@@ -3,6 +3,7 @@ package com.nebulights.coinstacks.Portfolio
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -10,8 +11,8 @@ import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.inflate
 
 /**
-* Created by babramovitch on 10/26/2017.
-*/
+ * Created by babramovitch on 10/26/2017.
+ */
 
 class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<PortfolioRecyclerAdapter.ViewHolder>() {
 
@@ -31,7 +32,6 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
-
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
 
@@ -44,8 +44,14 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         @BindView(R.id.recycler_holdings)
         lateinit var holdings: TextView
 
+        @BindView(R.id.recycler_holdings_layout)
+        lateinit var holdingsLayout: LinearLayout
+
         @BindView(R.id.recycler_net_value)
         lateinit var netValue: TextView
+
+        @BindView(R.id.recycler_net_value_layout)
+        lateinit var netValueLayout: LinearLayout
 
         init {
             ButterKnife.bind(this, view)
@@ -69,6 +75,11 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         override fun setNetValue(netValue: String) {
             this.netValue.text = netValue
+        }
+
+        override fun showQuantities(visible: Boolean) {
+            holdingsLayout.visibility = if (visible) View.VISIBLE else View.GONE
+            netValueLayout.visibility = if (visible) View.VISIBLE else View.GONE
         }
     }
 }

@@ -6,6 +6,7 @@
     tools:context="com.nebulights.coinstacks.Portfolio.PortfolioFragment">
 
     <LinearLayout
+        android:id="@+id/net_worth_amount_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/default_margin_half"

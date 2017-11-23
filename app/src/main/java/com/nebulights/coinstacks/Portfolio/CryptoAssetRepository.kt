@@ -20,11 +20,18 @@ interface CryptoAssetContract {
     fun removeAsset(cryptoPair: CryptoPairs)
     fun getTickers(): MutableList<CryptoPairs>
     fun lastUsedExchange(): String
+    fun assetsVisible(): Boolean
+    fun setAssetsVisibility(isVisible: Boolean)
+    fun savePassword(password: String)
+    fun isPasswordSet(): Boolean
+    fun isPasswordValid(password: String): Boolean
 }
 
 class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
 
     val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
+    val PREF_OWNED_ASSETS_VISIBLE = "ownedAssetsVisible"
+    val PREF_ASSET_PASSWORD = "assetPassword"
 
     override fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
         val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findFirst()
@@ -41,8 +48,10 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
     override fun totalTickerQuantity(ticker: CryptoPairs): BigDecimal {
         var total: BigDecimal = BigDecimal.valueOf(0.0)
 
-        val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
-        assets.forEach { asset -> total += asset.getAmount() }
+        if (assetsVisible() || !isPasswordSet()) {
+            val assets = realm.where(CryptoAsset::class.java).equalTo("type", ticker.toString()).findAll()
+            assets.forEach { asset -> total += asset.getAmount() }
+        }
 
         return total
     }
@@ -91,5 +100,25 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
 
     override fun lastUsedExchange(): String {
         return sharedPreferences.getString(PREF_LAST_EXCHANGE_SAVED, "")
+    }
+
+    override fun assetsVisible(): Boolean {
+        return sharedPreferences.getBoolean(PREF_OWNED_ASSETS_VISIBLE, true)
+    }
+
+    override fun setAssetsVisibility(isVisible: Boolean) {
+        sharedPreferences.applyMe { putBoolean(PREF_OWNED_ASSETS_VISIBLE, isVisible) }
+    }
+
+    override fun isPasswordSet(): Boolean {
+        return sharedPreferences.getString(PREF_ASSET_PASSWORD,"") != ""
+    }
+
+    override fun savePassword(password: String) {
+        sharedPreferences.applyMe { putString(PREF_ASSET_PASSWORD, password) }
+    }
+
+    override fun isPasswordValid(password: String): Boolean {
+        return sharedPreferences.getString(PREF_ASSET_PASSWORD,"") == password
     }
 }

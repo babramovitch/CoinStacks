@@ -13,4 +13,10 @@
     <string name="dialog_add_item_title">Add Coin Stack</string>
     <string name="menu_add_assets">Add Assets</string>
     <string name="menu_clear_assets">Clear Assets</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="invalid_password">Invalid Password</string>
+    <string name="remove_assets_title">Remove Assets</string>
+    <string name="remove_all_assets_message">Are you sure you want to remove all assets?</string>
+    <string name="add_password_dialog_title">Add Password</string>
 </resources>
