@@ -10,6 +10,10 @@ import java.math.BigDecimal
  */
 
 class FakeCryptoAssetRepository : CryptoAssetContract {
+
+    var assetVisibility = false
+    var password = ""
+
     override fun lastUsedExchange(): String {
         return ""
     }
@@ -38,5 +42,25 @@ class FakeCryptoAssetRepository : CryptoAssetContract {
     }
 
     override fun close() {
+    }
+
+    override fun assetsVisible(): Boolean {
+        return assetVisibility
+    }
+
+    override fun setAssetsVisibility(isVisible: Boolean) {
+        assetVisibility = isVisible
+    }
+
+    override fun savePassword(password: String) {
+        this.password = password
+    }
+
+    override fun isPasswordSet(): Boolean {
+        return password != ""
+    }
+
+    override fun isPasswordValid(password: String): Boolean {
+        return this.password == password
     }
 }
