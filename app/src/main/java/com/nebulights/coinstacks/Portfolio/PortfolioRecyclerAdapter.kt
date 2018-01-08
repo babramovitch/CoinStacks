@@ -17,8 +17,8 @@ import com.nebulights.coinstacks.inflate
 class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<PortfolioRecyclerAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        presenter.onBindRepositoryRowViewAtPosition(position, holder)
-        holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(position) }
+        presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
+        holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(holder.adapterPosition) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
