@@ -38,8 +38,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         exchanges.startFeed(tickers, this)
     }
 
-    fun shouldSecureData(timeSincePaued: Long): Boolean =
-            (System.currentTimeMillis() - MINUTE_IN_MILLIS > timeSincePaued)
+    fun shouldSecureData(timeSincePaused: Long): Boolean =
+            (System.currentTimeMillis() - MINUTE_IN_MILLIS > timeSincePaused)
                     && cryptoAssetRepository.isPasswordSet()
 
     override fun updateUi(ticker: CryptoPairs) {
@@ -221,7 +221,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         view.removeItem(position)
 
         if (tickers.isNotEmpty()) {
-            startFeed()
+            exchanges.startFeed(tickers, this)
         } else {
             stopFeed()
         }

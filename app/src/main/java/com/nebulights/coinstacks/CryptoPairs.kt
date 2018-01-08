@@ -6,10 +6,11 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
 
     // QuadrigaCX
     QUADRIGA_BTC_CAD(CryptoTypes.BTC, CurrencyTypes.CAD, "BTC_CAD", ExchangeProvider.QUADRIGACX_NAME),
+    QUADRIGA_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "BTC_USD", ExchangeProvider.QUADRIGACX_NAME),
     QUADRIGA_BCH_CAD(CryptoTypes.BCH, CurrencyTypes.CAD, "BCH_CAD", ExchangeProvider.QUADRIGACX_NAME),
     QUADRIGA_ETH_CAD(CryptoTypes.ETH, CurrencyTypes.CAD, "ETH_CAD", ExchangeProvider.QUADRIGACX_NAME),
     QUADRIGA_LTC_CAD(CryptoTypes.LTC, CurrencyTypes.CAD, "LTC_CAD", ExchangeProvider.QUADRIGACX_NAME),
-    QUADRIGA_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "BTC_USD", ExchangeProvider.QUADRIGACX_NAME),
+    QUADRIGA_BTG_CAD(CryptoTypes.BTG, CurrencyTypes.CAD, "BTG_CAD", ExchangeProvider.QUADRIGACX_NAME),
 
     // BitFinex
     BITFINEX_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "btcusd", ExchangeProvider.BITFINEX_NAME),
@@ -21,6 +22,7 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
 
     // GDAX
     GDAX_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "BTC-USD", ExchangeProvider.GDAX_NAME),
+    GDAX_BCH_USD(CryptoTypes.BCH, CurrencyTypes.USD, "BCH-USD", ExchangeProvider.GDAX_NAME),
     GDAX_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ETH-USD", ExchangeProvider.GDAX_NAME),
     GDAX_LTC_USD(CryptoTypes.LTC, CurrencyTypes.USD, "LTC-USD", ExchangeProvider.GDAX_NAME),
 
