@@ -1,6 +1,6 @@
 package com.nebulights.coinstacks.Network.exchanges.Quadriga.model
 
-import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.NormalizedTickerData
+import com.nebulights.coinstacks.Network.exchanges.NormalizedTickerData
 
 data class CurrentTradingInfo(val timestamp: String,
                               val vwap: String,
@@ -10,12 +10,8 @@ data class CurrentTradingInfo(val timestamp: String,
                               val ask: String,
                               val low: String,
                               val bid: String) : NormalizedTickerData {
-    override fun lastPrice(): String {
-        return last
-    }
+    override fun lastPrice(): String = last
 
-    override fun timeStamp(): String {
-        return timestamp
-    }
+    override fun timeStamp(): String = timestamp
 }
 

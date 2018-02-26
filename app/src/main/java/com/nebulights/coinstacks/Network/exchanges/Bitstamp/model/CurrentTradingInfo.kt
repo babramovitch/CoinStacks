@@ -1,6 +1,6 @@
 package com.nebulights.coinstacks.Network.exchanges.Bitstamp.model
 
-import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.NormalizedTickerData
+import com.nebulights.coinstacks.Network.exchanges.NormalizedTickerData
 
 data class CurrentTradingInfo(val last: String,
                               val high: String,
@@ -11,11 +11,7 @@ data class CurrentTradingInfo(val last: String,
                               val ask: String,
                               val timestamp: String,
                               val open: String) : NormalizedTickerData {
-    override fun lastPrice(): String {
-        return last
-    }
+    override fun lastPrice(): String = last
 
-    override fun timeStamp(): String {
-        return timestamp
-    }
+    override fun timeStamp(): String = timestamp
 }

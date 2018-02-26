@@ -1,6 +1,7 @@
 package com.nebulights.coinstacks.Network.exchanges.CexIo.model
 
-import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.NormalizedTickerData
+import com.nebulights.coinstacks.Network.exchanges.NormalizedTickerData
+
 
 data class CurrentTradingInfo(val timestamp: String,
                               val low: String,
@@ -10,12 +11,8 @@ data class CurrentTradingInfo(val timestamp: String,
                               val volume30d: String,
                               val bid: String,
                               val ask: String) : NormalizedTickerData {
-    override fun lastPrice(): String {
-        return last
-    }
+    override fun lastPrice(): String = last
 
-    override fun timeStamp(): String {
-        return timestamp
-    }
+    override fun timeStamp(): String = timestamp
 }
 

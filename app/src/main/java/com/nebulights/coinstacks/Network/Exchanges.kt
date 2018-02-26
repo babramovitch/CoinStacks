@@ -2,7 +2,6 @@ package com.nebulights.coinstacks.Network
 
 import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.Network.exchanges.TradingInfo
-import io.reactivex.Observable
 
 /**
 * Created by babramovitch on 11/9/2017.
@@ -17,9 +16,11 @@ interface NetworkCompletionCallback {
 }
 
 interface Exchange {
-    fun startFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
+    fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
+    fun startAccountFeed()
     fun stopFeed()
     fun feedType(): String
+
 }
 
 object Exchanges : NetworkDataUpdate {
@@ -37,7 +38,7 @@ object Exchanges : NetworkDataUpdate {
             val filteredTickers = getTickers(tickers, repository.feedType())
 
             if (filteredTickers.isNotEmpty()) {
-                repository.startFeed(filteredTickers, presenterCallback, this)
+                repository.startPriceFeed(filteredTickers, presenterCallback, this)
             }
         }
     }

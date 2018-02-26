@@ -13,16 +13,22 @@ import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 
 class BitstampRepository(val service: BitstampService) : BaseExchange(), Exchange {
 
-    override fun feedType(): String {
-        return ExchangeProvider.BITSTAMP_NAME
-    }
+    override fun feedType(): String = ExchangeProvider.BITSTAMP_NAME
 
-    override fun startFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         clearDisposables()
 
         tickers.forEach { ticker ->
-            startFeed(service.getCurrentTradingInfo(ticker.ticker),
+            startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
                     ticker, presenterCallback, networkDataUpdate)
         }
+    }
+
+    override fun startAccountFeed() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun generateAuthenticationDetails(): Any {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

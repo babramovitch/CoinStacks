@@ -5,7 +5,6 @@ import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.Network.Exchange
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.NetworkDataUpdate
-import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.NormalizedTickerData
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -20,13 +19,15 @@ abstract class BaseExchange : Exchange {
 
     var disposables: CompositeDisposable = CompositeDisposable()
 
+    abstract fun generateAuthenticationDetails(): Any
+
     fun clearDisposables() {
         if (disposables.size() != 0) {
             disposables.clear()
         }
     }
 
-    fun <T> startFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    fun <T> startPriceFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
                 .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
@@ -46,6 +47,28 @@ abstract class BaseExchange : Exchange {
 
         disposables.add(disposable)
     }
+
+    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: String) {
+        val disposable = observable.observeOn(AndroidSchedulers.mainThread())
+                .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+
+                    if (result is Array<*>) {
+                        result as Array<NormalizedBalanceData>
+                        Log.i("asdfbalance", exchange + " BCH BALANCE: " + result[0].getBchBalance())
+                    } else {
+                        result as NormalizedBalanceData
+                        Log.i("asdfbalance", exchange + " BCH BALANCE: " + result.getBchBalance())
+                    }
+
+                }, { error ->
+                    error.printStackTrace()
+                })
+
+        disposables.add(disposable)
+    }
+
 
     override fun stopFeed() {
         disposables.clear()
