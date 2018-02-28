@@ -5,13 +5,19 @@ import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.NetworkDataUpdate
 import com.nebulights.coinstacks.Network.Exchange
 import com.nebulights.coinstacks.Network.ExchangeProvider
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
+import com.nebulights.coinstacks.Network.exchanges.Bitstamp.model.AuthenticationDetails
+import com.nebulights.coinstacks.Network.security.HashGenerator
+import com.nebulights.coinstacks.Network.security.HashingAlgorithms
+
+import io.reactivex.Observable
 
 /**
  * Created by babramovitch on 10/25/2017.
  */
 
-class BitstampRepository(val service: BitstampService) : BaseExchange(), Exchange {
+class BitstampRepository(private val service: BitstampService) : BaseExchange(), Exchange {
 
     override fun feedType(): String = ExchangeProvider.BITSTAMP_NAME
 
@@ -22,13 +28,34 @@ class BitstampRepository(val service: BitstampService) : BaseExchange(), Exchang
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
                     ticker, presenterCallback, networkDataUpdate)
         }
+
     }
 
-    override fun startAccountFeed() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+        super.startAccountBalanceFeed(Observable
+                .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
+                .flatMap<Any> { details ->
+                    service.getBalances(
+                            details.key,
+                            details.signature,
+                            details.nonce)
+                }, feedType())
     }
 
-    override fun generateAuthenticationDetails(): Any {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {
+
+        val timestamp = System.currentTimeMillis().toString()
+
+        val customerId = basicAuthentication.userName
+        val key = basicAuthentication.apiKey
+        val secret = basicAuthentication.apiSecret
+
+        val message = timestamp + customerId + key
+
+        val signature: String = HashGenerator.generateHmacDigest(message.toByteArray(),
+                secret.toByteArray(), HashingAlgorithms.HmacSHA256).toUpperCase()
+
+        return AuthenticationDetails(key, signature, timestamp)
+
     }
 }

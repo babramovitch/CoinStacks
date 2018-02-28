@@ -18,12 +18,3 @@ data class Balances(
         return "hello world"
     }
 }
-
-//data class GdaxAccount(
-//        val id: String,
-//        val currency: String,
-//        val balance: String,
-//        val available: String,
-//        val hold: String,
-//        val profile_id: String
-//)

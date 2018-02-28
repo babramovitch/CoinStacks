@@ -29,5 +29,9 @@
     <string name="dialog_crypto_pair">Pair:</string>
     <string name="dialog_exchange">Exchange:</string>
     <string name="assets_owned">Coins Owned</string>
+    <string name="api_privacy_warning">Information entered here is only used to request your balance details from the exchange. It
+        is not transmitted to any 3rd party external servers. When creating the API key on your exchanges website, ensure the API key
+        only has the minimum permissions required to view account balances. If your device is lost or stolen, for your own privacy
+    remove permissions to these API keys from your exchanges website.</string>
 
 </resources>

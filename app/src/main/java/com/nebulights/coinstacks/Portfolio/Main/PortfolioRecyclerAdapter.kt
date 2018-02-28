@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Portfolio
+package com.nebulights.coinstacks.Portfolio.Main
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -8,7 +8,7 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.nebulights.coinstacks.R
-import com.nebulights.coinstacks.inflate
+import com.nebulights.coinstacks.Extensions.inflate
 
 /**
  * Created by babramovitch on 10/26/2017.
@@ -26,9 +26,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         return ViewHolder(inflatedView)
     }
 
-    override fun getItemCount(): Int {
-        return presenter.tickerCount()
-    }
+    override fun getItemCount(): Int = presenter.tickerCount()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 

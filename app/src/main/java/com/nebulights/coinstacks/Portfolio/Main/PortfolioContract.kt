@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Portfolio
+package com.nebulights.coinstacks.Portfolio.Main
 
 import com.nebulights.coinstacks.CryptoPairs
 
@@ -57,6 +57,10 @@ class PortfolioContract {
         fun unlockData()
         fun unlockData(password: String)
 
+    }
+
+    interface Navigator {
+        fun addNewItem()
     }
 }
 

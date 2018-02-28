@@ -1,11 +1,12 @@
 package com.nebulights.coinstacks.Network
 
 import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.TradingInfo
 
 /**
-* Created by babramovitch on 11/9/2017.
-*/
+ * Created by babramovitch on 11/9/2017.
+ */
 
 interface NetworkDataUpdate {
     fun updateData(ticker: CryptoPairs, data: TradingInfo)
@@ -17,7 +18,7 @@ interface NetworkCompletionCallback {
 
 interface Exchange {
     fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
-    fun startAccountFeed()
+    fun startAccountFeed(basicAuthentication: BasicAuthentication)
     fun stopFeed()
     fun feedType(): String
 
@@ -40,6 +41,8 @@ object Exchanges : NetworkDataUpdate {
             if (filteredTickers.isNotEmpty()) {
                 repository.startPriceFeed(filteredTickers, presenterCallback, this)
             }
+
+
         }
     }
 

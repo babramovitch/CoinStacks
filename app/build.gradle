@@ -18,7 +18,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.nebulights.coinstacks"
+        applicationId "com.nebulights.coinstacksdebug"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 8
@@ -64,6 +64,8 @@ dependencies {
 
     compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
     compile 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+    compile 'org.apache.directory.studio:org.apache.commons.codec:1.8'
+    compile 'info.hoang8f:android-segmented:1.0.6'
 }
 repositories {
     mavenCentral()

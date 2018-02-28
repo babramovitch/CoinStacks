@@ -4,7 +4,7 @@ import android.app.Application
 import android.preference.PreferenceManager
 import io.realm.Realm
 import com.crashlytics.android.Crashlytics
-import com.nebulights.coinstacks.Portfolio.CryptoAssetRepository
+import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository
 import io.fabric.sdk.android.Fabric
 
 /**

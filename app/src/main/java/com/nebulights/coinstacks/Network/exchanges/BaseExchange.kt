@@ -15,11 +15,12 @@ import java.util.concurrent.TimeUnit
  * Created by babramovitch on 10/25/2017.
  */
 
+
 abstract class BaseExchange : Exchange {
 
-    var disposables: CompositeDisposable = CompositeDisposable()
+    private var disposables: CompositeDisposable = CompositeDisposable()
 
-    abstract fun generateAuthenticationDetails(): Any
+    abstract fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any
 
     fun clearDisposables() {
         if (disposables.size() != 0) {
@@ -50,11 +51,12 @@ abstract class BaseExchange : Exchange {
 
     fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: String) {
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
+                .repeatWhen { result -> result.delay(60, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
 
                     if (result is Array<*>) {
+                        @Suppress("UNCHECKED_CAST")
                         result as Array<NormalizedBalanceData>
                         Log.i("asdfbalance", exchange + " BCH BALANCE: " + result[0].getBchBalance())
                     } else {
@@ -73,4 +75,5 @@ abstract class BaseExchange : Exchange {
     override fun stopFeed() {
         disposables.clear()
     }
+
 }

@@ -1,12 +1,12 @@
-package com.nebulights.coinstacks.Portfolio
+package com.nebulights.coinstacks.Portfolio.Main
 
 import com.nebulights.coinstacks.*
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.exchanges.TradingInfo
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.currencyFormatter
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.smallCurrencyFormatter
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.currencyFormatter
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.smallCurrencyFormatter
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 
 import java.math.BigDecimal
 
@@ -16,7 +16,8 @@ import java.math.BigDecimal
 
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
-                         val cryptoAssetRepository: CryptoAssetContract) : PortfolioContract.Presenter, NetworkCompletionCallback {
+                         val cryptoAssetRepository: CryptoAssetContract,
+                         val navigation: PortfolioContract.Navigator) : PortfolioContract.Presenter, NetworkCompletionCallback {
 
     private val TAG = "PortfolioPresenter"
     private var allTickers = enumValues<CryptoPairs>().map { it }
@@ -52,7 +53,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showAddNewAssetDialog() {
-        view.showAddNewAssetDialog()
+         view.showAddNewAssetDialog()
+        //navigation.addNewItem()
     }
 
     override fun showCreateAssetDialog(position: Int) {

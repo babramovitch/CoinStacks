@@ -1,6 +1,6 @@
 package com.nebulights.coinstacks;
 
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers;
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers;
 import org.junit.Test;
 import java.math.BigDecimal;
 import static org.junit.Assert.*;

@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Portfolio
+package com.nebulights.coinstacks.Portfolio.Main
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -11,7 +11,7 @@ import android.support.v7.widget.DividerItemDecoration
 import android.view.*
 import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.R
-import com.nebulights.coinstacks.notNull
+import com.nebulights.coinstacks.Extensions.notNull
 import android.widget.*
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable

@@ -1,8 +1,8 @@
 package com.nebulights.coinstacks.mock
 
 import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.Portfolio.CryptoAssetContract
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers
+import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetContract
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers
 import java.math.BigDecimal
 
 /**

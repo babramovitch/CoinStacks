@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/default_margin">
+
+    <info.hoang8f.android.segmented.SegmentedGroup
+        android:id="@+id/addition_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/button21"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Coins" />
+
+        <RadioButton
+            android:id="@+id/button22"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="API Keys" />
+
+        <RadioButton
+            android:id="@+id/button23"
+            style="@style/RadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Watch Addresse" />
+    </info.hoang8f.android.segmented.SegmentedGroup>
+
+    <LinearLayout
+        android:id="@+id/spinner_exchange_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/spinner_exchange_header_text"
+            style="@style/width_half_weight"
+            android:gravity="center_vertical"
+            android:text="@string/dialog_exchange"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <Spinner
+            android:id="@+id/spinner_exchange"
+            style="@style/width_half_weight" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/spinner_crypto_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/width_half_weight"
+            android:gravity="center_vertical"
+            android:text="@string/dialog_crypto_pair"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <Spinner
+            android:id="@+id/spinner_crypto"
+            style="@style/width_half_weight" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/coins_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+
+        <LinearLayout
+            android:id="@+id/crypto_layout_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/width_half_weight"
+                android:gravity="center_vertical"
+                android:text="@string/dialog_quantity"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_text_size" />
+
+            <EditText
+                android:id="@+id/crypto_quantity"
+                style="@style/width_half_weight"
+                android:gravity="center"
+                android:hint="@string/dialog_quantity_hint"
+                android:inputType="numberDecimal|number"
+                android:textSize="@dimen/dialog_text_size" />
+        </LinearLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/crypto_layout_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/crypto_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/dialog_price_hint"
+                android:inputType="numberDecimal|number" />
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/api_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/api_username_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="User Name"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_text_size" />
+
+            <EditText
+                android:id="@+id/api_username_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="User Name For API Key (not login username)"
+                android:inputType="numberDecimal|number"
+                android:textSize="@dimen/dialog_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/api_key_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="API Key"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_text_size" />
+
+            <EditText
+                android:id="@+id/api_ley_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="API Key From Website"
+                android:inputType="numberDecimal|number"
+                android:textSize="@dimen/dialog_text_size" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/api_secret_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="API Secret"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_text_size" />
+
+            <EditText
+                android:id="@+id/api_secret_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="API Secret From Website"
+                android:inputType="numberDecimal|number"
+                android:textSize="@dimen/dialog_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/api_password_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="API Password"
+                android:textColor="@color/black"
+                android:textSize="@dimen/dialog_text_size" />
+
+            <EditText
+                android:id="@+id/api_password_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="API Password From Website"
+                android:inputType="numberDecimal|number"
+                android:textSize="@dimen/dialog_text_size" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:gravity="center_vertical"
+            android:text="@string/api_privacy_warning"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/watch_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="Watch Address"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/watch_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="Address"
+            android:inputType="numberDecimal|number"
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+
+</LinearLayout>

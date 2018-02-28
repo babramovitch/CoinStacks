@@ -1,10 +1,10 @@
-package com.nebulights.coinstacks.Portfolio
+package com.nebulights.coinstacks.Portfolio.Main
 
 import android.content.SharedPreferences
 import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.Portfolio.PortfolioHelpers.Companion.stringSafeBigDecimal
+import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.model.CryptoAsset
-import com.nebulights.coinstacks.applyMe
+import com.nebulights.coinstacks.Extensions.applyMe
 import io.realm.Realm
 import java.math.BigDecimal
 
