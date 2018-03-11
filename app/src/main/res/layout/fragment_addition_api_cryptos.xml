@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:showIn="@layout/fragment_additions_api">
+
+    <TextView
+        android:id="@+id/spinner_crypto_text"
+        style="@style/width_half_weight"
+        android:gravity="center_vertical"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dialog_text_size" />
+
+    <Spinner
+        android:id="@+id/spinner_crypto"
+        style="@style/width_half_weight" />
+</LinearLayout>

@@ -27,6 +27,7 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
     GDAX_LTC_USD(CryptoTypes.LTC, CurrencyTypes.USD, "LTC-USD", ExchangeProvider.GDAX_NAME),
 
     GDAX_BTC_EUR(CryptoTypes.BTC, CurrencyTypes.EUR, "BTC-EUR", ExchangeProvider.GDAX_NAME),
+    GDAX_BCH_EUR(CryptoTypes.BCH, CurrencyTypes.EUR, "BCH-EUR", ExchangeProvider.GDAX_NAME),
     GDAX_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "ETH-EUR", ExchangeProvider.GDAX_NAME),
     GDAX_LTC_EUR(CryptoTypes.LTC, CurrencyTypes.EUR, "LTC-EUR", ExchangeProvider.GDAX_NAME),
 
@@ -55,8 +56,9 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
 
     CEXIO_BCH_USD(CryptoTypes.BCH, CurrencyTypes.USD, "BCH/USD", ExchangeProvider.CEXIO_NAME),
 
-    CEXIO_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "ETH/EUR", ExchangeProvider.CEXIO_NAME),
     CEXIO_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ETH/USD", ExchangeProvider.CEXIO_NAME),
+    CEXIO_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "ETH/EUR", ExchangeProvider.CEXIO_NAME),
+
 }
 
 fun CryptoPairs.userTicker(): String {

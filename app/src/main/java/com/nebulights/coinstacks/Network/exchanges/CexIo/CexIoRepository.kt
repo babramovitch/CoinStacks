@@ -19,10 +19,13 @@ import io.reactivex.Observable
 
 class CexIoRepository(private val service: CexIoService) : BaseExchange() {
 
+    override val userNameRequired: Boolean = true
+    override val passwordRequired: Boolean = false
+
     override fun feedType(): String = ExchangeProvider.CEXIO_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.cryptoType.name, ticker.currencyType.name),
@@ -31,10 +34,12 @@ class CexIoRepository(private val service: CexIoService) : BaseExchange() {
 
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
-                .flatMap<Any> { details -> service.getBalances(details) }, feedType())
+                .flatMap<Any> { details -> service.getBalances(details) }, feedType(),
+                presenterCallback,
+                networkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

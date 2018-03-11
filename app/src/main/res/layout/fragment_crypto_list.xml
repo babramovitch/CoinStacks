@@ -1,50 +1,68 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.nebulights.coinstacks.Portfolio.PortfolioFragment">
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/net_worth_amount_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/default_margin_half"
-        android:layout_marginTop="@dimen/default_margin_half"
-        android:minHeight="50dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/net_worth_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/net_worth_amount_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/default_margin_half"
+            android:layout_marginTop="@dimen/default_margin_half"
+            android:minHeight="50dp">
+
+            <TextView
+                android:id="@+id/net_worth_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/default_margin"
+                android:gravity="left|center_vertical"
+                android:text="@string/networth"
+                android:textSize="@dimen/net_worth_font_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/net_worth_amount"
+                style="@style/width_half_weight"
+                android:layout_marginLeft="@dimen/default_margin"
+                android:layout_marginRight="@dimen/default_margin"
+                android:gravity="right|center_vertical"
+                android:minHeight="50dp"
+                android:textSize="@dimen/net_worth_font_size"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAccent" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/default_margin"
-            android:gravity="left|center_vertical"
-            android:text="@string/networth"
-            android:textSize="@dimen/net_worth_font_size"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/net_worth_amount"
-            style="@style/width_half_weight"
-            android:layout_marginLeft="@dimen/default_margin"
-            android:layout_marginRight="@dimen/default_margin"
-            android:gravity="right|center_vertical"
-            android:minHeight="50dp"
-            android:textSize="@dimen/net_worth_font_size"
-            android:textStyle="bold" />
+            android:layout_marginRight="@dimen/default_margin" />
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorAccent" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:fabSize="normal"
+        android:src="@drawable/ic_add_white_24dp"
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/default_margin"
-        android:layout_marginRight="@dimen/default_margin" />
+        app:layout_anchor="@id/recycler_view"
+        app:layout_anchorGravity="bottom|center"/>
 
-</LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

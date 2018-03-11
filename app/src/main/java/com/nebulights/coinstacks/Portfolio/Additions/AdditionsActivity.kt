@@ -12,8 +12,7 @@ import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository
 import io.realm.Realm
 
-class AdditionsActivity : AppCompatActivity() {
-
+class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
 
     private var TAG = "AdditionsActivity"
     private lateinit var presenter: AdditionsPresenter
@@ -31,6 +30,10 @@ class AdditionsActivity : AppCompatActivity() {
         } else {
             createPresenter(additionsFragment)
         }
+
+        supportActionBar?.elevation = 0.0f
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun createPresenter(additionsFragment: AdditionsFragment) {
@@ -40,12 +43,17 @@ class AdditionsActivity : AppCompatActivity() {
         val cryptoAssetRepository = CryptoAssetRepository(Realm.getDefaultInstance(),
                 PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
-        presenter = AdditionsPresenter(additionsFragment, cryptoAssetRepository)
+        presenter = AdditionsPresenter(additionsFragment, exchanges, cryptoAssetRepository, this)
 
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE)
+//        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+//                WindowManager.LayoutParams.FLAG_SECURE)
 
+    }
+
+    override fun close() {
+        setResult(1)
+        finish()
     }
 
 }

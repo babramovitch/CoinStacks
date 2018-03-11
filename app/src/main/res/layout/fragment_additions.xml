@@ -1,261 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/default_margin">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#EEEEEE"
+    android:orientation="vertical">
 
-    <info.hoang8f.android.segmented.SegmentedGroup
-        android:id="@+id/addition_type"
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_alignParentTop="true"
+        android:background="@color/colorPrimary"
+        app:elevation="0dp"
+        app:tabIndicatorHeight="5dp"
+        app:tabSelectedTextColor="#ffffff"
+        app:tabTextColor="#ffffff">
 
-        <RadioButton
-            android:id="@+id/button21"
-            style="@style/RadioButton"
-            android:layout_width="0dp"
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Coins" />
 
-        <RadioButton
-            android:id="@+id/button22"
-            style="@style/RadioButton"
-            android:layout_width="0dp"
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="API Keys" />
+            android:text="API" />
 
-        <RadioButton
-            android:id="@+id/button23"
-            style="@style/RadioButton"
-            android:layout_width="0dp"
+        <android.support.design.widget.TabItem
+            android:id="@+id/tab3"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Watch Addresse" />
-    </info.hoang8f.android.segmented.SegmentedGroup>
+            android:text="Watch Address" />
+    </android.support.design.widget.TabLayout>
 
-    <LinearLayout
-        android:id="@+id/spinner_exchange_layout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/spinner_exchange_header_text"
-            style="@style/width_half_weight"
-            android:gravity="center_vertical"
-            android:text="@string/dialog_exchange"
-            android:textColor="@color/black"
-            android:textSize="@dimen/dialog_text_size" />
-
-        <Spinner
-            android:id="@+id/spinner_exchange"
-            style="@style/width_half_weight" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/spinner_crypto_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            style="@style/width_half_weight"
-            android:gravity="center_vertical"
-            android:text="@string/dialog_crypto_pair"
-            android:textColor="@color/black"
-            android:textSize="@dimen/dialog_text_size" />
-
-        <Spinner
-            android:id="@+id/spinner_crypto"
-            style="@style/width_half_weight" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/coins_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-
+        android:layout_height="match_parent"
+        android:layout_above="@id/save_button"
+        android:layout_below="@id/tab_layout"
+        android:paddingLeft="@dimen/default_margin"
+        android:paddingRight="@dimen/default_margin">
 
         <LinearLayout
-            android:id="@+id/crypto_layout_quantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                style="@style/width_half_weight"
-                android:gravity="center_vertical"
-                android:text="@string/dialog_quantity"
-                android:textColor="@color/black"
-                android:textSize="@dimen/dialog_text_size" />
-
-            <EditText
-                android:id="@+id/crypto_quantity"
-                style="@style/width_half_weight"
-                android:gravity="center"
-                android:hint="@string/dialog_quantity_hint"
-                android:inputType="numberDecimal|number"
-                android:textSize="@dimen/dialog_text_size" />
-        </LinearLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/crypto_layout_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <EditText
-                android:id="@+id/crypto_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/dialog_price_hint"
-                android:inputType="numberDecimal|number" />
-        </android.support.design.widget.TextInputLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/api_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:id="@+id/api_username_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_margin"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="User Name"
+                android:text="Source"
                 android:textColor="@color/black"
-                android:textSize="@dimen/dialog_text_size" />
+                android:textSize="@dimen/dialog_text_size"
+                android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/api_username_text"
+            <LinearLayout
+                android:id="@+id/spinner_exchange_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:hint="User Name For API Key (not login username)"
-                android:inputType="numberDecimal|number"
-                android:textSize="@dimen/dialog_text_size" />
+                android:layout_margin="@dimen/api_nested_margins"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/spinner_exchange_header_text"
+                    style="@style/width_half_weight"
+                    android:gravity="center_vertical"
+                    android:text="@string/dialog_exchange"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/dialog_text_size" />
+
+                <Spinner
+                    android:id="@+id/spinner_exchange"
+                    style="@style/width_half_weight" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/spinner_crypto_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cryptocurrency"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/dialog_text_size"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/api_nested_margins"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/width_half_weight"
+                        android:gravity="center_vertical"
+                        android:text="@string/dialog_crypto_pair"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/dialog_text_size" />
+
+                    <Spinner
+                        android:id="@+id/spinner_crypto"
+                        style="@style/width_half_weight" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <include layout="@layout/fragment_addition_coins" />
+
+            <include layout="@layout/fragment_additions_api" />
+
+            <include layout="@layout/fragment_additions_watch" />
+
         </LinearLayout>
+    </ScrollView>
 
-        <LinearLayout
-            android:id="@+id/api_key_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="API Key"
-                android:textColor="@color/black"
-                android:textSize="@dimen/dialog_text_size" />
-
-            <EditText
-                android:id="@+id/api_ley_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:hint="API Key From Website"
-                android:inputType="numberDecimal|number"
-                android:textSize="@dimen/dialog_text_size" />
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/api_secret_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="API Secret"
-                android:textColor="@color/black"
-                android:textSize="@dimen/dialog_text_size" />
-
-            <EditText
-                android:id="@+id/api_secret_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:hint="API Secret From Website"
-                android:inputType="numberDecimal|number"
-                android:textSize="@dimen/dialog_text_size" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/api_password_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="API Password"
-                android:textColor="@color/black"
-                android:textSize="@dimen/dialog_text_size" />
-
-            <EditText
-                android:id="@+id/api_password_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:hint="API Password From Website"
-                android:inputType="numberDecimal|number"
-                android:textSize="@dimen/dialog_text_size" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:gravity="center_vertical"
-            android:text="@string/api_privacy_warning"
-            android:textColor="@color/black"
-            android:textSize="@dimen/dialog_text_size" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/watch_layout"
+    <Button
+        android:id="@+id/save_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/button_background"
+        tools:text="Add Coins"
+        android:textColor="#ffffff" />
 
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="Watch Address"
-            android:textColor="@color/black"
-            android:textSize="@dimen/dialog_text_size" />
-
-        <EditText
-            android:id="@+id/watch_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:hint="Address"
-            android:inputType="numberDecimal|number"
-            android:textSize="@dimen/dialog_text_size" />
-    </LinearLayout>
-
-
-</LinearLayout>
+</RelativeLayout>

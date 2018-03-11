@@ -5,6 +5,8 @@ import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.model.CryptoAsset
 import com.nebulights.coinstacks.Extensions.applyMe
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthenticationRealm
 import io.realm.Realm
 import java.math.BigDecimal
 
@@ -25,9 +27,42 @@ interface CryptoAssetContract {
     fun savePassword(password: String)
     fun isPasswordSet(): Boolean
     fun isPasswordValid(password: String): Boolean
+    fun getApiKeys(): MutableList<BasicAuthenticationRealm>
+    fun getApiKeysNonRealm(): MutableList<BasicAuthentication>
+    fun createOrUpdateApiKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
+    fun getApiKeysNonRealmForExchange(exchange: String): BasicAuthentication
 }
 
 class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
+    override fun getApiKeys(): MutableList<BasicAuthenticationRealm> {
+        val results = realm.where(BasicAuthenticationRealm::class.java).findAll()
+        return results.toMutableList()
+    }
+
+    override fun getApiKeysNonRealm(): MutableList<BasicAuthentication> {
+        val results = realm.where(BasicAuthenticationRealm::class.java).findAll()
+
+        val basicAuthenticationList: MutableList<BasicAuthentication> = mutableListOf()
+
+        results.forEach {
+            basicAuthenticationList.add(BasicAuthentication(it.exchange, it.apiKey, it.apiSecret, it.password, it.userName, it.getCryptoTypes()))
+        }
+
+        return basicAuthenticationList
+
+    }
+
+    override fun getApiKeysNonRealmForExchange(exchange: String): BasicAuthentication {
+        //  val results = realm.where(BasicAuthenticationRealm::class.java).findAll()
+
+        val results = realm.where(BasicAuthenticationRealm::class.java).equalTo("exchange", exchange).findFirst()
+
+        if (results != null) {
+            return BasicAuthentication(results.exchange, results.apiKey, results.apiSecret, results.password, results.userName, results.getCryptoTypes())
+        } else {
+            return BasicAuthentication("", "", "", "", "", listOf())
+        }
+    }
 
     val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
     val PREF_OWNED_ASSETS_VISIBLE = "ownedAssetsVisible"
@@ -42,6 +77,18 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
             createAsset(cryptoPair, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
         } else {
             updateAsset(asset, stringSafeBigDecimal(quantity), stringSafeBigDecimal(price))
+        }
+    }
+
+    override fun createOrUpdateApiKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>) {
+        val basicAuthentication = realm.where(BasicAuthenticationRealm::class.java).equalTo("exchange", exchange).findFirst()
+
+        setLastExchangeUsed(exchange)
+
+        if (basicAuthentication == null) {
+            createApiKey(exchange, userName, apiPassword, apiKey, apiSecret, cryptoPairs)
+        } else {
+            updateApiKey(basicAuthentication, userName, apiPassword, apiKey, apiSecret, cryptoPairs)
         }
     }
 
@@ -94,6 +141,27 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
         }
     }
 
+    private fun createApiKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>) {
+        realm.executeTransaction {
+            val basicAuthenticationRealm = realm.createObject(BasicAuthenticationRealm::class.java, exchange)
+            basicAuthenticationRealm.userName = userName
+            basicAuthenticationRealm.password = apiPassword
+            basicAuthenticationRealm.apiKey = apiKey
+            basicAuthenticationRealm.apiSecret = apiSecret
+            basicAuthenticationRealm.setCryptoTypes(cryptoPairs)
+        }
+    }
+
+    private fun updateApiKey(basicAuthenticationRealm: BasicAuthenticationRealm, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>) {
+        realm.executeTransaction {
+            basicAuthenticationRealm.userName = userName
+            basicAuthenticationRealm.password = apiPassword
+            basicAuthenticationRealm.apiKey = apiKey
+            basicAuthenticationRealm.apiSecret = apiSecret
+            basicAuthenticationRealm.setCryptoTypes(cryptoPairs)
+        }
+    }
+
     private fun setLastExchangeUsed(exchange: String) {
         sharedPreferences.applyMe { putString(PREF_LAST_EXCHANGE_SAVED, exchange) }
     }
@@ -111,7 +179,7 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
     }
 
     override fun isPasswordSet(): Boolean {
-        return sharedPreferences.getString(PREF_ASSET_PASSWORD,"") != ""
+        return sharedPreferences.getString(PREF_ASSET_PASSWORD, "") != ""
     }
 
     override fun savePassword(password: String) {
@@ -119,6 +187,6 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
     }
 
     override fun isPasswordValid(password: String): Boolean {
-        return sharedPreferences.getString(PREF_ASSET_PASSWORD,"") == password
+        return sharedPreferences.getString(PREF_ASSET_PASSWORD, "") == password
     }
 }

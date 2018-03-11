@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="exchanges">
-        <item>Bitfinex</item>
+        <item>BitFinex</item>
         <item>Bitstamp</item>
         <item>CEX.IO</item>
         <item>GDAX</item>

@@ -23,11 +23,13 @@ import io.reactivex.Observable
 
 class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exchange {
 
+    override val userNameRequired: Boolean = false
+    override val passwordRequired: Boolean = false
 
     override fun feedType(): String = ExchangeProvider.GEMINI_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
@@ -36,7 +38,7 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
 
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
                 .flatMap<Any> { details ->
@@ -47,7 +49,9 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
                             details.payload,
                             details.signature,
                             details.balanceRequest)
-                }, feedType())
+                }, feedType(),
+                presenterCallback,
+                networkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

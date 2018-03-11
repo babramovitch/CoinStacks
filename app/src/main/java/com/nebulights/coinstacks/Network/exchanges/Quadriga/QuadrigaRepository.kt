@@ -17,10 +17,13 @@ import io.reactivex.Observable
 
 class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() {
 
+    override val userNameRequired: Boolean = true
+    override val passwordRequired: Boolean = false
+
     override fun feedType(): String = ExchangeProvider.QUADRIGACX_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
@@ -28,13 +31,13 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
         }
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> {
                     Observable.just(
                             generateAuthenticationDetails(basicAuthentication))
                 }
-                .flatMap<Any> { balances -> service.getBalances(balances) }, feedType())
+                .flatMap<Any> { balances -> service.getBalances(balances) }, feedType(), presenterCallback, networkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

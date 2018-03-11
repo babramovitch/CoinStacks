@@ -19,10 +19,13 @@ import io.reactivex.Observable
 
 class BitstampRepository(private val service: BitstampService) : BaseExchange(), Exchange {
 
+    override val userNameRequired: Boolean = true
+    override val passwordRequired: Boolean = false
+
     override fun feedType(): String = ExchangeProvider.BITSTAMP_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
@@ -31,7 +34,7 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
 
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
                 .flatMap<Any> { details ->
@@ -39,7 +42,9 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
                             details.key,
                             details.signature,
                             details.nonce)
-                }, feedType())
+                }, feedType(),
+                presenterCallback,
+                networkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coins_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:showIn="@layout/fragment_additions">
+
+
+    <LinearLayout
+        android:id="@+id/crypto_layout_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="@dimen/api_nested_margins"
+        android:layout_marginRight="@dimen/api_nested_margins">
+
+        <TextView
+            style="@style/width_half_weight"
+            android:gravity="center_vertical"
+            android:text="@string/dialog_quantity"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/crypto_quantity"
+            style="@style/width_half_weight"
+            android:gravity="center"
+            android:hint="@string/dialog_quantity_hint"
+            android:inputType="numberDecimal|number"
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/crypto_layout_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/crypto_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/dialog_price_hint"
+            android:inputType="numberDecimal|number" />
+    </android.support.design.widget.TextInputLayout>
+</LinearLayout>

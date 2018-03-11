@@ -23,15 +23,17 @@
     <string name="confirm_password_hint">same 4 digits</string>
     <string name="password_confirm_text">Confirm:</string>
     <string name="password_text">Password:</string>
-    <string name="dialog_quantity">Quantity:</string>
+    <string name="dialog_quantity">Quantity</string>
     <string name="dialog_quantity_hint">e.g. 10.00</string>
     <string name="dialog_price_hint">Price</string>
-    <string name="dialog_crypto_pair">Pair:</string>
-    <string name="dialog_exchange">Exchange:</string>
+    <string name="dialog_crypto_pair">Pair</string>
+    <string name="dialog_exchange">Exchange</string>
     <string name="assets_owned">Coins Owned</string>
-    <string name="api_privacy_warning">Information entered here is only used to request your balance details from the exchange. It
-        is not transmitted to any 3rd party external servers. When creating the API key on your exchanges website, ensure the API key
+    <string name="api_privacy_warning"><b>Privacy Information</b>\n\nInformation entered here is only used to request your balance details directly from the exchange. It
+        is not transmitted to any 3rd party external servers. Additionally, the \'API Secret Key\' never leaves your device. \n\nWhen creating the API key on your exchanges website, ensure the API key
         only has the minimum permissions required to view account balances. If your device is lost or stolen, for your own privacy
-    remove permissions to these API keys from your exchanges website.</string>
+    remove permissions to these API keys from your exchanges website.\n\nNote - Future updates may include transaction histories, you may need to update your API key to enable this functionality when it is added.\n</string>
+    <string name="save">Save</string>
+    <string name="display_settings">Currency Conversions</string>
 
 </resources>

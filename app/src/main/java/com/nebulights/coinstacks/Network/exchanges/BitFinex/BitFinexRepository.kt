@@ -6,6 +6,7 @@ import com.nebulights.coinstacks.Network.NetworkDataUpdate
 import com.nebulights.coinstacks.Network.Exchange
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
 
 /**
  * Created by babramovitch on 10/25/2017.
@@ -13,10 +14,13 @@ import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 
 class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchange {
 
+    override val userNameRequired: Boolean = false
+    override val passwordRequired: Boolean = false
+
     override fun feedType(): String = ExchangeProvider.BITFINEX_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
@@ -24,11 +28,11 @@ class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchang
         }
     }
 
-    override fun startAccountFeed() {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun generateAuthenticationDetails(): Any {
+    override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

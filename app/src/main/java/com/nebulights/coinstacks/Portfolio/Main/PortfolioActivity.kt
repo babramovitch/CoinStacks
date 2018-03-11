@@ -17,6 +17,7 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
 
     private var TAG = "MainActivity"
     private lateinit var presenter: PortfolioPresenter
+    private var REQUEST_ADD_ITEM = 10
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,14 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == REQUEST_ADD_ITEM && resultCode == 1 ) {
+            presenter.refreshData()
+        }
+    }
+
     private fun createPresenter(portfolioFragment: PortfolioFragment) {
         val exchanges = Exchanges
         exchanges.loadRepositories(ExchangeProvider)
@@ -44,15 +53,15 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
         presenter = PortfolioPresenter(exchanges,
                 portfolioFragment, cryptoAssetRepository, this)
 
-        if (cryptoAssetRepository.isPasswordSet()) {
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE)
-        }
+//        if (cryptoAssetRepository.isPasswordSet()) {
+//            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+//                    WindowManager.LayoutParams.FLAG_SECURE)
+//        }
     }
 
     override fun addNewItem() {
         val intent = Intent(this, AdditionsActivity::class.java)
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_ADD_ITEM)
     }
 
     override fun onBackPressed() {

@@ -18,7 +18,8 @@
         </activity>
 
         <activity android:name="com.nebulights.coinstacks.Portfolio.Additions.AdditionsActivity"
-            android:label="Add Coins">
+            android:label="Add New"
+            android:parentActivityName="com.nebulights.coinstacks.Portfolio.Main.PortfolioActivity">
 
         </activity>
 

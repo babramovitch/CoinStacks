@@ -14,21 +14,99 @@ import com.nebulights.coinstacks.Extensions.inflate
  * Created by babramovitch on 10/26/2017.
  */
 
-class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<PortfolioRecyclerAdapter.ViewHolder>() {
+class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
-        holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(holder.adapterPosition) }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
+        if (holder.itemViewType == 0) {
+            holder as ViewHolderCoins
+            presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
+        } else if (holder.itemViewType == 1) {
+            holder as ViewHolderApi
+            presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
+        }
+        //TODO Launch edit fragment or list of items under that exch
+        //holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(holder.adapterPosition) }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
-        return ViewHolder(inflatedView)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+            when (viewType) {
+                0 -> {
+                    val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
+                    ViewHolderCoins(inflatedView)
+                }
+
+                1 -> {
+                    val inflatedView = parent.inflate(R.layout.recycler_list_item_api, false)
+                    ViewHolderApi(inflatedView)
+                }
+                else -> throw IllegalArgumentException("Wrong type of view")
+            }
+
+
+    override fun getItemViewType(position: Int): Int {
+        // Just as an example, return 0 or 2 depending on position
+        // Note that unlike in ListView adapters, types don't have to be contiguous
+        return presenter.recyclerViewType(position)
     }
 
     override fun getItemCount(): Int = presenter.tickerCount()
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
+    class ViewHolderCoins(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
+
+        @BindView(R.id.recycler_ticker)
+        lateinit var ticker: TextView
+
+        @BindView(R.id.recycler_exchange)
+        lateinit var exchange: TextView
+
+        @BindView(R.id.recycler_last_price)
+        lateinit var lastPrice: TextView
+
+        @BindView(R.id.recycler_holdings)
+        lateinit var holdings: TextView
+
+        @BindView(R.id.recycler_holdings_layout)
+        lateinit var holdingsLayout: LinearLayout
+
+        @BindView(R.id.recycler_net_value)
+        lateinit var netValue: TextView
+
+        @BindView(R.id.recycler_net_value_layout)
+        lateinit var netValueLayout: LinearLayout
+
+        init {
+            ButterKnife.bind(this, view)
+        }
+
+        override fun setExchange(exchange: String) {
+            this.exchange.text = exchange
+        }
+
+        override fun setTicker(ticker: String) {
+            this.ticker.text = ticker
+        }
+
+        override fun setLastPrice(lastPrice: String) {
+            this.lastPrice.text = lastPrice
+        }
+
+        override fun setHoldings(holdings: String) {
+            this.holdings.text = holdings
+        }
+
+        override fun setNetValue(netValue: String) {
+            this.netValue.text = netValue
+        }
+
+        override fun showQuantities(visible: Boolean) {
+            holdingsLayout.visibility = if (visible) View.VISIBLE else View.GONE
+            netValueLayout.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+    }
+
+    class ViewHolderApi(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView

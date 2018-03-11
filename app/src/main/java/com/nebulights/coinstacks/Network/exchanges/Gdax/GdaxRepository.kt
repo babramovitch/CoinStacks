@@ -20,10 +20,13 @@ import io.reactivex.Observable
 
 class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchange {
 
+    override val userNameRequired: Boolean = false
+    override val passwordRequired: Boolean = true
+
     override fun feedType(): String = ExchangeProvider.GDAX_NAME
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
-        clearDisposables()
+        clearTickerDisposables()
 
         tickers.forEach { ticker ->
             startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
@@ -32,7 +35,8 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
 
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+
         startAccountBalanceFeed(
                 Observable
                         .defer<AuthenticationDetails> {
@@ -45,7 +49,9 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
                                     details.signature,
                                     details.timestamp,
                                     details.passphrase)
-                        }, feedType())
+                        }, feedType(),
+                presenterCallback,
+                networkDataUpdate)
     }
 
 
@@ -68,4 +74,5 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
         return AuthenticationDetails(basicAuthentication.apiKey, signature, timestamp, basicAuthentication.password)
 
     }
+
 }

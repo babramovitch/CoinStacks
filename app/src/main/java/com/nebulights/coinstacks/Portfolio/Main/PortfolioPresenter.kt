@@ -3,6 +3,8 @@ package com.nebulights.coinstacks.Portfolio.Main
 import com.nebulights.coinstacks.*
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
+import com.nebulights.coinstacks.Network.exchanges.ApiBalances
+import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.TradingInfo
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.currencyFormatter
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.smallCurrencyFormatter
@@ -19,9 +21,26 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                          val cryptoAssetRepository: CryptoAssetContract,
                          val navigation: PortfolioContract.Navigator) : PortfolioContract.Presenter, NetworkCompletionCallback {
 
+
+    override fun recyclerViewType(position: Int): Int {
+        val item = testList[position]
+
+        var returnValue = 0
+
+        if (item is CryptoPairs) {
+            returnValue = 0
+        } else if (item is BasicAuthentication) {
+            returnValue = 1
+        }
+
+        return returnValue
+    }
+
     private val TAG = "PortfolioPresenter"
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickers: MutableList<CryptoPairs>
+    private var apiKeys: MutableList<BasicAuthentication>
+    private var testList: MutableList<Any> = mutableListOf()
 
     private var timeStopped = System.currentTimeMillis()
     private val MINUTE_IN_MILLIS = 60000
@@ -29,6 +48,23 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     init {
         view.setPresenter(this)
         tickers = cryptoAssetRepository.getTickers()
+        apiKeys = cryptoAssetRepository.getApiKeysNonRealm()
+
+        tickers.forEach { testList.add(it) }
+        apiKeys.forEach { testList.add(it) }
+
+    }
+
+    fun refreshData() {
+        tickers = cryptoAssetRepository.getTickers()
+        apiKeys = cryptoAssetRepository.getApiKeysNonRealm()
+        testList.clear()
+
+        tickers.forEach { testList.add(it) }
+        apiKeys.forEach { testList.add(it) }
+
+        var i = 0
+        i = i + 1
     }
 
     override fun startFeed() {
@@ -36,7 +72,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             lockData()
         }
 
-        exchanges.startFeed(tickers, this)
+        exchanges.startFeed(tickers.distinct(), this)
+
+
+        //can't pass the realm object around into a threaded environment, need to copy to new object
+
+        exchanges.startBalanceFeed(cryptoAssetRepository.getApiKeysNonRealm(), this)
     }
 
     fun shouldSecureData(timeSincePaused: Long): Boolean =
@@ -47,80 +88,125 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         view.updateUi(getOrderedTickerIndex(ticker))
     }
 
+    override fun updateUi(apiBalances: ApiBalances) {
+        addNewNonZeroPairsToTickers(apiBalances)
+    }
+
+    private fun addNewNonZeroPairsToTickers(apiBalances: ApiBalances) {
+        val source = apiKeys.find { it.exchange == apiBalances.exchange }
+
+        if (source != null) {
+            val oldSize = tickers.size
+
+            val cryptoPairMap = source.getCryptoPairsMap()
+            val nonZeroCryptoPairs = apiBalances.getCryptoPairsForNonZeroBalances(cryptoPairMap)
+
+            nonZeroCryptoPairs.forEach {
+                if (tickers.indexOf(it) == -1) {
+                    tickers.add(it)
+                }
+            }
+
+            val newSize = tickers.size
+
+            if (newSize != oldSize) {
+                exchanges.startFeed(tickers, this)
+            }
+        }
+    }
+
     override fun stopFeed() {
         timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
     }
 
     override fun showAddNewAssetDialog() {
-         view.showAddNewAssetDialog()
-        //navigation.addNewItem()
+        //view.showAddNewAssetDialog()
+        navigation.addNewItem()
     }
 
-    override fun showCreateAssetDialog(position: Int) {
-        if (cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet()) {
-            view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
-        }
-    }
+//    override fun showCreateAssetDialog(position: Int) {
+//        if (cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet()) {
+//            view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
+//        }
+//    }
 
-    override fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
-        createOrUpdateAsset(cryptoPair, quantity, price)
-        view.updateUi(getOrderedTickerIndex(cryptoPair))
-    }
+//    override fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
+//        createOrUpdateAsset(cryptoPair, quantity, price)
+//        view.updateUi(getOrderedTickerIndex(cryptoPair))
+//    }
 
-    override fun createAsset(exchange: String, userTicker: String, quantity: String, price: String) {
-        val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
 
-        createOrUpdateAsset(cryptoPair!!, quantity, price)
-        updateUi(cryptoPair)
+//    fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
+//        cryptoAssetRepository.createOrUpdateAsset(cryptoPair, quantity, price)
+//
+//        if (tickers.indexOf(cryptoPair) == -1) {
+//            tickers.add(cryptoPair)
+//        }
+//    }
 
-        exchanges.startFeed(tickers, this)
-    }
-
-    fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
-        cryptoAssetRepository.createOrUpdateAsset(cryptoPair, quantity, price)
-
-        if (tickers.indexOf(cryptoPair) == -1) {
-            tickers.add(cryptoPair)
-        }
-    }
-
-    override fun lastUsedExchange(exchanges: Array<String>): Int {
-        val exchange = cryptoAssetRepository.lastUsedExchange()
-        val exchangeIndex = exchanges.indexOf(exchange)
-        if (exchangeIndex == -1) {
-            return 0
-        } else {
-            return exchangeIndex
-        }
-    }
+//    override fun lastUsedExchange(exchanges: Array<String>): Int {
+//        val exchange = cryptoAssetRepository.lastUsedExchange()
+//        val exchangeIndex = exchanges.indexOf(exchange)
+//        if (exchangeIndex == -1) {
+//            return 0
+//        } else {
+//            return exchangeIndex
+//        }
+//    }
 
     override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
-        val currentTradingInfo = getCurrentTradingData(position)
 
-        val ticker = getOrderedTicker(position)
+        if (testList[position] is CryptoPairs) {
 
-        row.setTicker(ticker.userTicker())
-        row.setExchange(ticker.exchange)
+            val currentTradingInfo = getCurrentTradingData(position)
 
-        val holdings = tickerQuantityForIndex(position)
-        row.setHoldings(holdings.toString())
+            val ticker = getOrderedTicker(position)
 
-        if (currentTradingInfo != null) {
-            val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
-            if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
-                row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
-            } else {
-                row.setLastPrice(currencyFormatter().format(lastPrice))
-            }
+            row.setTicker(ticker.userTicker())
+            row.setExchange(ticker.exchange)
+
+            val holdings = tickerQuantityForIndex(position)
             row.setHoldings(holdings.toString())
-            row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
-        } else {
-            row.setLastPrice("---")
-            row.setNetValue("---")
-        }
 
-        row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+            if (currentTradingInfo != null) {
+                val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
+                if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
+                    row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
+                } else {
+                    row.setLastPrice(currencyFormatter().format(lastPrice))
+                }
+                row.setHoldings(holdings.toString())
+                row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
+            } else {
+                row.setLastPrice("---")
+                row.setNetValue("---")
+            }
+
+            row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+        } else if (testList[position] is BasicAuthentication) {
+            val data = exchanges.getApiData()
+
+
+            if (data.isNotEmpty()) {
+
+                val blah = testList[position] as BasicAuthentication
+
+                if (data[blah.exchange] != null) {
+                    row.setHoldings(data[blah.exchange]!!.ethBalance!!)
+                }
+
+                row.setHoldings(data[blah.exchange]?.ethBalance!!)
+            }
+
+            val exchangeData = exchanges.getData()
+            if (exchangeData[CryptoPairs.BITSTAMP_ETH_USD] != null) {
+                row.setLastPrice(exchangeData[CryptoPairs.BITSTAMP_ETH_USD]!!.lastPrice)
+
+            }
+
+
+        }
     }
 
     override fun showConfirmDeleteAllDialog() {
@@ -152,6 +238,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     fun getNetWorth(): List<String> {
         var netWorth: MutableMap<CurrencyTypes, BigDecimal> = mutableMapOf()
 
+
         for ((ticker, data) in exchanges.getData()) {
             var subTotal = netWorth[ticker.currencyType]
 
@@ -170,7 +257,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun tickerCount(): Int {
-        return tickers.count()
+        return testList.size
     }
 
     override fun onDetach() {
@@ -216,18 +303,18 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }.map { ticker -> ticker.userTicker() }
     }
 
-    override fun removeAsset(cryptoPair: CryptoPairs) {
-        cryptoAssetRepository.removeAsset(cryptoPair)
-        val position = tickers.indexOf(cryptoPair)
-        tickers.remove(cryptoPair)
-        view.removeItem(position)
-
-        if (tickers.isNotEmpty()) {
-            exchanges.startFeed(tickers, this)
-        } else {
-            stopFeed()
-        }
-    }
+//    override fun removeAsset(cryptoPair: CryptoPairs) {
+//        cryptoAssetRepository.removeAsset(cryptoPair)
+//        val position = tickers.indexOf(cryptoPair)
+//        tickers.remove(cryptoPair)
+//        view.removeItem(position)
+//
+//        if (tickers.isNotEmpty()) {
+//            exchanges.startFeed(tickers, this)
+//        } else {
+//            stopFeed()
+//        }
+//    }
 
     override fun savePassword(password: String) {
         cryptoAssetRepository.savePassword(password)

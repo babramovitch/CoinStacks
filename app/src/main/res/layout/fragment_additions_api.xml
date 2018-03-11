@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/api_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:showIn="@layout/fragment_additions">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/display_settings"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dialog_text_size"
+        android:textStyle="bold" />
+
+
+    <LinearLayout
+        android:id="@+id/api_pair_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/api_nested_margins"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="API Credentials"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dialog_text_size"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/api_username_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/api_nested_margins"
+        android:layout_marginRight="@dimen/api_nested_margins"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="User Name"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/api_username_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="User Name For API Key (not login username)"
+            android:inputType="numberDecimal|number"
+            android:text=""
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/api_key_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/api_nested_margins"
+        android:layout_marginRight="@dimen/api_nested_margins"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="API Key"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/api_key_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="API Key From Website"
+            android:inputType="numberDecimal|number"
+            android:text=""
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/api_secret_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/api_nested_margins"
+        android:layout_marginRight="@dimen/api_nested_margins"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="API Secret"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/api_secret_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="API Secret From Website"
+            android:inputType="numberDecimal|number"
+            android:text=""
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/api_password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/api_nested_margins"
+        android:layout_marginRight="@dimen/api_nested_margins"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="API Password"
+            android:textColor="@color/black"
+            android:textSize="@dimen/dialog_text_size" />
+
+        <EditText
+            android:id="@+id/api_password_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text=""
+            android:hint="API Password From Website"
+            android:inputType="numberDecimal|number"
+            android:textSize="@dimen/dialog_text_size" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/api_privacy_warning"
+        android:textColor="@color/black"
+        android:textSize="@dimen/dialog_text_size" />
+
+</LinearLayout>

@@ -18,13 +18,23 @@ import java.util.concurrent.TimeUnit
 
 abstract class BaseExchange : Exchange {
 
-    private var disposables: CompositeDisposable = CompositeDisposable()
+    private var tickerDisposables: CompositeDisposable = CompositeDisposable()
+    private var balanceDisposables: CompositeDisposable = CompositeDisposable()
+
+    abstract val userNameRequired: Boolean
+    abstract val passwordRequired: Boolean
 
     abstract fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any
 
-    fun clearDisposables() {
-        if (disposables.size() != 0) {
-            disposables.clear()
+    fun clearTickerDisposables() {
+        if (tickerDisposables.size() != 0) {
+            tickerDisposables.clear()
+        }
+    }
+
+    fun clearBalanceDisposables() {
+        if (balanceDisposables.size() != 0) {
+            balanceDisposables.clear()
         }
     }
 
@@ -46,12 +56,13 @@ abstract class BaseExchange : Exchange {
                     error.printStackTrace()
                 })
 
-        disposables.add(disposable)
+        tickerDisposables.add(disposable)
     }
 
-    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: String) {
+    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: String, networkCompletionCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+        clearBalanceDisposables()
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay(60, TimeUnit.SECONDS) }
+                .repeatWhen { result -> result.delay(15, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
 
@@ -59,8 +70,20 @@ abstract class BaseExchange : Exchange {
                         @Suppress("UNCHECKED_CAST")
                         result as Array<NormalizedBalanceData>
                         Log.i("asdfbalance", exchange + " BCH BALANCE: " + result[0].getBchBalance())
+                        val balances = ApiBalances(exchange, "1", "1", "1", "1", "0", "0", "0",
+                                "0", "1", "1", "1")
+
+                        networkCompletionCallback.updateUi(balances)
+                        networkDataUpdate.updateApiData(exchange, balances)
                     } else {
                         result as NormalizedBalanceData
+
+                        val balances = ApiBalances(exchange, "1", "1", "1", "1", "1", "1", "1",
+                                "1", "1", "1", "1")
+
+                        networkCompletionCallback.updateUi(balances)
+                        networkDataUpdate.updateApiData(exchange, balances)
+
                         Log.i("asdfbalance", exchange + " BCH BALANCE: " + result.getBchBalance())
                     }
 
@@ -68,12 +91,15 @@ abstract class BaseExchange : Exchange {
                     error.printStackTrace()
                 })
 
-        disposables.add(disposable)
+        balanceDisposables.add(disposable)
     }
 
 
     override fun stopFeed() {
-        disposables.clear()
+        tickerDisposables.clear()
     }
+
+    override fun userNameRequired(): Boolean = userNameRequired
+    override fun passwordRequired(): Boolean = passwordRequired
 
 }
