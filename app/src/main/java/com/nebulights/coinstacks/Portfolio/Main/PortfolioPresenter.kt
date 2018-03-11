@@ -18,23 +18,9 @@ import java.math.BigDecimal
 
 class PortfolioPresenter(private var exchanges: Exchanges,
                          private var view: PortfolioContract.View,
-                         val cryptoAssetRepository: CryptoAssetContract,
-                         val navigation: PortfolioContract.Navigator) : PortfolioContract.Presenter, NetworkCompletionCallback {
-
-
-    override fun recyclerViewType(position: Int): Int {
-        val item = testList[position]
-
-        var returnValue = 0
-
-        if (item is CryptoPairs) {
-            returnValue = 0
-        } else if (item is BasicAuthentication) {
-            returnValue = 1
-        }
-
-        return returnValue
-    }
+                         private val cryptoAssetRepository: CryptoAssetContract,
+                         private val navigation: PortfolioContract.Navigator) :
+        PortfolioContract.Presenter, NetworkCompletionCallback {
 
     private val TAG = "PortfolioPresenter"
     private var allTickers = enumValues<CryptoPairs>().map { it }
@@ -63,8 +49,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         tickers.forEach { testList.add(it) }
         apiKeys.forEach { testList.add(it) }
 
-        var i = 0
-        i = i + 1
     }
 
     override fun startFeed() {
@@ -73,10 +57,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
 
         exchanges.startFeed(tickers.distinct(), this)
-
-
-        //can't pass the realm object around into a threaded environment, need to copy to new object
-
         exchanges.startBalanceFeed(cryptoAssetRepository.getApiKeysNonRealm(), this)
     }
 
@@ -121,93 +101,11 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showAddNewAssetDialog() {
-        //view.showAddNewAssetDialog()
         navigation.addNewItem()
     }
 
-//    override fun showCreateAssetDialog(position: Int) {
-//        if (cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet()) {
-//            view.showCreateAssetDialog(getOrderedTicker(position), tickerQuantityForIndex(position).toString())
-//        }
-//    }
-
-//    override fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
-//        createOrUpdateAsset(cryptoPair, quantity, price)
-//        view.updateUi(getOrderedTickerIndex(cryptoPair))
-//    }
 
 
-//    fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
-//        cryptoAssetRepository.createOrUpdateAsset(cryptoPair, quantity, price)
-//
-//        if (tickers.indexOf(cryptoPair) == -1) {
-//            tickers.add(cryptoPair)
-//        }
-//    }
-
-//    override fun lastUsedExchange(exchanges: Array<String>): Int {
-//        val exchange = cryptoAssetRepository.lastUsedExchange()
-//        val exchangeIndex = exchanges.indexOf(exchange)
-//        if (exchangeIndex == -1) {
-//            return 0
-//        } else {
-//            return exchangeIndex
-//        }
-//    }
-
-    override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
-
-        if (testList[position] is CryptoPairs) {
-
-            val currentTradingInfo = getCurrentTradingData(position)
-
-            val ticker = getOrderedTicker(position)
-
-            row.setTicker(ticker.userTicker())
-            row.setExchange(ticker.exchange)
-
-            val holdings = tickerQuantityForIndex(position)
-            row.setHoldings(holdings.toString())
-
-            if (currentTradingInfo != null) {
-                val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
-                if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
-                    row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
-                } else {
-                    row.setLastPrice(currencyFormatter().format(lastPrice))
-                }
-                row.setHoldings(holdings.toString())
-                row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
-            } else {
-                row.setLastPrice("---")
-                row.setNetValue("---")
-            }
-
-            row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
-        } else if (testList[position] is BasicAuthentication) {
-            val data = exchanges.getApiData()
-
-
-            if (data.isNotEmpty()) {
-
-                val blah = testList[position] as BasicAuthentication
-
-                if (data[blah.exchange] != null) {
-                    row.setHoldings(data[blah.exchange]!!.ethBalance!!)
-                }
-
-                row.setHoldings(data[blah.exchange]?.ethBalance!!)
-            }
-
-            val exchangeData = exchanges.getData()
-            if (exchangeData[CryptoPairs.BITSTAMP_ETH_USD] != null) {
-                row.setLastPrice(exchangeData[CryptoPairs.BITSTAMP_ETH_USD]!!.lastPrice)
-
-            }
-
-
-        }
-    }
 
     override fun showConfirmDeleteAllDialog() {
         view.showConfirmDeleteAllDialog()
@@ -235,8 +133,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         return if (combinedString.trim().equals("")) "$0.00" else combinedString.trim()
     }
 
-    fun getNetWorth(): List<String> {
-        var netWorth: MutableMap<CurrencyTypes, BigDecimal> = mutableMapOf()
+    private fun getNetWorth(): List<String> {
+        val netWorth: MutableMap<CurrencyTypes, BigDecimal> = mutableMapOf()
 
 
         for ((ticker, data) in exchanges.getData()) {
@@ -303,19 +201,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }.map { ticker -> ticker.userTicker() }
     }
 
-//    override fun removeAsset(cryptoPair: CryptoPairs) {
-//        cryptoAssetRepository.removeAsset(cryptoPair)
-//        val position = tickers.indexOf(cryptoPair)
-//        tickers.remove(cryptoPair)
-//        view.removeItem(position)
-//
-//        if (tickers.isNotEmpty()) {
-//            exchanges.startFeed(tickers, this)
-//        } else {
-//            stopFeed()
-//        }
-//    }
-
     override fun savePassword(password: String) {
         cryptoAssetRepository.savePassword(password)
         cryptoAssetRepository.setAssetsVisibility(true)
@@ -352,6 +237,75 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             view.showAssetQuantites(true)
         } else {
             view.showUnlockDialog(false)
+        }
+    }
+
+    override fun recyclerViewType(position: Int): Int {
+        val item = testList[position]
+
+        var returnValue = 0
+
+        if (item is CryptoPairs) {
+            returnValue = 0
+        } else if (item is BasicAuthentication) {
+            returnValue = 1
+        }
+
+        return returnValue
+    }
+
+
+    override fun onBindRepositoryRowViewAtPosition(position: Int, row: PortfolioContract.ViewRow) {
+
+        if (testList[position] is CryptoPairs) {
+
+            val currentTradingInfo = getCurrentTradingData(position)
+
+            val ticker = getOrderedTicker(position)
+
+            row.setTicker(ticker.userTicker())
+            row.setExchange(ticker.exchange)
+
+            val holdings = tickerQuantityForIndex(position)
+            row.setHoldings(holdings.toString())
+
+            if (currentTradingInfo != null) {
+                val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
+                if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
+                    row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
+                } else {
+                    row.setLastPrice(currencyFormatter().format(lastPrice))
+                }
+                row.setHoldings(holdings.toString())
+                row.setNetValue(currencyFormatter().format(netValue(lastPrice, holdings)))
+            } else {
+                row.setLastPrice("---")
+                row.setNetValue("---")
+            }
+
+            row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+        } else if (testList[position] is BasicAuthentication) {
+            val data = exchanges.getApiData()
+
+
+            if (data.isNotEmpty()) {
+
+                val blah = testList[position] as BasicAuthentication
+
+                if (data[blah.exchange] != null) {
+                    row.setHoldings(data[blah.exchange]!!.ethBalance.toString())
+                }
+
+                //row.setHoldings(data[blah.exchange]?.ethBalance!!.toString())
+            }
+
+            val exchangeData = exchanges.getData()
+            if (exchangeData[CryptoPairs.BITSTAMP_ETH_USD] != null) {
+                row.setLastPrice(exchangeData[CryptoPairs.BITSTAMP_ETH_USD]!!.lastPrice)
+
+            }
+
+
         }
     }
 }

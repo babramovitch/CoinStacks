@@ -9,6 +9,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 /**
@@ -66,26 +67,21 @@ abstract class BaseExchange : Exchange {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
 
+                    var balances: ApiBalances
+
                     if (result is Array<*>) {
                         @Suppress("UNCHECKED_CAST")
                         result as Array<NormalizedBalanceData>
                         Log.i("asdfbalance", exchange + " BCH BALANCE: " + result[0].getBchBalance())
-                        val balances = ApiBalances(exchange, "1", "1", "1", "1", "0", "0", "0",
-                                "0", "1", "1", "1")
-
-                        networkCompletionCallback.updateUi(balances)
-                        networkDataUpdate.updateApiData(exchange, balances)
+                        balances = ApiBalances.create(exchange, result)
                     } else {
                         result as NormalizedBalanceData
-
-                        val balances = ApiBalances(exchange, "1", "1", "1", "1", "1", "1", "1",
-                                "1", "1", "1", "1")
-
-                        networkCompletionCallback.updateUi(balances)
-                        networkDataUpdate.updateApiData(exchange, balances)
-
+                        balances = ApiBalances.create(exchange, result)
                         Log.i("asdfbalance", exchange + " BCH BALANCE: " + result.getBchBalance())
                     }
+
+                    networkCompletionCallback.updateUi(balances)
+                    networkDataUpdate.updateApiData(exchange, balances)
 
                 }, { error ->
                     error.printStackTrace()
@@ -97,6 +93,7 @@ abstract class BaseExchange : Exchange {
 
     override fun stopFeed() {
         tickerDisposables.clear()
+        balanceDisposables.clear()
     }
 
     override fun userNameRequired(): Boolean = userNameRequired

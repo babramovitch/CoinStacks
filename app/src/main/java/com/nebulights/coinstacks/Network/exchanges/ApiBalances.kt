@@ -2,52 +2,70 @@ package com.nebulights.coinstacks.Network.exchanges
 
 import com.nebulights.coinstacks.CryptoPairs
 import com.nebulights.coinstacks.CryptoTypes
+import java.math.BigDecimal
 
 data class ApiBalances(
         val exchange: String,
-        val btcBalance: String,
-        val bchBalance: String,
-        val ltcBalance: String,
-        val ethBalance: String,
-        val xrpBalance: String,
-        val xmrBalance: String,
-        val btgBalance: String,
-        val cadBalance: String,
-        val usdBalance: String,
-        val eurBalance: String,
-        val gbpBalance: String) {
+        val btcBalance: BigDecimal,
+        val bchBalance: BigDecimal,
+        val ltcBalance: BigDecimal,
+        val ethBalance: BigDecimal,
+        val xrpBalance: BigDecimal,
+        val xmrBalance: BigDecimal,
+        val btgBalance: BigDecimal,
+        val cadBalance: BigDecimal,
+        val usdBalance: BigDecimal,
+        val eurBalance: BigDecimal,
+        val gbpBalance: BigDecimal) {
 
 
+    companion object {
+        fun create(exchange: String, normalizedBalanceData: NormalizedBalanceData): ApiBalances {
+            return ApiBalances(exchange,
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"))
+        }
+
+        fun create(exchange: String, normalizedBalanceData: Array<NormalizedBalanceData>): ApiBalances {
+            return ApiBalances(exchange,
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"), BigDecimal("1"),
+                    BigDecimal("1"), BigDecimal("1"))
+        }
+    }
 
     fun getCryptoPairsForNonZeroBalances(cryptoPairMap: MutableMap<CryptoTypes, CryptoPairs>): MutableList<CryptoPairs> {
 
         val pairs: MutableList<CryptoPairs> = mutableListOf()
 
-        if (btcBalance != "0"){
+        if (btcBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.BTC])
         }
 
-        if (bchBalance != "0"){
+        if (bchBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.BCH])
         }
 
-        if (ltcBalance != "0"){
+        if (ltcBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.LTC])
         }
 
-        if (ethBalance != "0"){
+        if (ethBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.ETH])
         }
 
-        if (xrpBalance != "0"){
+        if (xrpBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.XRP])
         }
 
-        if (xmrBalance != "0"){
+        if (xmrBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.XMR])
         }
 
-        if (btgBalance != "0"){
+        if (btgBalance != BigDecimal.ZERO) {
             addPair(pairs, cryptoPairMap[CryptoTypes.BTG])
         }
 
@@ -55,10 +73,8 @@ data class ApiBalances(
     }
 
     private fun addPair(pairs: MutableList<CryptoPairs>, cryptoPairs: CryptoPairs?) {
-        if(cryptoPairs != null) {
+        if (cryptoPairs != null) {
             pairs.add(cryptoPairs)
         }
     }
-
-
 }
