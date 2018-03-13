@@ -39,11 +39,13 @@ enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTy
 
     // Bitstamp
     BITSTAMP_BTC_USD(CryptoTypes.BTC, CurrencyTypes.USD, "btcusd", ExchangeProvider.BITSTAMP_NAME),
+    BITSTAMP_BCH_USD(CryptoTypes.BCH, CurrencyTypes.USD, "bchusd", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_ETH_USD(CryptoTypes.ETH, CurrencyTypes.USD, "ethusd", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_LTC_USD(CryptoTypes.LTC, CurrencyTypes.USD, "ltcusd", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_XRP_USD(CryptoTypes.XRP, CurrencyTypes.USD, "xrpusd", ExchangeProvider.BITSTAMP_NAME),
 
     BITSTAMP_BTC_EUR(CryptoTypes.BTC, CurrencyTypes.EUR, "btceur", ExchangeProvider.BITSTAMP_NAME),
+    BITSTAMP_BCH_EUR(CryptoTypes.BCH, CurrencyTypes.EUR, "bcheur", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_ETH_EUR(CryptoTypes.ETH, CurrencyTypes.EUR, "etheur", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_LTC_EUR(CryptoTypes.LTC, CurrencyTypes.EUR, "ltceur", ExchangeProvider.BITSTAMP_NAME),
     BITSTAMP_XRP_EUR(CryptoTypes.XRP, CurrencyTypes.EUR, "xrpeur", ExchangeProvider.BITSTAMP_NAME),
