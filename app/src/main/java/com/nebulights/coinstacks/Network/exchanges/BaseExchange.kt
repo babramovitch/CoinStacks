@@ -9,13 +9,11 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 /**
  * Created by babramovitch on 10/25/2017.
  */
-
 
 abstract class BaseExchange : Exchange {
 
@@ -60,28 +58,28 @@ abstract class BaseExchange : Exchange {
         tickerDisposables.add(disposable)
     }
 
-    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: String, networkCompletionCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: BasicAuthentication, networkCompletionCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         clearBalanceDisposables()
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { result -> result.delay(15, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
 
-                    var balances: ApiBalances
+                    val balances: ApiBalances
 
                     if (result is Array<*>) {
                         @Suppress("UNCHECKED_CAST")
                         result as Array<NormalizedBalanceData>
-                        Log.i("asdfbalance", exchange + " BCH BALANCE: " + result[0].getBchBalance())
-                        balances = ApiBalances.create(exchange, result)
+                        balances = ApiBalances.create(exchange.exchange, exchange.getCryptoPairsMap(), result)
+                        Log.i("ASDF", balances.toString())
                     } else {
                         result as NormalizedBalanceData
-                        balances = ApiBalances.create(exchange, result)
-                        Log.i("asdfbalance", exchange + " BCH BALANCE: " + result.getBchBalance())
+                        balances = ApiBalances.create(exchange.exchange, exchange.getCryptoPairsMap(), result)
+                        Log.i("ASDF", balances.toString())
                     }
 
+                    networkDataUpdate.updateApiData(exchange.exchange, balances)
                     networkCompletionCallback.updateUi(balances)
-                    networkDataUpdate.updateApiData(exchange, balances)
 
                 }, { error ->
                     error.printStackTrace()

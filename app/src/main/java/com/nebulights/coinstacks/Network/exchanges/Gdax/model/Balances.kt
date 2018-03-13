@@ -14,7 +14,12 @@ data class Balances(
         val hold: String,
         val profile_id: String
 ) : NormalizedBalanceData {
-    override fun getBchBalance(): String {
-        return "hello world"
+
+    override fun getBalance(currency: String): String {
+        if (this.currency.toLowerCase() == currency.toLowerCase()) {
+            return balance
+        }
+
+        return "NA"
     }
 }

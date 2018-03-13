@@ -236,7 +236,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi(position: Int) {
         netWorth.text = presenter.getNetWorthDisplayString()
-        recyclerView.adapter.notifyItemChanged(position)
+        //recyclerView.adapter.notifyItemChanged(position)
+        recyclerView.adapter.notifyDataSetChanged()
     }
 
     override fun removeItem(position: Int) {

@@ -49,7 +49,7 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
                                     details.signature,
                                     details.timestamp,
                                     details.passphrase)
-                        }, feedType(),
+                        }, basicAuthentication,
                 presenterCallback,
                 networkDataUpdate)
     }

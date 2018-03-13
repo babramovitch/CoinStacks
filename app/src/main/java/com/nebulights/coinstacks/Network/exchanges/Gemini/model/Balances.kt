@@ -11,7 +11,12 @@ data class Balances(
         val available: String,
         val availableForWithdrawal: String
 ) : NormalizedBalanceData {
-    override fun getBchBalance(): String {
-        return "hello GEMINI world"
+
+    override fun getBalance(currency: String): String {
+        if (this.currency.toLowerCase() == currency.toLowerCase()) {
+            return amount
+        }
+
+        return "NA"
     }
 }

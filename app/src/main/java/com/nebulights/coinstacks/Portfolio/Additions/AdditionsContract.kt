@@ -28,7 +28,7 @@ class AdditionsContract {
         fun showCorrectCoinTypeDetails(id: Int)
         fun lastUsedExchange(exchanges: Array<String>): Int
         fun getTickersForExchange(exchange: String): List<String>
-        fun createAsset(exchange: String, userTicker: String, quantity: String, price: String)
+        fun createAsset(exchange: String, selectedPosition: Int, quantity: String, price: String)
         fun cryptosForExchange(exchange: String): List<CryptoTypes>
         fun getTickerForExchangeAndPair(exchange: String, pair: String): List<CryptoPairs>
         fun createAPIKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)

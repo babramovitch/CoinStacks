@@ -37,7 +37,7 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
                     Observable.just(
                             generateAuthenticationDetails(basicAuthentication))
                 }
-                .flatMap<Any> { balances -> service.getBalances(balances) }, feedType(), presenterCallback, networkDataUpdate)
+                .flatMap<Any> { balances -> service.getBalances(balances) }, basicAuthentication, presenterCallback, networkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

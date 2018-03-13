@@ -103,6 +103,8 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
         return total
     }
 
+
+
     override fun getTickers(): MutableList<CryptoPairs> {
         val results = realm.where(CryptoAsset::class.java).findAll().map { it.getType() }
         return results.toMutableList()

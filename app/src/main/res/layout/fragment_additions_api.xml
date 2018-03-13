@@ -60,8 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:hint="User Name For API Key (not login username)"
-            android:inputType="numberDecimal|number"
+            android:hint="User Name For API Key"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -89,7 +88,6 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Key From Website"
-            android:inputType="numberDecimal|number"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -118,7 +116,6 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Secret From Website"
-            android:inputType="numberDecimal|number"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -147,7 +144,6 @@
             android:gravity="center"
             android:text=""
             android:hint="API Password From Website"
-            android:inputType="numberDecimal|number"
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
 

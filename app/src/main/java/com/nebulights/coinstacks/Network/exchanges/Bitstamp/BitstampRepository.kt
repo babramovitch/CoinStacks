@@ -42,7 +42,7 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
                             details.key,
                             details.signature,
                             details.nonce)
-                }, feedType(),
+                }, basicAuthentication,
                 presenterCallback,
                 networkDataUpdate)
     }

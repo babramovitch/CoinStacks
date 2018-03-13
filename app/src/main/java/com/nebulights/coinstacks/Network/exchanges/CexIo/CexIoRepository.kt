@@ -37,7 +37,7 @@ class CexIoRepository(private val service: CexIoService) : BaseExchange() {
     override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
-                .flatMap<Any> { details -> service.getBalances(details) }, feedType(),
+                .flatMap<Any> { details -> service.getBalances(details) }, basicAuthentication,
                 presenterCallback,
                 networkDataUpdate)
     }

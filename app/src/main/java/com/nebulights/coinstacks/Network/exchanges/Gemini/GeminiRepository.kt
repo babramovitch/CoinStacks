@@ -49,7 +49,7 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
                             details.payload,
                             details.signature,
                             details.balanceRequest)
-                }, feedType(),
+                }, basicAuthentication,
                 presenterCallback,
                 networkDataUpdate)
     }

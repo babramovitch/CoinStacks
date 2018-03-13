@@ -1,5 +1,7 @@
 package com.nebulights.coinstacks.Network.exchanges.Quadriga.model
 
+import com.nebulights.coinstacks.CryptoTypes
+import com.nebulights.coinstacks.CurrencyTypes
 import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
 
 /**
@@ -37,8 +39,16 @@ data class QuadrigaBalances (
         val fees: Fees
 ) : NormalizedBalanceData {
 
-    override fun getBchBalance(): String =
-            "Balance:" + bch_balance + " Reserved: " + bch_reserved + " Available: " + bch_available
+    override fun getBalance(currency: String): String = when(currency) {
+        CryptoTypes.BTC.name -> btc_balance
+        CryptoTypes.BCH.name -> bch_balance
+        CryptoTypes.BTG.name -> btg_balance
+        CryptoTypes.ETH.name -> eth_balance
+        CryptoTypes.LTC.name -> ltc_balance
+        CurrencyTypes.CAD.name -> cad_balance
+        CurrencyTypes.USD.name -> usd_balance
+        else -> "0"
+    }
 }
 
 data class Fees(

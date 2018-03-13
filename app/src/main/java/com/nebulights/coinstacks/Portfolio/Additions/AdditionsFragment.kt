@@ -51,6 +51,8 @@ class AdditionsFragment : Fragment(), AdditionsContract.View, TabLayout.OnTabSel
 
     private val spinnerList: MutableList<Spinner> = mutableListOf()
 
+    // var cryptoList: List<String> = listOf()
+
     companion object {
         fun newInstance(): AdditionsFragment {
             return AdditionsFragment()
@@ -76,8 +78,6 @@ class AdditionsFragment : Fragment(), AdditionsContract.View, TabLayout.OnTabSel
 
         tabLayout.addOnTabSelectedListener(this)
 
-        val cryptoList: List<String> = listOf()
-
         val exchangeList = resources.getStringArray(R.array.exchanges)
 
         spinnerExchanges.adapter = ArrayAdapter(activity, R.layout.spinner_item, exchangeList)
@@ -95,7 +95,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View, TabLayout.OnTabSel
         saveButton.setOnClickListener {
             when (tabLayout.selectedTabPosition) {
                 0 -> presenter.createAsset(exchangeList[spinnerExchanges.selectedItemPosition],
-                        cryptoList[spinnerCryptos.selectedItemPosition],
+                        spinnerCryptos.selectedItemPosition,
                         quantity.text.toString(),
                         price.text.toString())
 

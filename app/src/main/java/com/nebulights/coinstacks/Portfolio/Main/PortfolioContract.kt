@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import android.support.v7.widget.RecyclerView
 import com.nebulights.coinstacks.CryptoPairs
 
 /**
@@ -57,6 +58,9 @@ class PortfolioContract {
         fun unlockData()
         fun unlockData(password: String)
         fun recyclerViewType(position: Int): Int
+        fun onBindApiBalances(position: Int, row: ViewRow)
+        fun getHeader(position: Int): String
+
 
     }
 

@@ -74,7 +74,8 @@ class AdditionsPresenter(
                 ticker.exchange.toLowerCase() == exchange.toLowerCase()
             }.map { ticker -> ticker.cryptoType }
 
-    override fun createAsset(exchange: String, userTicker: String, quantity: String, price: String) {
+    override fun createAsset(exchange: String, selectedPosition: Int, quantity: String, price: String) {
+        val userTicker = getTickersForExchange(exchange)[selectedPosition]
         val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
 
         if (cryptoPair != null) {
