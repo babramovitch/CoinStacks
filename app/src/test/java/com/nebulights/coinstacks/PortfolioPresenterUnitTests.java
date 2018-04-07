@@ -2,9 +2,10 @@ package com.nebulights.coinstacks;
 
 import com.nebulights.coinstacks.Network.ExchangeProvider;
 import com.nebulights.coinstacks.Network.Exchanges;
-import com.nebulights.coinstacks.Network.exchanges.TradingInfo;
+import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioFragment;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioPresenter;
+import com.nebulights.coinstacks.Types.CryptoPairs;
 import com.nebulights.coinstacks.mock.FakeCryptoAssetRepository;
 
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class PortfolioPresenterUnitTests {
         presenter.createOrUpdateAsset(CryptoPairs.BITFINEX_ETH_USD, "10.00", "10.00");
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "10.00", "10.00");
 
-        assertEquals(4, presenter.tickerCount());
+        assertEquals(4, presenter.displayItemCount());
     }
 
     @Test
@@ -56,7 +57,7 @@ public class PortfolioPresenterUnitTests {
         presenter.createOrUpdateAsset(CryptoPairs.BITFINEX_ETH_USD, "10.00", "10.00");
         presenter.createOrUpdateAsset(CryptoPairs.QUADRIGA_BTC_CAD, "10.00", "10.00");
 
-        assertEquals(3, presenter.tickerCount());
+        assertEquals(3, presenter.displayItemCount());
     }
 
 

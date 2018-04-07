@@ -1,9 +1,9 @@
 package com.nebulights.coinstacks.Network
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.Network.exchanges.ApiBalances
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
-import com.nebulights.coinstacks.Network.exchanges.TradingInfo
+import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
+import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
+import com.nebulights.coinstacks.Types.CryptoPairs
 
 /**
  * Created by babramovitch on 11/9/2017.
@@ -19,9 +19,15 @@ interface NetworkCompletionCallback {
     fun updateUi(apiBalances: ApiBalances)
 }
 
+interface ApiKeyValidationCallback {
+    fun validationSuccess()
+    fun validationError(errorBody: String?)
+}
+
 interface Exchange {
     fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
     fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
+    fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate)
     fun stopFeed()
     fun feedType(): String
     fun userNameRequired(): Boolean
@@ -60,6 +66,15 @@ object Exchanges : NetworkDataUpdate {
             }
         }
     }
+
+    fun validateExchange(authentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback) {
+        repositories.forEach { repository ->
+            if (repository.feedType() == authentication.exchange) {
+                repository.validateApiKeys(authentication, presenterCallback, this)
+            }
+        }
+    }
+
 
     private fun getTickers(tickers: List<CryptoPairs>, exchange: String): List<CryptoPairs> {
         return tickers.filter { ticker ->

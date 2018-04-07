@@ -19,6 +19,7 @@
 
         <activity android:name="com.nebulights.coinstacks.Portfolio.Additions.AdditionsActivity"
             android:label="Add New"
+            android:windowSoftInputMode="adjustPan"
             android:parentActivityName="com.nebulights.coinstacks.Portfolio.Main.PortfolioActivity">
 
         </activity>

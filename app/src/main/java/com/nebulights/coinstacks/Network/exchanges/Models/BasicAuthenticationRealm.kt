@@ -1,10 +1,9 @@
-package com.nebulights.coinstacks.Network.exchanges
+package com.nebulights.coinstacks.Network.exchanges.Models
 
-import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoPairs
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
-import io.realm.annotations.Required
 
 /**
  * Created by babramovitch on 2018-02-26.

@@ -1,23 +1,21 @@
 package com.nebulights.coinstacks.Portfolio.Main.model
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.CryptoTypes
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoTypes
+import com.nebulights.coinstacks.Types.DisplayBalanceItemTypes
 import java.math.BigDecimal
 
 /**
  * Created by babramovitch on 2018-02-22.
+ *
  */
 
-
-enum class RecordTypes {
-    COINS, API, WATCH, HEADER
-}
 
 class DisplayBalanceItem {
 
     var currencyPair: CryptoTypes? = null
     var cryptoPair: CryptoPairs? = null
-    var recordType: RecordTypes? = null
+    var displayRecordType: DisplayBalanceItemTypes? = null
     var quantity: BigDecimal? = null
     var header: String = ""
 
@@ -27,16 +25,16 @@ class DisplayBalanceItem {
         fun newHeader(header: String): DisplayBalanceItem {
             val item = DisplayBalanceItem()
             item.header = header
-            item.recordType = RecordTypes.HEADER
+            item.displayRecordType = DisplayBalanceItemTypes.HEADER
             return item
         }
 
-        fun newItem(currencyPair: CryptoTypes, cryptoPair: CryptoPairs, recordType: RecordTypes,
+        fun newItem(currencyPair: CryptoTypes, cryptoPair: CryptoPairs, recordType: DisplayBalanceItemTypes,
                     quantity: BigDecimal): DisplayBalanceItem {
             val item = DisplayBalanceItem()
             item.currencyPair = currencyPair
             item.cryptoPair = cryptoPair
-            item.recordType = recordType
+            item.displayRecordType = recordType
             item.quantity = quantity
             return item
         }

@@ -74,4 +74,5 @@
             tools:text="$1,2345.00" />
 
     </LinearLayout>
+
 </LinearLayout>

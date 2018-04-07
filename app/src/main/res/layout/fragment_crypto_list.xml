@@ -49,20 +49,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/default_margin"
-            android:layout_marginRight="@dimen/default_margin" />
+            android:layout_marginRight="@dimen/default_margin"
+            android:paddingTop="2dp" />
 
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00000000" />
+
+    <com.leinardi.android.speeddial.SpeedDialView
+        android:id="@+id/speedDial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:fabSize="normal"
-        android:src="@drawable/ic_add_white_24dp"
+        android:layout_gravity="bottom|end"
+        app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"
+        app:srcCompat="@drawable/ic_add_white_24dp" />
 
-        app:layout_anchor="@id/recycler_view"
-        app:layout_anchorGravity="bottom|center"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:id="@+id/fab"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_margin="16dp"-->
+    <!--app:fabSize="normal"-->
+    <!--android:src="@drawable/ic_add_white_24dp"-->
+
+    <!--app:layout_anchor="@id/recycler_view"-->
+    <!--app:layout_anchorGravity="bottom|center"/>-->
 
 
 </android.support.design.widget.CoordinatorLayout>

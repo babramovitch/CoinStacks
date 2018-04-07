@@ -1,30 +1,41 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.*
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.DividerItemDecoration
-import android.view.*
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.R
-import com.nebulights.coinstacks.Extensions.notNull
-import android.widget.*
 import com.jakewharton.rxbinding2.widget.RxTextView
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialOverlayLayout
+import com.leinardi.android.speeddial.SpeedDialView
+import com.nebulights.coinstacks.Extensions.dp
+import com.nebulights.coinstacks.Extensions.notNull
+import com.nebulights.coinstacks.R
+import com.nebulights.coinstacks.Types.RecordTypes
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
-    @BindView(R.id.net_worth_amount) lateinit var netWorth: TextView
-    @BindView(R.id.net_worth_amount_layout) lateinit var netWorthLayout: LinearLayout
-    @BindView(R.id.recycler_view) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.fab) lateinit var floatingActionbutton: FloatingActionButton
+    @BindView(R.id.net_worth_amount)
+    lateinit var netWorth: TextView
+    @BindView(R.id.net_worth_amount_layout)
+    lateinit var netWorthLayout: LinearLayout
+    @BindView(R.id.recycler_view)
+    lateinit var recyclerView: RecyclerView
+    @BindView(R.id.speedDial)
+    lateinit var floatingActionbutton: SpeedDialView
+    @BindView(R.id.overlay)
+    lateinit var speedDialOverlay: SpeedDialOverlayLayout
 
     private lateinit var presenter: PortfolioContract.Presenter
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -47,23 +58,53 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val rootView = inflater!!.inflate(R.layout.fragment_crypto_list, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_crypto_list, container, false)
         ButterKnife.bind(this, rootView)
 
         linearLayoutManager = LinearLayoutManager(activity)
 
         recyclerView.layoutManager = linearLayoutManager
-        recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+        //recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+        recyclerView.addItemDecoration(BottomOffsetDecoration(50.dp))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
 
         netWorth.text = presenter.getNetWorthDisplayString()
 
-        floatingActionbutton.setOnClickListener {
-            presenter.showAddNewAssetDialog()
+        floatingActionbutton.speedDialOverlayLayout = speedDialOverlay;
+
+        floatingActionbutton.setMainFabOnClickListener {
+            if (floatingActionbutton.isFabMenuOpen) {
+                floatingActionbutton.closeOptionsMenu()
+            }
         }
+
+        floatingActionbutton.addFabOptionItem(
+                SpeedDialActionItem.Builder(R.id.fab_add_coins, R.drawable.ic_attach_money_white_24dp)
+                        .setLabel(getString(R.string.manual_entry_fab)).create())
+
+        floatingActionbutton.addFabOptionItem(
+                SpeedDialActionItem.Builder(R.id.fab_add_exchange, R.drawable.ic_vpn_key_white_24dp)
+                        .setLabel(getString(R.string.exchange_apis_fab)).create())
+
+        floatingActionbutton.addFabOptionItem(
+                SpeedDialActionItem.Builder(R.id.fab_add_watch, R.drawable.ic_remove_red_eye_white_24dp)
+                        .setLabel(getString(R.string.watch_address_fab)).create())
+
+        floatingActionbutton.setOptionFabSelectedListener({ speedDialActionItem ->
+
+            when (speedDialActionItem.id) {
+                R.id.fab_add_coins -> presenter.addNew(RecordTypes.COINS)
+                R.id.fab_add_exchange -> presenter.addNew(RecordTypes.API)
+                R.id.fab_add_watch -> presenter.addNew(RecordTypes.WATCH)
+                else -> {
+                }
+            }
+            floatingActionbutton.closeOptionsMenu()
+        })
+
 
         return rootView
     }
@@ -82,9 +123,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun showAssetQuantites(isVisible: Boolean) {
         menu.findItem(R.id.locked_data).isVisible = !isVisible
-        menu.findItem(R.id.add_ticker).isVisible = isVisible
         menu.findItem(R.id.unlocked_data).isVisible = isVisible
-        menu.findItem(R.id.clear).isVisible = isVisible
 
         recyclerView.adapter.notifyDataSetChanged()
 
@@ -94,14 +133,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.clear -> {
-                presenter.showConfirmDeleteAllDialog()
-            }
-
-            R.id.add_ticker -> {
-                presenter.showAddNewAssetDialog()
-            }
-
             R.id.locked_data -> {
                 presenter.unlockData()
             }
@@ -114,46 +145,20 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun showConfirmDeleteAllDialog() {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle(getString(R.string.remove_assets_title))
-        builder.setMessage(getString(R.string.remove_all_assets_message))
-        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-            presenter.clearAssets()
-        })
+        if (context != null) {
+            val builder = AlertDialog.Builder(context!!)
+            builder.setTitle(getString(R.string.remove_assets_title))
+            builder.setMessage(getString(R.string.remove_all_assets_message))
+            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+                presenter.clearAssets()
+            })
 
-        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+            builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
 
-        showDialog(builder.create(), false)
+            showDialog(builder.create(), false)
+        }
+
     }
-
-//    override fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String) {
-//        if (cryptoPair == null) {
-//            showErrorDialogCouldNotFindCrypto()
-//        } else {
-//            val input = View.inflate(activity, R.layout.add_asset_dialog, null)
-//            val quantity = input.findViewById<EditText>(R.id.crypto_quantity)
-//            val price = input.findViewById<EditText>(R.id.crypto_price)
-//
-//            input.findViewById<LinearLayout>(R.id.spinner_exchange_layout).visibility = View.GONE
-//            input.findViewById<LinearLayout>(R.id.spinner_crypto_layout).visibility = View.GONE
-//
-//            quantity.setText(if (currentQuantity == getString(R.string.zero_quantity)) "" else currentQuantity)
-//            quantity.setSelection(quantity.text.length)
-//
-//            val builder = AlertDialog.Builder(activity)
-//            builder.setTitle(getString(R.string.dialog_title, cryptoPair.exchange, (cryptoPair.cryptoType.name + " : " + cryptoPair.currencyType.name)))
-//            builder.setView(input)
-//            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-//                presenter.createAsset(cryptoPair, quantity.text.toString(), price.text.toString())
-//            })
-//            builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
-//            builder.setNeutralButton(getString(R.string.dialog_delete), { dialog, which ->
-//                presenter.removeAsset(cryptoPair)
-//            })
-//
-//            showDialog(builder.create(), true)
-//        }
-//    }
 
     override fun showUnlockDialog(firstAttempt: Boolean) {
         val input = View.inflate(activity, R.layout.password_dialog, null)
@@ -166,7 +171,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = text.length == 4
         })
 
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(context!!)
         builder.setTitle(if (firstAttempt) getString(R.string.enter_password) else getString(R.string.invalid_password))
         builder.setView(input)
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
@@ -201,12 +206,12 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = isValid
         }
 
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(context!!)
         builder.setTitle(getString(R.string.add_password_dialog_title))
         builder.setView(input)
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
             presenter.savePassword(password.text.toString())
-            activity.recreate() //recreating to force the secure screen which requires a restart
+            activity!!.recreate() //recreating to force the secure screen which requires a restart
         })
 
         builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
@@ -216,7 +221,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     private fun showErrorDialogCouldNotFindCrypto() {
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(context!!)
         builder.setTitle(getString(R.string.dialog_title_error))
         builder.setMessage(getString(R.string.dialog_message_error))
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
@@ -235,9 +240,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun updateUi(position: Int) {
-        netWorth.text = presenter.getNetWorthDisplayString()
-        //recyclerView.adapter.notifyItemChanged(position)
-        recyclerView.adapter.notifyDataSetChanged()
+        if (this::netWorth.isInitialized) {
+            netWorth.text = presenter.getNetWorthDisplayString()
+            //recyclerView.adapter.notifyItemChanged(position)
+            recyclerView.adapter.notifyDataSetChanged()
+        }
     }
 
     override fun removeItem(position: Int) {

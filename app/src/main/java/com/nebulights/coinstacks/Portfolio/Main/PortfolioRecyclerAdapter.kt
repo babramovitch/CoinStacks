@@ -1,6 +1,5 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +28,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         }
 
         //TODO Launch edit fragment or list of items under that exch
-        //holder.itemView.setOnClickListener { presenter.showCreateAssetDialog(holder.adapterPosition) }
+        holder.itemView.setOnClickListener { presenter.rowItemClicked(holder.adapterPosition) }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -51,7 +50,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         return presenter.recyclerViewType(position)
     }
 
-    override fun getItemCount(): Int = presenter.tickerCount()
+    override fun getItemCount(): Int = presenter.displayItemCount()
 
     class ViewHolderCoins(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 

@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks
+package com.nebulights.coinstacks.Types
 
 import com.nebulights.coinstacks.Network.ExchangeProvider
 

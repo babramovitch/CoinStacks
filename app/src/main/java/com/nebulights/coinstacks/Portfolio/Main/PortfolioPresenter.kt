@@ -1,16 +1,14 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
-import com.nebulights.coinstacks.*
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
-import com.nebulights.coinstacks.Network.exchanges.ApiBalances
-import com.nebulights.coinstacks.Network.exchanges.TradingInfo
+import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
+import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.currencyFormatter
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.smallCurrencyFormatter
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
-import com.nebulights.coinstacks.Portfolio.Main.model.RecordTypes
 import com.nebulights.coinstacks.Portfolio.Main.model.DisplayBalanceItem
-
+import com.nebulights.coinstacks.Types.*
 import java.math.BigDecimal
 
 /**
@@ -24,10 +22,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         PortfolioContract.Presenter, NetworkCompletionCallback {
 
     private val TAG = "PortfolioPresenter"
+
     private var allTickers = enumValues<CryptoPairs>().map { it }
-    private var tickers: MutableList<CryptoPairs>
-    private var balances: MutableMap<String, ApiBalances>
-    private var displayList: MutableList<DisplayBalanceItem> = mutableListOf()
+    private lateinit var tickers: MutableList<CryptoPairs>
+    private lateinit var balances: MutableMap<String, ApiBalances>
+    private lateinit var displayList: MutableList<DisplayBalanceItem>
+    private val temporaryNonZeroBalanceTickers: MutableList<CryptoPairs> = mutableListOf()
 
     private var timeStopped = System.currentTimeMillis()
     private val MINUTE_IN_MILLIS = 60000
@@ -35,62 +35,18 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     init {
         view.setPresenter(this)
         refreshData()
-        tickers = cryptoAssetRepository.getTickers()
-        balances = exchanges.getApiData()
-
-        refreshData()
     }
 
     fun refreshData() {
         tickers = cryptoAssetRepository.getTickers()
-
         balances = exchanges.getApiData()
-        displayList.clear()
+        displayList = PortfolioDisplayListHelper.createDisplayList(tickers, balances, cryptoAssetRepository)
+        tickers.addAll(temporaryNonZeroBalanceTickers)
+        view.updateUi(0)
+    }
 
-        tickers.sortBy { it.exchange }
-
-        var previousExchange = ""
-
-        tickers.forEach {
-            val item = DisplayBalanceItem.newItem(it.cryptoType, it, RecordTypes.COINS, cryptoAssetRepository.totalTickerQuantity(it))
-            displayList.add(item)
-        }
-
-        for ((exchange, apiData) in balances) {
-            val nonZeroBalances = apiData.getCryptoPairsForNonZeroBalances(apiData.displayBalancesAs)
-
-            if (nonZeroBalances.isNotEmpty()) {
-
-                nonZeroBalances.forEach { type ->
-                    val balance = apiData.getBalance(type.cryptoType.name)
-                    val displayItem = DisplayBalanceItem.newItem(type.cryptoType, type, RecordTypes.API, balance)
-                    displayList.add(displayItem)
-                    view.updateUi(1)
-
-
-                    if (tickers.indexOf(type) == -1) {
-                        tickers.add(type)
-                    }
-                }
-            }
-        }
-
-        displayList = displayList.sortedWith(compareBy({ it.cryptoPair?.exchange }, { it.recordType }, { it.currencyPair })).toMutableList()
-
-        var index = 0
-        var previousType = RecordTypes.HEADER
-
-        while (index < displayList.size) {
-
-            if (index == 0 || previousType != displayList[index].recordType ||
-                    previousExchange != displayList[index].cryptoPair?.exchange) {
-
-                previousExchange = displayList[index].cryptoPair!!.exchange
-                previousType = displayList[index].recordType!!
-                displayList.add(index, DisplayBalanceItem.newHeader(displayList[index].cryptoPair!!.exchange + " " + displayList[index].recordType!!.name))
-            }
-            index += 1
-        }
+    override fun deleteApiData(exchange: String) {
+       exchanges.getApiData().remove(exchange)
     }
 
     override fun startFeed() {
@@ -111,26 +67,27 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun updateUi(apiBalances: ApiBalances) {
-        updateTickersIfNewTicker(apiBalances)
-    }
-
-    private fun updateTickersIfNewTicker(apiBalances: ApiBalances) {
-
-        val nonZeroCryptoPairs = apiBalances.getCryptoPairsForNonZeroBalances(apiBalances.displayBalancesAs)
-
-        var newTicker = false
-        nonZeroCryptoPairs.forEach {
-            if (tickers.indexOf(it) == -1) {
-                newTicker = true
-            }
-        }
+        val newTickers = newTickersInBalances(apiBalances)
 
         refreshData()
 
-        if (newTicker) {
+        if (newTickers) {
             exchanges.startFeed(tickers, this)
         }
+    }
 
+
+    private fun newTickersInBalances(apiBalances: ApiBalances): Boolean {
+
+        val nonZeroCryptoPairs = apiBalances.getCryptoPairsForNonZeroBalances(apiBalances.displayBalancesAs)
+
+        nonZeroCryptoPairs.forEach {
+            if (tickers.indexOf(it) == -1 && temporaryNonZeroBalanceTickers.indexOf(it) == -1) {
+                temporaryNonZeroBalanceTickers.add(it)
+            }
+        }
+
+        return temporaryNonZeroBalanceTickers.isNotEmpty()
     }
 
     override fun stopFeed() {
@@ -139,9 +96,24 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showAddNewAssetDialog() {
-        navigation.addNewItem()
+        // navigation.addNewItem()
     }
 
+    override fun addNew(recordTypes: RecordTypes) {
+        navigation.addNewItem(recordTypes)
+    }
+
+    override fun rowItemClicked(adapterPosition: Int) {
+        val item = displayList[adapterPosition]
+        when (item.displayRecordType) {
+            DisplayBalanceItemTypes.COINS -> navigation.editItem(RecordTypes.COINS, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
+            DisplayBalanceItemTypes.API -> navigation.editItem(RecordTypes.API, item.cryptoPair, item.cryptoPair!!.exchange, "")
+            DisplayBalanceItemTypes.WATCH -> navigation.editItem(RecordTypes.WATCH, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
+            else -> {
+                //do nothing when a header is pressed.
+            }
+        }
+    }
 
     override fun showConfirmDeleteAllDialog() {
         view.showConfirmDeleteAllDialog()
@@ -168,7 +140,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         return if (combinedString.trim() == "") "$0.00" else combinedString.trim()
     }
-
 
     /**
      * @return A list of Strings totaling the net worth in each currency.
@@ -201,7 +172,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
     }
 
-
     private fun getApiBalanceForMatchingTicker(ticker: CryptoPairs, apiBalances: ApiBalances): BigDecimal {
 
         var subTotalApi = BigDecimal.ZERO
@@ -215,8 +185,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
 
-    override fun tickerCount(): Int = displayList.size
-
+    override fun displayItemCount(): Int = displayList.size
 
     fun tickerQuantity(ticker: CryptoPairs): BigDecimal =
             cryptoAssetRepository.totalTickerQuantity(ticker)
@@ -284,7 +253,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     override fun recyclerViewType(position: Int): Int {
         val item = displayList[position]
-        return if (item.recordType == RecordTypes.HEADER) 0 else 1
+        return if (item.displayRecordType == DisplayBalanceItemTypes.HEADER) 0 else 1
     }
 
     override fun getHeader(position: Int): String = displayList[position].header
@@ -293,7 +262,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         val item = displayList[position]
 
-        if (item.recordType != RecordTypes.HEADER) {
+        if (item.displayRecordType != DisplayBalanceItemTypes.HEADER) {
 
             val currentTradingInfo = getCurrentTradingData(item.cryptoPair!!)
 

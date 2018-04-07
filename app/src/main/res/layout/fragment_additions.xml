@@ -4,51 +4,56 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#EEEEEE"
     android:orientation="vertical">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:background="@color/colorPrimary"
-        app:elevation="0dp"
-        app:tabIndicatorHeight="5dp"
-        app:tabSelectedTextColor="#ffffff"
-        app:tabTextColor="#ffffff">
+    <!--<android.support.design.widget.TabLayout-->
+        <!--android:id="@+id/tab_layout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--app:elevation="0dp"-->
+        <!--app:tabIndicatorHeight="5dp"-->
+        <!--app:tabSelectedTextColor="#ffffff"-->
+        <!--app:tabTextColor="#ffffff">-->
 
-        <android.support.design.widget.TabItem
-            android:id="@+id/tab1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Coins" />
+        <!--<android.support.design.widget.TabItem-->
+            <!--android:id="@+id/tab1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Coins" />-->
 
-        <android.support.design.widget.TabItem
-            android:id="@+id/tab2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="API" />
+        <!--<android.support.design.widget.TabItem-->
+            <!--android:id="@+id/tab2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="API" />-->
 
-        <android.support.design.widget.TabItem
-            android:id="@+id/tab3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Watch Address" />
-    </android.support.design.widget.TabLayout>
+        <!--<android.support.design.widget.TabItem-->
+            <!--android:id="@+id/tab3"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Watch Address" />-->
+    <!--</android.support.design.widget.TabLayout>-->
+
+    <!-- Dummy item to prevent search_text from receiving focus -->
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/save_button"
-        android:layout_below="@id/tab_layout"
-        android:paddingLeft="@dimen/default_margin"
-        android:paddingRight="@dimen/default_margin">
+        android:layout_above="@id/save_button">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/default_margin"
+            android:paddingLeft="@dimen/default_margin"
+            android:paddingRight="@dimen/default_margin"
             android:orientation="vertical">
 
             <TextView
@@ -125,10 +130,13 @@
     <Button
         android:id="@+id/save_button"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/button_background"
         tools:text="Add Coins"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/default_margin"
         android:textColor="#ffffff" />
 
 </RelativeLayout>

@@ -1,7 +1,7 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
-import android.support.v7.widget.RecyclerView
-import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.RecordTypes
 
 /**
  * Created by babramovitch on 10/23/2017.
@@ -13,7 +13,7 @@ class PortfolioContract {
         fun updateUi(position: Int)
         fun resetUi()
         fun setPresenter(presenter: Presenter)
-       // fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String)
+        // fun showCreateAssetDialog(cryptoPair: CryptoPairs?, currentQuantity: String)
 
         fun removeItem(position: Int)
         fun showAssetQuantites(isVisible: Boolean)
@@ -39,19 +39,21 @@ class PortfolioContract {
         fun getNetWorthDisplayString(): String
         //fun createAsset(cryptoPair: CryptoPairs, quantity: String, price: String)
 
-        fun tickerCount(): Int
+        fun displayItemCount(): Int
         fun onBindRepositoryRowViewAtPosition(position: Int, row: ViewRow)
         //fun showCreateAssetDialog(position: Int)
         fun showAddNewAssetDialog()
+
         fun clearAssets()
         fun getTickers(): List<CryptoPairs>
         fun getTickersForExchange(exchange: String): List<String>
-       // fun removeAsset(cryptoPair: CryptoPairs)
+        // fun removeAsset(cryptoPair: CryptoPairs)
         //fun lastUsedExchange(exchanges: Array<String>): Int
         fun showConfirmDeleteAllDialog()
 
         //Password related items
         fun setAssetsVisibility(isVisible: Boolean)
+
         fun setAssetLockedState()
         fun savePassword(password: String)
         fun lockData()
@@ -60,12 +62,16 @@ class PortfolioContract {
         fun recyclerViewType(position: Int): Int
         fun onBindApiBalances(position: Int, row: ViewRow)
         fun getHeader(position: Int): String
+        fun rowItemClicked(adapterPosition: Int)
+        fun addNew(recordTypes: RecordTypes)
+        fun deleteApiData(exchange: String)
 
 
     }
 
     interface Navigator {
-        fun addNewItem()
+        fun addNewItem(item: RecordTypes)
+        fun editItem(item: RecordTypes, cryptoPair: CryptoPairs?, exchange: String, ticker: String)
     }
 }
 

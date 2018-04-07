@@ -2,8 +2,6 @@
 
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/api_layout"
     android:layout_width="match_parent"
@@ -61,6 +59,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="User Name For API Key"
+            android:nextFocusDown="@+id/api_key_text"
+            android:inputType="text"
+            android:maxLines="1"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -88,6 +89,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Key From Website"
+            android:nextFocusDown="@+id/api_secret_text"
+            android:inputType="text"
+            android:maxLines="1"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -116,6 +120,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Secret From Website"
+            android:nextFocusDown="@+id/api_password_text"
+            android:inputType="text"
+            android:maxLines="1"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -142,8 +149,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text=""
             android:hint="API Password From Website"
+            android:inputType="text"
+            android:maxLines="1"
+            android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
 

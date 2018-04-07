@@ -1,8 +1,8 @@
-package com.nebulights.coinstacks.Network.exchanges
+package com.nebulights.coinstacks.Network.exchanges.Models
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.CryptoTypes
-import com.nebulights.coinstacks.userTicker
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoTypes
+import com.nebulights.coinstacks.Types.userTicker
 
 /**
  * Created by babramovitch on 2018-02-26.

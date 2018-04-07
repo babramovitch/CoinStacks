@@ -1,12 +1,13 @@
 package com.nebulights.coinstacks.Network.exchanges.Quadriga
 
-import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Network.ApiKeyValidationCallback
+import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Network.security.HashingAlgorithms
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.NetworkDataUpdate
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Quadriga.model.AuthenticationDetails
 import com.nebulights.coinstacks.Network.security.HashGenerator
 import io.reactivex.Observable
@@ -38,6 +39,10 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
                             generateAuthenticationDetails(basicAuthentication))
                 }
                 .flatMap<Any> { balances -> service.getBalances(balances) }, basicAuthentication, presenterCallback, networkDataUpdate)
+    }
+
+    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
+
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

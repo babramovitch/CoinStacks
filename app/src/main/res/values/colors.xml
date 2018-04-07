@@ -5,4 +5,9 @@
     <color name="colorAccent">#AC5300</color>
 
     <color name="black">#000000</color>
+    <color name="backgroundOffWhite">#EEEEEE</color>
+
+    <color name="seperatorGray">#BDC3C7</color>
+
+    "#FFCC00"
 </resources>

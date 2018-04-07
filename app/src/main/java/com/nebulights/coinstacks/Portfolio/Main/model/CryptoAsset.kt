@@ -1,7 +1,7 @@
 package com.nebulights.coinstacks.Portfolio.model
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.CurrencyTypes
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CurrencyTypes
 import java.math.BigDecimal
 import io.realm.RealmObject
 

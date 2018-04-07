@@ -1,11 +1,8 @@
 package com.nebulights.coinstacks.Network.exchanges.Bitstamp
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.Network.NetworkCompletionCallback
-import com.nebulights.coinstacks.Network.NetworkDataUpdate
-import com.nebulights.coinstacks.Network.Exchange
-import com.nebulights.coinstacks.Network.ExchangeProvider
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
+import com.nebulights.coinstacks.Network.*
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 import com.nebulights.coinstacks.Network.exchanges.Bitstamp.model.AuthenticationDetails
 import com.nebulights.coinstacks.Network.security.HashGenerator
@@ -45,6 +42,10 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
                 }, basicAuthentication,
                 presenterCallback,
                 networkDataUpdate)
+    }
+
+    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
+
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

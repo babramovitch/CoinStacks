@@ -1,10 +1,10 @@
-package com.nebulights.coinstacks.Network.exchanges
+package com.nebulights.coinstacks.Network.exchanges.Models
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.CryptoTypes
-import com.nebulights.coinstacks.CurrencyTypes
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoTypes
+import com.nebulights.coinstacks.Types.CurrencyTypes
+import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 data class ApiBalances(
         val exchange: String,
@@ -21,7 +21,6 @@ data class ApiBalances(
         val eurBalance: BigDecimal,
         val gbpBalance: BigDecimal,
         val rubBalance: BigDecimal) {
-
 
     companion object {
         fun create(exchange: String, displayBalances: MutableMap<CryptoTypes, CryptoPairs>, data: NormalizedBalanceData): ApiBalances {
@@ -46,7 +45,7 @@ data class ApiBalances(
                 ApiBalances(exchange,
                         displayBalances,
                         findBalance(CryptoTypes.BTC.name, data),
-                        findBalance(CryptoTypes.BCH.name, data),
+                        BigDecimal("2"),
                         findBalance(CryptoTypes.LTC.name, data),
                         findBalance(CryptoTypes.ETH.name, data),
                         findBalance(CryptoTypes.XRP.name, data),

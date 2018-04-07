@@ -9,11 +9,12 @@ import android.view.View;
 
 import com.nebulights.coinstacks.Network.ExchangeProvider;
 import com.nebulights.coinstacks.Network.Exchanges;
-import com.nebulights.coinstacks.Network.exchanges.TradingInfo;
+import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo;
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioFragment;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioPresenter;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioRecyclerAdapter;
+import com.nebulights.coinstacks.Types.CryptoPairs;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

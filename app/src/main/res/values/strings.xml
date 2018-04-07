@@ -35,5 +35,8 @@
     remove permissions to these API keys from your exchanges website.\n\nNote - Future updates may include transaction histories, you may need to update your API key to enable this functionality when it is added.\n</string>
     <string name="save">Save</string>
     <string name="display_settings">Currency Conversions</string>
+    <string name="manual_entry_fab">Manual Entry</string>
+    <string name="exchange_apis_fab">Exchange APIs</string>
+    <string name="watch_address_fab">Watch Address</string>
 
 </resources>

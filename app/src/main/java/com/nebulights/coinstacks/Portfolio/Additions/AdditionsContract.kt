@@ -1,9 +1,9 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
-import com.nebulights.coinstacks.CryptoPairs
-import com.nebulights.coinstacks.CryptoTypes
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthenticationRealm
+import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoTypes
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
+import com.nebulights.coinstacks.Types.RecordTypes
 
 
 /**
@@ -21,11 +21,16 @@ class AdditionsContract {
         fun setAuthenticationDetails(basicAuthentication: BasicAuthentication)
         fun setupApiSpinners(basicAuthentication: BasicAuthentication, cryptosForExchange: List<CryptoTypes>, cryptoList: List<String>)
         fun setupCryptoPairSpinner(cryptoList: List<String>)
+        fun setEditModeCoinsAndApi()
+        fun setEditModeWatch()
+        fun setExchange(position: Int)
+        fun setCryptoPair(cryptoPairIndex: Int)
+        fun setCryptoQuantity(amount: String)
     }
 
     interface Presenter {
         fun onDetach()
-        fun showCorrectCoinTypeDetails(id: Int)
+        fun showCorrectCoinTypeDetails(recordType: RecordTypes)
         fun lastUsedExchange(exchanges: Array<String>): Int
         fun getTickersForExchange(exchange: String): List<String>
         fun createAsset(exchange: String, selectedPosition: Int, quantity: String, price: String)
@@ -33,9 +38,14 @@ class AdditionsContract {
         fun getTickerForExchangeAndPair(exchange: String, pair: String): List<CryptoPairs>
         fun createAPIKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
         fun updateExchangeSpinnerSelection(exchange: String)
+        fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, editing: Boolean, exchangeList: Array<String>)
+        fun getRecordType(): RecordTypes
+        fun deleteRecord(exchange: String, userTicker: String)
+        fun setCryptoQuantity(exchange: String, ticker: String)
     }
 
     interface Navigator {
+        fun closeWithDeletedExchange(responseId: Int, exchange: String)
         fun close()
     }
 

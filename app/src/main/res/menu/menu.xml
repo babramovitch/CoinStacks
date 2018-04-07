@@ -16,16 +16,4 @@
         android:visible="true"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/clear"
-        android:icon="@drawable/ic_delete_sweep_white_24dp"
-        android:title="@string/menu_clear_assets"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/add_ticker"
-        android:icon="@drawable/ic_add_white_24dp"
-        android:title="@string/menu_add_assets"
-        app:showAsAction="always" />
-
 </menu>

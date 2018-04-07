@@ -1,7 +1,7 @@
 package com.nebulights.coinstacks.Network.exchanges.Quadriga.model
 
-import com.nebulights.coinstacks.CryptoTypes
-import com.nebulights.coinstacks.CurrencyTypes
+import com.nebulights.coinstacks.Types.CryptoTypes
+import com.nebulights.coinstacks.Types.CurrencyTypes
 import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
 
 /**

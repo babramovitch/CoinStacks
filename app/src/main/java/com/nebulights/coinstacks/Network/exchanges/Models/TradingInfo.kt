@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Network.exchanges
+package com.nebulights.coinstacks.Network.exchanges.Models
 
 /**
  * Created by babramovitch on 11/9/2017.

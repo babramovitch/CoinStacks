@@ -1,12 +1,12 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
 import android.content.SharedPreferences
-import com.nebulights.coinstacks.CryptoPairs
+import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.model.CryptoAsset
 import com.nebulights.coinstacks.Extensions.applyMe
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthenticationRealm
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
+import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthenticationRealm
 import io.realm.Realm
 import java.math.BigDecimal
 
@@ -31,9 +31,15 @@ interface CryptoAssetContract {
     fun getApiKeysNonRealm(): MutableList<BasicAuthentication>
     fun createOrUpdateApiKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
     fun getApiKeysNonRealmForExchange(exchange: String): BasicAuthentication
+    fun removeApiKey(exchange: String)
 }
 
 class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
+
+    val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
+    val PREF_OWNED_ASSETS_VISIBLE = "ownedAssetsVisible"
+    val PREF_ASSET_PASSWORD = "assetPassword"
+
     override fun getApiKeys(): MutableList<BasicAuthenticationRealm> {
         val results = realm.where(BasicAuthenticationRealm::class.java).findAll()
         return results.toMutableList()
@@ -57,16 +63,13 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
 
         val results = realm.where(BasicAuthenticationRealm::class.java).equalTo("exchange", exchange).findFirst()
 
-        if (results != null) {
-            return BasicAuthentication(results.exchange, results.apiKey, results.apiSecret, results.password, results.userName, results.getCryptoTypes())
+        return if (results != null) {
+            BasicAuthentication(results.exchange, results.apiKey, results.apiSecret, results.password, results.userName, results.getCryptoTypes())
         } else {
-            return BasicAuthentication("", "", "", "", "", listOf())
+            BasicAuthentication("", "", "", "", "", listOf())
         }
     }
 
-    val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
-    val PREF_OWNED_ASSETS_VISIBLE = "ownedAssetsVisible"
-    val PREF_ASSET_PASSWORD = "assetPassword"
 
     override fun createOrUpdateAsset(cryptoPair: CryptoPairs, quantity: String, price: String) {
         val asset = realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findFirst()
@@ -103,8 +106,6 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
         return total
     }
 
-
-
     override fun getTickers(): MutableList<CryptoPairs> {
         val results = realm.where(CryptoAsset::class.java).findAll().map { it.getType() }
         return results.toMutableList()
@@ -140,6 +141,12 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
     override fun removeAsset(cryptoPair: CryptoPairs) {
         realm.executeTransaction {
             realm.where(CryptoAsset::class.java).equalTo("type", cryptoPair.toString()).findAll().deleteAllFromRealm()
+        }
+    }
+
+    override fun removeApiKey(exchange: String) {
+        realm.executeTransaction {
+            realm.where(BasicAuthenticationRealm::class.java).equalTo("exchange", exchange).findAll().deleteAllFromRealm()
         }
     }
 

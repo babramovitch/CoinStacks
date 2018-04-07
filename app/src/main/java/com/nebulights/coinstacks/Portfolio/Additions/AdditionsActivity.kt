@@ -1,16 +1,16 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
-import android.support.v7.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
-import android.view.WindowManager
+import android.support.v7.app.AppCompatActivity
+import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.Exchanges
-import com.nebulights.coinstacks.R
-import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository
+import com.nebulights.coinstacks.R
 import io.realm.Realm
+
 
 class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
 
@@ -21,10 +21,17 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val extras = intent.extras
+
+        if (extras != null && extras.getBoolean("editing", false)) {
+            val actionBar = supportActionBar
+            actionBar!!.title = "Update"
+        }
+
         var additionsFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as AdditionsFragment?
 
         if (additionsFragment == null) {
-            additionsFragment = AdditionsFragment.newInstance()
+            additionsFragment = AdditionsFragment.newInstance(extras)
             createPresenter(additionsFragment)
             addFragment(additionsFragment, R.id.content_frame)
         } else {
@@ -53,6 +60,13 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
 
     override fun close() {
         setResult(1)
+        finish()
+    }
+
+    override fun closeWithDeletedExchange(responseId: Int, exchange: String) {
+        val intent = Intent()
+        intent.putExtra("exchange", exchange)
+        setResult(responseId, intent)
         finish()
     }
 

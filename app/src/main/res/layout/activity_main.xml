@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.nebulights.coinstacks.Portfolio.Main.PortfolioActivity">
 
+
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
@@ -14,6 +15,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+
+
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

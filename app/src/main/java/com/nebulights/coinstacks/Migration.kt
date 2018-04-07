@@ -16,13 +16,9 @@
 
 package com.nebulights.coinstacks
 
-import com.nebulights.coinstacks.Network.exchanges.BasicAuthentication
 import io.realm.DynamicRealm
-import io.realm.DynamicRealmObject
 import io.realm.FieldAttribute
 import io.realm.RealmMigration
-import io.realm.RealmObjectSchema
-import io.realm.RealmSchema
 
 /**
  * Example of migrating a Realm file from version 0 (initial version) to its last version (version 3).
