@@ -50,30 +50,29 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
     }
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
-        validateAPiKeys(
-                Observable
-                        .defer<AuthenticationDetails> {
-                            Observable.just(
-                                    generateAuthenticationDetails(basicAuthentication))
-                        }
-                        .flatMap<Any> { details ->
-                            service.getBalances(
-                                    details.key,
-                                    details.signature,
-                                    details.timestamp,
-                                    details.passphrase)
-                        }, basicAuthentication,
-                presenterCallback,
-                networkDataUpdate)
+        try {
+            val details = generateAuthenticationDetails(basicAuthentication)
+
+            validateAPiKeys(service.getBalances(
+                    details.key,
+                    details.signature,
+                    details.timestamp,
+                    details.passphrase)
+                    , basicAuthentication,
+                    presenterCallback,
+                    networkDataUpdate)
+
+        } catch (exception: IllegalArgumentException) {
+            presenterCallback.validationError("Error using Secret Key.  Verify all details are correct")
+            return
+        }
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {
-
         val timestamp = (System.currentTimeMillis() / 1000).toString()
         val method = "GET"
         val api = "/accounts"
         val secret = basicAuthentication.apiSecret
-
         val decodedSecret = Base64.decode(secret, Base64.NO_WRAP)
 
         val message = timestamp + method + api + ""
@@ -86,5 +85,4 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
         return AuthenticationDetails(basicAuthentication.apiKey, signature, timestamp, basicAuthentication.password)
 
     }
-
 }

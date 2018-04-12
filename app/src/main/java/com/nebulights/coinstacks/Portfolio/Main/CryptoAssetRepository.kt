@@ -5,6 +5,8 @@ import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.model.CryptoAsset
 import com.nebulights.coinstacks.Extensions.applyMe
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddressRealm
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthenticationRealm
 import io.realm.Realm
@@ -32,13 +34,58 @@ interface CryptoAssetContract {
     fun createOrUpdateApiKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
     fun getApiKeysNonRealmForExchange(exchange: String): BasicAuthentication
     fun removeApiKey(exchange: String)
+    fun getWatchAddresses(): MutableList<WatchAddress>
+    fun createOrUpdateWatchAddress(cryptoPair: CryptoPairs, address: String)
+
 }
 
 class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
 
+    override fun getWatchAddresses(): MutableList<WatchAddress> {
+        val result = realm.where(WatchAddressRealm::class.java).findAll()
+
+        val watchAddressList: MutableList<WatchAddress> = mutableListOf()
+
+        result.forEach {
+            watchAddressList.add(WatchAddress(it.exchange, it.address, it.getType()))
+        }
+
+        return watchAddressList
+    }
+
+    override fun createOrUpdateWatchAddress(cryptoPair: CryptoPairs, address: String) {
+        val result = realm.where(WatchAddressRealm::class.java).equalTo("type", cryptoPair.toString()).findFirst()
+
+        if (result == null) {
+            createWatchAddress(cryptoPair, address)
+        } else {
+            updateWatchAddress(result, cryptoPair, address)
+        }
+
+        setLastExchangeUsed(cryptoPair.exchange)
+    }
+
+    private fun createWatchAddress(cryptoPair: CryptoPairs, address: String) {
+        realm.executeTransaction {
+            val watchAddress = realm.createObject(WatchAddressRealm::class.java)
+            watchAddress.exchange = cryptoPair.exchange
+            watchAddress.address = address
+            watchAddress.setCrytpoType(cryptoPair)
+        }
+    }
+
+    private fun updateWatchAddress(watchAddressRealm: WatchAddressRealm, cryptoPair: CryptoPairs, address: String) {
+        realm.executeTransaction {
+            watchAddressRealm.exchange = cryptoPair.exchange
+            watchAddressRealm.address = address
+            watchAddressRealm.setCrytpoType(cryptoPair)
+        }
+    }
+
     val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
     val PREF_OWNED_ASSETS_VISIBLE = "ownedAssetsVisible"
     val PREF_ASSET_PASSWORD = "assetPassword"
+
 
     override fun getApiKeys(): MutableList<BasicAuthenticationRealm> {
         val results = realm.where(BasicAuthenticationRealm::class.java).findAll()

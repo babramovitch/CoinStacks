@@ -9,5 +9,7 @@
 
     <color name="seperatorGray">#BDC3C7</color>
 
+    <color name="validationRequired">#ff6666</color>
+
     "#FFCC00"
 </resources>

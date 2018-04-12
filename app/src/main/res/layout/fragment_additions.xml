@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <!--<android.support.design.widget.TabLayout-->
-        <!--android:id="@+id/tab_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:background="@color/colorPrimary"-->
-        <!--app:elevation="0dp"-->
-        <!--app:tabIndicatorHeight="5dp"-->
-        <!--app:tabSelectedTextColor="#ffffff"-->
-        <!--app:tabTextColor="#ffffff">-->
+    <!--android:id="@+id/tab_layout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--app:elevation="0dp"-->
+    <!--app:tabIndicatorHeight="5dp"-->
+    <!--app:tabSelectedTextColor="#ffffff"-->
+    <!--app:tabTextColor="#ffffff">-->
 
-        <!--<android.support.design.widget.TabItem-->
-            <!--android:id="@+id/tab1"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Coins" />-->
+    <!--<android.support.design.widget.TabItem-->
+    <!--android:id="@+id/tab1"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Coins" />-->
 
-        <!--<android.support.design.widget.TabItem-->
-            <!--android:id="@+id/tab2"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="API" />-->
+    <!--<android.support.design.widget.TabItem-->
+    <!--android:id="@+id/tab2"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="API" />-->
 
-        <!--<android.support.design.widget.TabItem-->
-            <!--android:id="@+id/tab3"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Watch Address" />-->
+    <!--<android.support.design.widget.TabItem-->
+    <!--android:id="@+id/tab3"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Watch Address" />-->
     <!--</android.support.design.widget.TabLayout>-->
 
     <!-- Dummy item to prevent search_text from receiving focus -->
@@ -52,9 +52,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/default_margin"
+            android:orientation="vertical"
             android:paddingLeft="@dimen/default_margin"
-            android:paddingRight="@dimen/default_margin"
-            android:orientation="vertical">
+            android:paddingRight="@dimen/default_margin">
 
             <TextView
                 android:layout_width="match_parent"
@@ -127,16 +127,35 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
+    <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
         android:id="@+id/save_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/button_background"
-        tools:text="Add Coins"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/default_margin"
         android:layout_marginLeft="@dimen/default_margin"
         android:layout_marginRight="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"
-        android:textColor="#ffffff" />
+        android:layout_marginTop="@dimen/default_margin_half"
+        android:background="@drawable/button_shape_default"
+        android:enabled="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_check_white_24dp"
+        android:textColor="#ffffff"
+        app:spinning_bar_color="@color/colorAccent"
+        app:spinning_bar_padding="8dp" />
+
+
+    <!--<Button-->
+    <!--android:id="@+id/save_button"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="50dp"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_marginBottom="@dimen/default_margin"-->
+    <!--android:layout_marginLeft="@dimen/default_margin"-->
+    <!--android:layout_marginRight="@dimen/default_margin"-->
+    <!--android:background="@drawable/button_background"-->
+    <!--android:textColor="#ffffff"-->
+    <!--tools:text="Add Coins" />-->
 
 </RelativeLayout>

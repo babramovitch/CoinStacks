@@ -40,6 +40,11 @@ class Migration : RealmMigration {
                     .addField("password", String::class.java, FieldAttribute.REQUIRED)
                     .addField("userName", String::class.java, FieldAttribute.REQUIRED)
 
+            schema.create("WatchAddressRealm")
+                    .addField("exchange", String::class.java, FieldAttribute.REQUIRED)
+                    .addField("address", String::class.java, FieldAttribute.REQUIRED)
+                    .addField("type", String::class.java, FieldAttribute.REQUIRED)
+
             oldVersion++
         }
     }

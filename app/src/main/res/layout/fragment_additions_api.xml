@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/api_layout"
@@ -17,7 +15,6 @@
         android:textSize="@dimen/dialog_text_size"
         android:textStyle="bold" />
 
-
     <LinearLayout
         android:id="@+id/api_pair_layout"
         android:layout_width="match_parent"
@@ -26,7 +23,6 @@
         android:orientation="vertical">
 
     </LinearLayout>
-
 
     <TextView
         android:layout_width="match_parent"
@@ -42,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/api_nested_margins"
         android:layout_marginRight="@dimen/api_nested_margins"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
         <TextView
@@ -59,9 +55,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="User Name For API Key"
-            android:nextFocusDown="@+id/api_key_text"
             android:inputType="text"
             android:maxLines="1"
+            android:nextFocusDown="@+id/api_key_text"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -72,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/api_nested_margins"
         android:layout_marginRight="@dimen/api_nested_margins"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
         <TextView
@@ -89,9 +85,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Key From Website"
-            android:nextFocusDown="@+id/api_secret_text"
-            android:inputType="text"
+            android:inputType="text|textNoSuggestions|textVisiblePassword"
             android:maxLines="1"
+            android:nextFocusDown="@+id/api_secret_text"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -103,7 +99,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/api_nested_margins"
         android:layout_marginRight="@dimen/api_nested_margins"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
         <TextView
@@ -120,9 +116,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Secret From Website"
-            android:nextFocusDown="@+id/api_password_text"
-            android:inputType="text"
+            android:inputType="text|textNoSuggestions|textVisiblePassword"
             android:maxLines="1"
+            android:nextFocusDown="@+id/api_password_text"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
@@ -150,19 +146,15 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="API Password From Website"
-            android:inputType="text"
+            android:inputType="text|textNoSuggestions|textVisiblePassword"
             android:maxLines="1"
             android:text=""
             android:textSize="@dimen/dialog_text_size" />
     </LinearLayout>
 
-    <TextView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center_vertical"
-        android:text="@string/api_privacy_warning"
-        android:textColor="@color/black"
-        android:textSize="@dimen/dialog_text_size" />
+        android:layout_height="@dimen/default_margin" />
+
 
 </LinearLayout>

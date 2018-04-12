@@ -4,13 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
 import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository
 import com.nebulights.coinstacks.R
 import io.realm.Realm
-
 
 class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
 
@@ -43,6 +43,17 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                close()
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun createPresenter(additionsFragment: AdditionsFragment) {
         val exchanges = Exchanges
         exchanges.loadRepositories(ExchangeProvider)
@@ -69,5 +80,4 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
         setResult(responseId, intent)
         finish()
     }
-
 }

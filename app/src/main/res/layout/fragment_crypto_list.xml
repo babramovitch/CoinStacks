@@ -55,10 +55,15 @@
     </LinearLayout>
 
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#00000000" />
+    android:id="@+id/overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#59F2F0E6" />
+
+    <!--<com.leinardi.android.speeddial.SpeedDialOverlayLayout-->
+        <!--android:id="@+id/overlay"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/speedDial"

@@ -1,17 +1,37 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Types.RecordTypes
+import android.support.v4.graphics.ColorUtils
+import android.animation.ValueAnimator
+import android.graphics.Color
+import android.R.attr.duration
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.util.Log
+import com.jakewharton.rxbinding2.view.enabled
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 
 class AdditionsFragment : Fragment(), AdditionsContract.View {
@@ -35,7 +55,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     lateinit var spinnerExchanges: Spinner
 
     @BindView(R.id.save_button)
-    lateinit var saveButton: Button
+    lateinit var saveButton: CircularProgressButton
 
     @BindView(R.id.crypto_price)
     lateinit var price: EditText
@@ -65,10 +85,15 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     @BindView(R.id.api_pair_layout)
     lateinit var apiPairLayout: LinearLayout
 
+    @BindView(R.id.watch_text)
+    lateinit var watchText: EditText
+
+    private var dialog: AlertDialog? = null
     private val spinnerList: MutableList<Spinner> = mutableListOf()
     private var isInitialSpinner = true
-    private lateinit var menu: Menu
+
     var editing = false
+    private var disposable: CompositeDisposable = CompositeDisposable()
 
     companion object {
         fun newInstance(extras: Bundle?): AdditionsFragment {
@@ -101,16 +126,26 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         val exchangeList = resources.getStringArray(R.array.exchanges)
         spinnerExchanges.adapter = ArrayAdapter(activity, R.layout.spinner_item, exchangeList)
 
-        presenter.setInitialScreenAndMode(recordType, exchange, ticker, editing, exchangeList)
+        val quantityObservable = RxTextView.textChanges(quantity)
+        val watchAddressObservable = RxTextView.textChanges(watchText)
+        val userNameObservable = RxTextView.textChanges(userName)
+        val apiKeyObservable = RxTextView.textChanges(apiKey)
+        val apiSecretObservable = RxTextView.textChanges(apiSecret)
+        val apiPasswordObservable = RxTextView.textChanges(apiPassword)
+
+        presenter.setInitialScreenAndMode(recordType, exchange, ticker, editing, exchangeList,
+                AdditionsFormValidator(
+                        quantityObservable, watchAddressObservable, userNameObservable, apiKeyObservable, apiSecretObservable, apiPasswordObservable)
+        )
 
         spinnerExchanges.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!isInitialSpinner) {
-                    presenter.updateExchangeSpinnerSelection(exchangeList[position])
-                    apiPassword.setText("j2wosi9g7x7")
-                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
-                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
-                    userName.setText("")
+                    presenter.updateViewsForExchangeSpinnerSelection(exchangeList[position])
+                    //apiPassword.setText("j2wosi9g7x7")
+                    //apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
+                    //apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
+                    //userName.setText("")
                 } else {
                     isInitialSpinner = false
                 }
@@ -120,6 +155,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
             }
         }
 
+        saveButton.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.seperatorGray))
 
         saveButton.setOnClickListener {
             when (presenter.getRecordType()) {
@@ -149,26 +185,42 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
                 }
 
                 RecordTypes.WATCH -> {
+                    presenter.createWatchAddress(exchangeList[spinnerExchanges.selectedItemPosition], spinnerCryptos.selectedItemPosition,watchText.text.toString() )
                 }
             }
-
-
         }
 
         return rootView
     }
 
+    override fun enableSaveButton(enabled: Boolean) {
+        val enabledColor = ContextCompat.getColor(activity!!, R.color.colorPrimary)
+        val disabledCOlor = ContextCompat.getColor(activity!!, R.color.seperatorGray)
+        if (enabled && !saveButton.isEnabled) {
+            animateButtonEnabledStateChange(saveButton, enabledColor, disabledCOlor)
+        } else if (!enabled && saveButton.isEnabled) {
+            animateButtonEnabledStateChange(saveButton, disabledCOlor, enabledColor)
+        }
+
+        saveButton.isEnabled = enabled
+    }
+
+    private fun animateButtonEnabledStateChange(saveButton: Button, toColor: Int, fromColor: Int) {
+        ObjectAnimator.ofObject(saveButton, "backgroundColor", ArgbEvaluator(), fromColor, toColor)
+                .setDuration(375)
+                .start()
+    }
+
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
         inflater.inflate(R.menu.additions_menu, menu)
-
         menu.findItem(R.id.delete_item).isVisible = editing
-
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+
             R.id.delete_item -> {
                 if (spinnerCryptos.selectedItem == null) {
                     presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), "")
@@ -176,39 +228,6 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
                     presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), spinnerCryptos.selectedItem.toString())
                 }
             }
-            R.id.save_record -> {
-                val exchangeList = resources.getStringArray(R.array.exchanges)
-                when (presenter.getRecordType()) {
-
-                    RecordTypes.COINS -> presenter.createAsset(exchangeList[spinnerExchanges.selectedItemPosition],
-                            spinnerCryptos.selectedItemPosition,
-                            quantity.text.toString(),
-                            price.text.toString())
-
-                    RecordTypes.API -> {
-
-                        val cryptoPairs: MutableList<CryptoPairs> = mutableListOf()
-
-                        spinnerList.forEach {
-                            cryptoPairs.addAll(presenter.getTickerForExchangeAndPair(
-                                    exchangeList[spinnerExchanges.selectedItemPosition],
-                                    it.selectedItem.toString()))
-                        }
-
-                        presenter.createAPIKey(exchangeList[spinnerExchanges.selectedItemPosition],
-                                userName.text.toString(),
-                                apiPassword.text.toString(),
-                                apiKey.text.toString(),
-                                apiSecret.text.toString(),
-                                cryptoPairs)
-
-                    }
-
-                    RecordTypes.WATCH -> {
-                    }
-                }
-            }
-
         }
         return super.onOptionsItemSelected(item)
     }
@@ -234,7 +253,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
     private fun disableSpinner(spinner: Spinner) {
         spinner.background = null
-        spinner.setOnTouchListener(View.OnTouchListener { view, motionEvent -> true })
+        spinner.setOnTouchListener({ view, motionEvent -> true })
     }
 
     override fun setEditModeWatch() {
@@ -249,12 +268,15 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     }
 
     override fun showAPIAddition() {
+        //TODO play around with this configuration
+        if (resources.displayMetrics.density <= 2) {
+            activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        }
         coinLayout.visibility = View.GONE
         spinnerCrytpoLayout.visibility = View.GONE
         apiLayout.visibility = View.VISIBLE
         watchLayout.visibility = View.GONE
-        saveButton.text = "Save API Keys"
-
+        saveButton.text = "Verify & Save API Keys"
     }
 
     override fun showAuthenticationRequirements(userName: Boolean, password: Boolean) {
@@ -279,7 +301,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     override fun setupCryptoPairSpinner(cryptoList: List<String>) {
         spinnerCryptos.adapter = ArrayAdapter(activity, R.layout.spinner_item, cryptoList)
         spinnerCryptos.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 presenter.setCryptoQuantity(spinnerExchanges.selectedItem.toString(), spinnerCryptos.selectedItem.toString())
             }
 
@@ -287,7 +309,6 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
             }
         }
     }
-
 
     /**
      * Dynamically generate a list of layouts with a header/spinner based on the submitted list of trading pairs
@@ -329,9 +350,30 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         apiPassword.setText(basicAuthentication.password)
     }
 
+    override fun showVerificationDialog() {
+        saveButton.startAnimation()
+    }
+
+    override fun closeVerificationDialog() {
+        val fillColor = ContextCompat.getColor(activity!!, R.color.colorAccent)
+        val drawable = BitmapFactory.decodeResource(resources, R.drawable.ic_check_white_24dp)
+        saveButton.doneLoadingAnimation(fillColor, drawable)
+    }
+
+    override fun showValidationErrorDialog(message: String?) {
+        saveButton.revertAnimation()
+        val builder = AlertDialog.Builder(context!!)
+        builder.setTitle("Error")
+        builder.setMessage(message ?: "Unknown Error")
+        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+        }).create().show()
+    }
 
     override fun onDestroy() {
+        disposable.dispose()
+        dialog?.dismiss()
         presenter.onDetach()
+        saveButton.dispose()
         super.onDestroy()
     }
 }

@@ -26,6 +26,8 @@ inline fun SharedPreferences.applyMe(func: SharedPreferences.Editor.() -> Shared
     this.edit().func().apply()
 }
 
+
+
 fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
 }

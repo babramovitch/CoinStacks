@@ -24,7 +24,16 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:hint="Address"
-        android:inputType="numberDecimal|number"
+        android:inputType="text"
+        android:textSize="@dimen/dialog_text_size" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_margin"
+        android:gravity="center_vertical"
+        android:text="To obtain balance information, this public address will be transmitted to block explorer"
+        android:textColor="@color/black"
         android:textSize="@dimen/dialog_text_size" />
 
 

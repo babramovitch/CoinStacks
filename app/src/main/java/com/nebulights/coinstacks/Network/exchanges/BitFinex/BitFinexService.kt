@@ -17,5 +17,4 @@ import retrofit2.http.Path
 interface BitFinexService {
     @GET("v1/pubticker/{book}")
     fun getCurrentTradingInfo(@Path("book") orderBook: String): Observable<CurrentTradingInfo>
-
 }

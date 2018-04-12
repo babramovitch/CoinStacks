@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Network.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
@@ -10,12 +11,14 @@ import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.strin
 import com.nebulights.coinstacks.Portfolio.Main.model.DisplayBalanceItem
 import com.nebulights.coinstacks.Types.*
 import java.math.BigDecimal
+import kotlin.math.exp
 
 /**
  * Created by babramovitch on 10/23/2017.
  */
 
 class PortfolioPresenter(private var exchanges: Exchanges,
+                         private var explorers: Explorers,
                          private var view: PortfolioContract.View,
                          private val cryptoAssetRepository: CryptoAssetContract,
                          private val navigation: PortfolioContract.Navigator) :
@@ -23,9 +26,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     private val TAG = "PortfolioPresenter"
 
-    private var allTickers = enumValues<CryptoPairs>().map { it }
     private lateinit var tickers: MutableList<CryptoPairs>
-    private lateinit var balances: MutableMap<String, ApiBalances>
     private lateinit var displayList: MutableList<DisplayBalanceItem>
     private val temporaryNonZeroBalanceTickers: MutableList<CryptoPairs> = mutableListOf()
 
@@ -39,14 +40,22 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     fun refreshData() {
         tickers = cryptoAssetRepository.getTickers()
-        balances = exchanges.getApiData()
-        displayList = PortfolioDisplayListHelper.createDisplayList(tickers, balances, cryptoAssetRepository)
+        displayList = PortfolioDisplayListHelper.createDisplayList(tickers, exchanges.getApiData(), cryptoAssetRepository)
         tickers.addAll(temporaryNonZeroBalanceTickers)
-        view.updateUi(0)
+        view.updateUi()
+
+        val watchAddress = cryptoAssetRepository.getWatchAddresses()
+
+        val array: ArrayList<String> = arrayListOf()
+        (watchAddress.forEach { watchAddress -> array.add(watchAddress.address) })
+
+        explorers.startFeed(array, this)
+
     }
 
     override fun deleteApiData(exchange: String) {
-       exchanges.getApiData().remove(exchange)
+        exchanges.getApiData().remove(exchange)
+        temporaryNonZeroBalanceTickers.removeAll { it.exchange == exchange }
     }
 
     override fun startFeed() {
@@ -58,12 +67,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         exchanges.startBalanceFeed(cryptoAssetRepository.getApiKeysNonRealm(), this)
     }
 
-    fun shouldSecureData(timeSincePaused: Long): Boolean =
+    private fun shouldSecureData(timeSincePaused: Long): Boolean =
             (System.currentTimeMillis() - MINUTE_IN_MILLIS > timeSincePaused)
                     && cryptoAssetRepository.isPasswordSet()
 
     override fun updateUi(ticker: CryptoPairs) {
-        view.updateUi(getOrderedTickerIndex(ticker))
+        view.updateUi()
     }
 
     override fun updateUi(apiBalances: ApiBalances) {
@@ -76,9 +85,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
     }
 
-
     private fun newTickersInBalances(apiBalances: ApiBalances): Boolean {
-
         val nonZeroCryptoPairs = apiBalances.getCryptoPairsForNonZeroBalances(apiBalances.displayBalancesAs)
 
         nonZeroCryptoPairs.forEach {
@@ -93,10 +100,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun stopFeed() {
         timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
-    }
-
-    override fun showAddNewAssetDialog() {
-        // navigation.addNewItem()
     }
 
     override fun addNew(recordTypes: RecordTypes) {
@@ -163,7 +166,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             }
 
             if (subTotal.compareTo(BigDecimal.ZERO) != 0) {
-                netWorth.put(ticker.currencyType, subTotal)
+                netWorth[ticker.currencyType] = subTotal
             }
         }
 
@@ -173,7 +176,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     private fun getApiBalanceForMatchingTicker(ticker: CryptoPairs, apiBalances: ApiBalances): BigDecimal {
-
         var subTotalApi = BigDecimal.ZERO
 
         val currencyRequested1 = apiBalances.displayBalancesAs[ticker.cryptoType]
@@ -183,7 +185,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         return subTotalApi
     }
-
 
     override fun displayItemCount(): Int = displayList.size
 
@@ -199,8 +200,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         return value.setScale(2, BigDecimal.ROUND_HALF_UP)
     }
 
-    fun getOrderedTickerIndex(cryptoPair: CryptoPairs): Int = tickers.indexOf(cryptoPair)
-
     fun addTickerData(tradingInfo: TradingInfo, cryptoPair: CryptoPairs) {
         exchanges.updateData(cryptoPair, tradingInfo)
     }
@@ -208,9 +207,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun getTickers(): List<CryptoPairs> = tickers
 
     override fun getTickersForExchange(exchange: String): List<String> =
-            allTickers.filter { ticker ->
-                ticker.exchange.toLowerCase() == exchange.toLowerCase()
-            }.map { ticker -> ticker.userTicker() }
+            exchanges.getTickersForExchange(exchange)
 
     override fun savePassword(password: String) {
         cryptoAssetRepository.savePassword(password)
@@ -251,10 +248,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
     }
 
-    override fun recyclerViewType(position: Int): Int {
-        val item = displayList[position]
-        return if (item.displayRecordType == DisplayBalanceItemTypes.HEADER) 0 else 1
-    }
+    override fun recyclerViewType(position: Int): Int =
+            if (displayList[position].displayRecordType == DisplayBalanceItemTypes.HEADER) 0 else 1
 
     override fun getHeader(position: Int): String = displayList[position].header
 
@@ -286,10 +281,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
             row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
         }
-    }
-
-    override fun onBindApiBalances(position: Int, row: PortfolioContract.ViewRow) {
-
     }
 
     override fun onDetach() {

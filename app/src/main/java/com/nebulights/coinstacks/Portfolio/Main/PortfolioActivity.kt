@@ -4,7 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Extensions.addFragment
+import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerProvider
+import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
+import com.nebulights.coinstacks.Portfolio.Intro.IntroActivity
 import com.nebulights.coinstacks.Network.ExchangeProvider
 import com.nebulights.coinstacks.Network.Exchanges
 import com.nebulights.coinstacks.Portfolio.Additions.AdditionsActivity
@@ -23,6 +27,16 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (savedInstanceState == null) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+            prefs.edit().putBoolean(Constants.FIRST_LOAD_KEY, true).apply()
+            val firstLoad = prefs.getBoolean(Constants.FIRST_LOAD_KEY, true)
+
+            if (firstLoad) {
+                startActivity(Intent(this, IntroActivity::class.java))
+            }
+        }
 
         var portfolioFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as PortfolioFragment?
 
@@ -55,11 +69,14 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
         val exchanges = Exchanges
         exchanges.loadRepositories(ExchangeProvider)
 
+        val explorers = Explorers
+        explorers.loadRepositories(ExplorerProvider)
+
         val cryptoAssetRepository = CryptoAssetRepository(Realm.getDefaultInstance(),
                 PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
 
-        presenter = PortfolioPresenter(exchanges,
+        presenter = PortfolioPresenter(exchanges, explorers,
                 portfolioFragment, cryptoAssetRepository, this)
 
 //        if (cryptoAssetRepository.isPasswordSet()) {
@@ -81,7 +98,6 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
         intent.putExtra("exchange", exchange)
         intent.putExtra("ticker", ticker)
         intent.putExtra("editing", true)
-
         startActivityForResult(intent, REQUEST_ADD_ITEM)
     }
 

@@ -4,6 +4,7 @@ import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Types.RecordTypes
+import io.reactivex.Observable
 
 
 /**
@@ -26,6 +27,10 @@ class AdditionsContract {
         fun setExchange(position: Int)
         fun setCryptoPair(cryptoPairIndex: Int)
         fun setCryptoQuantity(amount: String)
+        fun showVerificationDialog()
+        fun closeVerificationDialog()
+        fun showValidationErrorDialog(message: String?)
+        fun enableSaveButton(isEnabled: Boolean)
     }
 
     interface Presenter {
@@ -37,11 +42,15 @@ class AdditionsContract {
         fun cryptosForExchange(exchange: String): List<CryptoTypes>
         fun getTickerForExchangeAndPair(exchange: String, pair: String): List<CryptoPairs>
         fun createAPIKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
-        fun updateExchangeSpinnerSelection(exchange: String)
-        fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, editing: Boolean, exchangeList: Array<String>)
+        fun updateViewsForExchangeSpinnerSelection(exchange: String)
         fun getRecordType(): RecordTypes
         fun deleteRecord(exchange: String, userTicker: String)
         fun setCryptoQuantity(exchange: String, ticker: String)
+        fun verificationComplete()
+        fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, editing: Boolean, exchangeList: Array<String>, validator: AdditionsFormValidator)
+        fun createFormValidator(observer: Observable<Boolean>)
+        fun close()
+        fun createWatchAddress(sexchange: String, selectedItemPosition: Int, address: String)
     }
 
     interface Navigator {

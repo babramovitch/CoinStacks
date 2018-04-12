@@ -22,7 +22,6 @@ import com.nebulights.coinstacks.Types.RecordTypes
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 
-
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View {
 
@@ -64,15 +63,35 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         val rootView = inflater.inflate(R.layout.fragment_crypto_list, container, false)
         ButterKnife.bind(this, rootView)
 
-        linearLayoutManager = LinearLayoutManager(activity)
+        setupRecyclerView()
+        setupSpeeDialFab()
 
+        netWorth.text = presenter.getNetWorthDisplayString()
+
+        return rootView
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        this.menu = menu
+        inflater.inflate(R.menu.menu, menu)
+        presenter.setAssetLockedState()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onResume() {
+        presenter.startFeed()
+        super.onResume()
+    }
+
+    fun setupRecyclerView() {
+        linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
         //recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         recyclerView.addItemDecoration(BottomOffsetDecoration(50.dp))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
+    }
 
-        netWorth.text = presenter.getNetWorthDisplayString()
-
+    fun setupSpeeDialFab() {
         floatingActionbutton.speedDialOverlayLayout = speedDialOverlay;
 
         floatingActionbutton.setMainFabOnClickListener {
@@ -94,7 +113,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
                         .setLabel(getString(R.string.watch_address_fab)).create())
 
         floatingActionbutton.setOptionFabSelectedListener({ speedDialActionItem ->
-
             when (speedDialActionItem.id) {
                 R.id.fab_add_coins -> presenter.addNew(RecordTypes.COINS)
                 R.id.fab_add_exchange -> presenter.addNew(RecordTypes.API)
@@ -104,22 +122,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             }
             floatingActionbutton.closeOptionsMenu()
         })
-
-
-        return rootView
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        inflater.inflate(R.menu.menu, menu)
-        presenter.setAssetLockedState()
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onResume() {
-        presenter.startFeed()
-        super.onResume()
-    }
 
     override fun showAssetQuantites(isVisible: Boolean) {
         menu.findItem(R.id.locked_data).isVisible = !isVisible
@@ -157,7 +161,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
             showDialog(builder.create(), false)
         }
-
     }
 
     override fun showUnlockDialog(firstAttempt: Boolean) {
@@ -220,17 +223,6 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
     }
 
-    private fun showErrorDialogCouldNotFindCrypto() {
-        val builder = AlertDialog.Builder(context!!)
-        builder.setTitle(getString(R.string.dialog_title_error))
-        builder.setMessage(getString(R.string.dialog_message_error))
-        builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-            dialog.dismiss()
-        })
-
-        showDialog(builder.create(), false)
-    }
-
     private fun showDialog(dialog: AlertDialog, raiseKeyboard: Boolean) {
         this.dialog = dialog
         if (raiseKeyboard) {
@@ -239,17 +231,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         dialog.show()
     }
 
-    override fun updateUi(position: Int) {
+    override fun updateUi() {
         if (this::netWorth.isInitialized) {
             netWorth.text = presenter.getNetWorthDisplayString()
-            //recyclerView.adapter.notifyItemChanged(position)
             recyclerView.adapter.notifyDataSetChanged()
         }
-    }
-
-    override fun removeItem(position: Int) {
-        netWorth.text = presenter.getNetWorthDisplayString()
-        recyclerView.adapter.notifyItemRemoved(position)
     }
 
     override fun resetUi() {

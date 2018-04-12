@@ -4,6 +4,7 @@ import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
 import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.userTicker
 
 /**
  * Created by babramovitch on 11/9/2017.
@@ -32,14 +33,15 @@ interface Exchange {
     fun feedType(): String
     fun userNameRequired(): Boolean
     fun passwordRequired(): Boolean
-
 }
 
 object Exchanges : NetworkDataUpdate {
 
+    private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickerData: MutableMap<CryptoPairs, TradingInfo> = mutableMapOf()
     private var apiData: MutableMap<String, ApiBalances> = mutableMapOf()
     private lateinit var repositories: List<Exchange>
+
 
     fun loadRepositories(exchangeProvider: ExchangeProvider) {
         repositories = exchangeProvider.getAllRepositories()
@@ -75,12 +77,16 @@ object Exchanges : NetworkDataUpdate {
         }
     }
 
+    private fun getTickers(tickers: List<CryptoPairs>, exchange: String): List<CryptoPairs> =
+            tickers.filter { ticker ->
+                ticker.exchange == exchange
+            }
 
-    private fun getTickers(tickers: List<CryptoPairs>, exchange: String): List<CryptoPairs> {
-        return tickers.filter { ticker ->
-            ticker.exchange == exchange
-        }
-    }
+    fun getTickersForExchange(exchange: String): List<String> =
+            allTickers.filter { ticker ->
+                ticker.exchange.toLowerCase() == exchange.toLowerCase()
+            }.map { ticker -> ticker.userTicker() }
+
 
     private fun getAuthenticationDetails(authenticationDetails: List<BasicAuthentication>, exchange: String): List<BasicAuthentication> {
         return authenticationDetails.filter { details ->
@@ -94,43 +100,29 @@ object Exchanges : NetworkDataUpdate {
         }
     }
 
-    fun getData(): MutableMap<CryptoPairs, TradingInfo> {
-        return tickerData
-    }
+    fun getData(): MutableMap<CryptoPairs, TradingInfo> = tickerData
 
-    fun getApiData(): MutableMap<String, ApiBalances> {
-        return apiData
-    }
+    fun getApiData(): MutableMap<String, ApiBalances> = apiData
 
     fun clearData() {
         tickerData.clear()
     }
 
-    fun userNameRequiredForAuthentication(exchange: String): Boolean {
-        val exchanges = repositories.filter { details ->
-            details.feedType() == exchange
-        }
+    fun userNameRequiredForAuthentication(exchange: String): Boolean =
+            repositories.first { details ->
+                details.feedType() == exchange
+            }.userNameRequired()
 
-        return exchanges[0].userNameRequired()
-    }
-
-    fun passwordRequiredForAuthentication(exchange: String): Boolean {
-        val exchanges = repositories.filter { details ->
-            details.feedType() == exchange
-        }
-
-        return exchanges[0].passwordRequired()
-    }
+    fun passwordRequiredForAuthentication(exchange: String): Boolean =
+            repositories.first { details ->
+                details.feedType() == exchange
+            }.passwordRequired()
 
     override fun updateData(ticker: CryptoPairs, data: TradingInfo) {
-        tickerData.put(ticker, data)
+        tickerData[ticker] = data
     }
 
     override fun updateApiData(exchange: String, data: ApiBalances) {
-        apiData.put(exchange, data)
-    }
-
-    fun getTickersForExchange(exchange: String) {
-
+        apiData[exchange] = data
     }
 }
