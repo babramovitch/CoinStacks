@@ -22,10 +22,12 @@ import com.nebulights.coinstacks.R
  * coins squarer <div>Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
  */
 class IntroActivity : AppIntro() {
+
+    private var currentPage = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // setFadeAnimation()
         showStatusBar(false)
 
         val sliderPage0 = SliderPage()
@@ -67,7 +69,6 @@ class IntroActivity : AppIntro() {
 
         showSkipButton(false)
         isProgressButtonEnabled = true
-
     }
 
     override fun onDonePressed(currentFragment: Fragment) {
@@ -77,5 +78,18 @@ class IntroActivity : AppIntro() {
         prefs.edit().putBoolean(Constants.FIRST_LOAD_KEY, false).apply()
 
         finish()
+    }
+
+    override fun onPageSelected(position: Int) {
+        currentPage = position
+        super.onPageSelected(position)
+    }
+
+    override fun onBackPressed() {
+        if (currentPage == 0) {
+            moveTaskToBack(true)
+            return
+        }
+        super.onBackPressed()
     }
 }

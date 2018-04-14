@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
     android:orientation="vertical"
     >
 
@@ -21,6 +21,22 @@
             android:textSize="17sp"
             android:textStyle="bold"
             tools:text="QuadrigaCX" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/recycler_address_nick_name_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp">
+
+        <TextView
+            android:id="@+id/recycler_address_nick_name"
+            style="@style/title_style"
+            android:textStyle="italic"
+            android:text="@string/dashes"
+            tools:text="Mint" />
+
+
     </LinearLayout>
 
     <LinearLayout

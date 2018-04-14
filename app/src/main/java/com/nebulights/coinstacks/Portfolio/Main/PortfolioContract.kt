@@ -26,6 +26,8 @@ class PortfolioContract {
         fun setNetValue(netValue: String)
         fun setExchange(exchange: String)
         fun showQuantities(visible: Boolean)
+        fun showAddressNickName(visible: Boolean)
+        fun setWatchAddressNickName(addressNickName: String?)
     }
 
     interface Presenter {
@@ -55,11 +57,16 @@ class PortfolioContract {
         fun rowItemClicked(adapterPosition: Int)
         fun addNew(recordTypes: RecordTypes)
         fun deleteApiData(exchange: String)
+        fun resultFromAdditions(requestCode: Int, resultCode: Int, stringExtra: String?)
+        fun backPressed()
     }
 
     interface Navigator {
         fun addNewItem(item: RecordTypes)
         fun editItem(item: RecordTypes, cryptoPair: CryptoPairs?, exchange: String, ticker: String)
+        //    fun editCoinsItem(item: RecordTypes, cryptoPair: CryptoPairs?, exchange: String, ticker: String)
+        //   fun editApiItem(item: RecordTypes, cryptoPair: CryptoPairs?, exchange: String, ticker: String)
+        fun editWatchAddressItem(item: RecordTypes, cryptoPair: CryptoPairs?, exchange: String, ticker: String, address: String)
     }
 }
 

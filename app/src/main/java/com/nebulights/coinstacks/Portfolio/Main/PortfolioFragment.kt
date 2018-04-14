@@ -2,9 +2,11 @@ package com.nebulights.coinstacks.Portfolio.Main
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -21,9 +23,35 @@ import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Types.RecordTypes
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+import kotlinx.android.synthetic.main.fragment_crypto_list.*
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-class PortfolioFragment : Fragment(), PortfolioContract.View {
+class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecoration.StickyHeaderInterface {
+    override fun getHeaderPositionForItem(itemPosition: Int): Int =
+            (itemPosition downTo 0)
+                    .map { Pair(isHeader(it), it) }
+                    .firstOrNull { it.first }?.second ?: RecyclerView.NO_POSITION
+
+    override fun getHeaderLayout(headerPosition: Int): Int {
+        return R.layout.recycler_item_header
+    }
+
+    override fun bindHeaderData(header: View, headerPosition: Int) {
+        if (headerPosition == RecyclerView.NO_POSITION) header.layoutParams.height = 0
+        else {
+            activity?.let {
+                header.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.backgroundOffWhite))
+            }
+
+            val textView = header.findViewById<TextView>(R.id.recycler_exchange)
+            Log.i("TAG", "Header: " +  presenter.getHeader(headerPosition))
+            textView.text = presenter.getHeader(headerPosition)
+        }
+    }
+
+    override fun isHeader(itemPosition: Int): Boolean {
+        return presenter.recyclerViewType(itemPosition) == 0
+    }
 
     @BindView(R.id.net_worth_amount)
     lateinit var netWorth: TextView
@@ -87,6 +115,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = linearLayoutManager
         //recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+        //recyclerView.addItemDecoration(HeaderItemDecoration(recyclerView, this))
+
+
         recyclerView.addItemDecoration(BottomOffsetDecoration(50.dp))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
     }
@@ -133,6 +164,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
         netWorth.text = presenter.getNetWorthDisplayString()
         netWorthLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
+        speedDial.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

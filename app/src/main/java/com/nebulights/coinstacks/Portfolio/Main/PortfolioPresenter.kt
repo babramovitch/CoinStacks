@@ -1,8 +1,11 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import android.util.Log
+import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
-import com.nebulights.coinstacks.Network.Exchanges
-import com.nebulights.coinstacks.Network.NetworkCompletionCallback
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddressBalance
+import com.nebulights.coinstacks.Network.exchanges.Exchanges
+import com.nebulights.coinstacks.Network.exchanges.NetworkCompletionCallback
 import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.currencyFormatter
@@ -10,8 +13,12 @@ import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.small
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioHelpers.Companion.stringSafeBigDecimal
 import com.nebulights.coinstacks.Portfolio.Main.model.DisplayBalanceItem
 import com.nebulights.coinstacks.Types.*
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
-import kotlin.math.exp
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by babramovitch on 10/23/2017.
@@ -26,31 +33,60 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
     private val TAG = "PortfolioPresenter"
 
-    private lateinit var tickers: MutableList<CryptoPairs>
-    private lateinit var displayList: MutableList<DisplayBalanceItem>
+    private var tickers: MutableList<CryptoPairs> = mutableListOf()
+    private var displayList: MutableList<DisplayBalanceItem> = mutableListOf()
     private val temporaryNonZeroBalanceTickers: MutableList<CryptoPairs> = mutableListOf()
 
     private var timeStopped = System.currentTimeMillis()
     private val MINUTE_IN_MILLIS = 60000
+    private var disposable: CompositeDisposable = CompositeDisposable()
+
+    private var initialLoadComplete = false
 
     init {
         view.setPresenter(this)
-        refreshData()
     }
 
     fun refreshData() {
-        tickers = cryptoAssetRepository.getTickers()
-        displayList = PortfolioDisplayListHelper.createDisplayList(tickers, exchanges.getApiData(), cryptoAssetRepository)
-        tickers.addAll(temporaryNonZeroBalanceTickers)
-        view.updateUi()
+        explorers.removeNoLongerValidWatchAddresses(cryptoAssetRepository.getWatchAddresses())
 
-        val watchAddress = cryptoAssetRepository.getWatchAddresses()
+        tickers = cryptoAssetRepository.getTickersForAssets()
+        if (!cryptoAssetRepository.assetsVisible() && cryptoAssetRepository.isPasswordSet()) {
+            tickers.addAll(temporaryNonZeroBalanceTickers)
 
-        val array: ArrayList<String> = arrayListOf()
-        (watchAddress.forEach { watchAddress -> array.add(watchAddress.address) })
+            cryptoAssetRepository.getTickersForWatchAddress().forEach { ticker ->
+                if (tickers.indexOf(ticker) == -1) {
+                    tickers.add(ticker)
+                }
+            }
+            displayList = PortfolioDisplayListHelper.createLockedDisplayList(tickers, cryptoAssetRepository)
+        } else {
+            displayList = PortfolioDisplayListHelper.createDisplayList(tickers, exchanges.getApiData(), explorers.getWatchAddressData(), cryptoAssetRepository)
 
-        explorers.startFeed(array, this)
+            tickers.addAll(temporaryNonZeroBalanceTickers)
 
+            cryptoAssetRepository.getTickersForWatchAddress().forEach { ticker ->
+                if (tickers.indexOf(ticker) == -1) {
+                    tickers.add(ticker)
+                }
+            }
+        }
+
+        if (!initialLoadComplete) {
+            view.updateUi()
+        }
+    }
+
+    override fun resultFromAdditions(requestCode: Int, resultCode: Int, exchange: String?) {
+        initialLoadComplete = false
+        if (requestCode == Constants.REQUEST_ADD_ITEM && resultCode == 1) {
+            refreshData()
+        } else if (requestCode == Constants.REQUEST_ADD_ITEM && resultCode == 2) {
+            exchange?.let {
+                deleteApiData(exchange)
+            }
+            refreshData()
+        }
     }
 
     override fun deleteApiData(exchange: String) {
@@ -59,12 +95,28 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun startFeed() {
+
+        refreshData()
+
         if (shouldSecureData(timeStopped)) {
             lockData()
         }
 
         exchanges.startFeed(tickers, this)
         exchanges.startBalanceFeed(cryptoAssetRepository.getApiKeysNonRealm(), this)
+
+        //TODO double check this gets refreshed properly when adding new item
+        explorers.startFeed(cryptoAssetRepository.getWatchAddresses(), this)
+
+        disposable.add(Observable.timer(10, TimeUnit.SECONDS)
+                .repeatWhen { result -> result }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    initialLoadComplete = true
+                    Log.i("UI UPDATE", "UPDATING UI")
+                    view.updateUi()
+                }))
     }
 
     private fun shouldSecureData(timeSincePaused: Long): Boolean =
@@ -72,7 +124,9 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                     && cryptoAssetRepository.isPasswordSet()
 
     override fun updateUi(ticker: CryptoPairs) {
-        view.updateUi()
+        if(!initialLoadComplete) {
+             view.updateUi()
+        }
     }
 
     override fun updateUi(apiBalances: ApiBalances) {
@@ -83,6 +137,10 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         if (newTickers) {
             exchanges.startFeed(tickers, this)
         }
+    }
+
+    override fun updateUi(watchAddress: WatchAddressBalance) {
+        refreshData()
     }
 
     private fun newTickersInBalances(apiBalances: ApiBalances): Boolean {
@@ -100,6 +158,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun stopFeed() {
         timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
+        explorers.stopFeed()
     }
 
     override fun addNew(recordTypes: RecordTypes) {
@@ -107,13 +166,15 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun rowItemClicked(adapterPosition: Int) {
-        val item = displayList[adapterPosition]
-        when (item.displayRecordType) {
-            DisplayBalanceItemTypes.COINS -> navigation.editItem(RecordTypes.COINS, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
-            DisplayBalanceItemTypes.API -> navigation.editItem(RecordTypes.API, item.cryptoPair, item.cryptoPair!!.exchange, "")
-            DisplayBalanceItemTypes.WATCH -> navigation.editItem(RecordTypes.WATCH, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
-            else -> {
-                //do nothing when a header is pressed.
+        if (cryptoAssetRepository.assetsVisible()) {
+            val item = displayList[adapterPosition]
+            when (item.displayRecordType) {
+                DisplayBalanceItemTypes.COINS -> navigation.editItem(RecordTypes.COINS, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
+                DisplayBalanceItemTypes.API -> navigation.editItem(RecordTypes.API, item.cryptoPair, item.cryptoPair!!.exchange, "")
+                DisplayBalanceItemTypes.WATCH -> navigation.editWatchAddressItem(RecordTypes.WATCH, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker(), item.address!!)
+                else -> {
+                    //do nothing when a header is pressed.
+                }
             }
         }
     }
@@ -165,6 +226,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                 subTotal += getApiBalanceForMatchingTicker(ticker, exchangeBalanceData) * stringSafeBigDecimal(data.lastPrice)
             }
 
+            val watchAddressData = explorers.getWatchAddressData().filter { it.value.type == ticker }
+
+            if (watchAddressData.isNotEmpty()) {
+                subTotal += getWatchAddressBalanceForMatchingTicker(watchAddressData) * stringSafeBigDecimal(data.lastPrice)
+            }
+
             if (subTotal.compareTo(BigDecimal.ZERO) != 0) {
                 netWorth[ticker.currencyType] = subTotal
             }
@@ -173,6 +240,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         return netWorth.map {
             currencyFormatter().format(it.value.setScale(2, BigDecimal.ROUND_HALF_UP)) + " " + it.key.name
         }
+    }
+
+    private fun getWatchAddressBalanceForMatchingTicker(watchAddressData: Map<String, WatchAddressBalance>): BigDecimal {
+        var subTotalWatchAddress = BigDecimal.ZERO
+        watchAddressData.forEach { subTotalWatchAddress += BigDecimal(it.value.balance) }
+        return subTotalWatchAddress
     }
 
     private fun getApiBalanceForMatchingTicker(ticker: CryptoPairs, apiBalances: ApiBalances): BigDecimal {
@@ -232,6 +305,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         } else {
             cryptoAssetRepository.setAssetsVisibility(false)
             view.showAssetQuantites(false)
+            refreshData()
         }
     }
 
@@ -243,6 +317,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         if (cryptoAssetRepository.isPasswordValid(password)) {
             cryptoAssetRepository.setAssetsVisibility(true)
             view.showAssetQuantites(true)
+            refreshData()
         } else {
             view.showUnlockDialog(false)
         }
@@ -257,13 +332,14 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         val item = displayList[position]
 
-        if (item.displayRecordType != DisplayBalanceItemTypes.HEADER) {
+        if (item.displayRecordType != DisplayBalanceItemTypes.HEADER) { // This shouldn't happen but being extra safe
 
             val currentTradingInfo = getCurrentTradingData(item.cryptoPair!!)
 
             row.setTicker(item.cryptoPair!!.userTicker())
             row.setExchange(item.cryptoPair!!.exchange)
             row.setHoldings(item.quantity!!.toPlainString())
+            row.setWatchAddressNickName(item.addressNickName)
 
             if (currentTradingInfo != null) {
                 val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
@@ -280,10 +356,17 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             }
 
             row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+            row.showAddressNickName(!item.addressNickName.isNullOrEmpty())
         }
     }
 
+    override fun backPressed() {
+        setAssetsVisibility(false)
+        setAssetLockedState()
+    }
+
     override fun onDetach() {
+        disposable.dispose()
         cryptoAssetRepository.close()
     }
 }

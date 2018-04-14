@@ -1,14 +1,17 @@
 package com.nebulights.coinstacks.Network.exchanges.Gdax
 
 import android.util.Base64
-import com.nebulights.coinstacks.Network.*
-import com.nebulights.coinstacks.Network.exchanges.BaseExchange
+import com.nebulights.coinstacks.Constants
+import com.nebulights.coinstacks.Network.ValidationCallback
+import com.nebulights.coinstacks.Network.exchanges.*
 import com.nebulights.coinstacks.Network.exchanges.Gdax.model.AuthenticationDetails
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.security.HashGenerator
 import com.nebulights.coinstacks.Network.security.HashingAlgorithms
 import com.nebulights.coinstacks.Types.CryptoPairs
 import io.reactivex.Observable
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 
 /**
  * Created by babramovitch on 10/25/2017.
@@ -21,17 +24,21 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
 
     override fun feedType(): String = ExchangeProvider.GDAX_NAME
 
-    override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
 
-        tickers.forEach { ticker ->
-            startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
-                    ticker, presenterCallback, networkDataUpdate)
+        launch {
+            tickers.forEach { ticker ->
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
+                        ticker, presenterCallback, exchangeNetworkDataUpdate)
+                if (tickers.size > Constants.rateLimitSizeThreshold) {
+                    delay(Constants.tickerDelayInMillis)
+                }
+            }
         }
-
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         startAccountBalanceFeed(
                 Observable
                         .defer<AuthenticationDetails> {
@@ -46,10 +53,10 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
                                     details.passphrase)
                         }, basicAuthentication,
                 presenterCallback,
-                networkDataUpdate)
+                exchangeNetworkDataUpdate)
     }
 
-    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         try {
             val details = generateAuthenticationDetails(basicAuthentication)
 
@@ -60,7 +67,7 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
                     details.passphrase)
                     , basicAuthentication,
                     presenterCallback,
-                    networkDataUpdate)
+                    exchangeNetworkDataUpdate)
 
         } catch (exception: IllegalArgumentException) {
             presenterCallback.validationError("Error using Secret Key.  Verify all details are correct")

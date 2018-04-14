@@ -8,6 +8,7 @@ import io.reactivex.Observable
  */
 data class AdditionsFormValidator(private val quantityObservable: Observable<CharSequence>,
                                   private val watchAddressObservable: Observable<CharSequence>,
+                                  private val watchAddressNickNameObservable: Observable<CharSequence>,
                                   private val userNameObservable: Observable<CharSequence>,
                                   private val apiKeyObservable: Observable<CharSequence>,
                                   private val apiSecretObservable: Observable<CharSequence>,
@@ -19,7 +20,7 @@ data class AdditionsFormValidator(private val quantityObservable: Observable<Cha
     }
 
     fun watchAddressValidator(): Observable<Boolean> {
-        return createFormValidator(arrayListOf(watchAddressObservable))
+        return createFormValidator(arrayListOf(watchAddressObservable, watchAddressNickNameObservable))
     }
 
     fun apiValidator(hasUserName: Boolean, hasPassword: Boolean): Observable<Boolean> {

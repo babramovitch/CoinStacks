@@ -1,17 +1,20 @@
 package com.nebulights.coinstacks.Network.exchanges.Gemini
 
 import android.util.Base64
-import com.nebulights.coinstacks.Network.*
+import com.nebulights.coinstacks.Constants
+import com.nebulights.coinstacks.Network.ValidationCallback
+import com.nebulights.coinstacks.Network.exchanges.*
 
 import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Network.security.HashingAlgorithms
-import com.nebulights.coinstacks.Network.exchanges.BaseExchange
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Gemini.model.AuthenticationDetails
 import com.nebulights.coinstacks.Network.exchanges.Gemini.model.BalanceRequest
 import com.nebulights.coinstacks.Network.security.HashGenerator
 import com.squareup.moshi.Moshi
 import io.reactivex.Observable
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 
 
 /**
@@ -25,17 +28,21 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
 
     override fun feedType(): String = ExchangeProvider.GEMINI_NAME
 
-    override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
 
-        tickers.forEach { ticker ->
-            startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
-                    ticker, presenterCallback, networkDataUpdate)
+        launch {
+            tickers.forEach { ticker ->
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
+                        ticker, presenterCallback, exchangeNetworkDataUpdate)
+                if (tickers.size > Constants.rateLimitSizeThreshold) {
+                    delay(Constants.tickerDelayInMillis)
+                }
+            }
         }
-
     }
 
-    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         super.startAccountBalanceFeed(Observable
                 .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
                 .flatMap<Any> { details ->
@@ -48,10 +55,10 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
                             details.balanceRequest)
                 }, basicAuthentication,
                 presenterCallback,
-                networkDataUpdate)
+                exchangeNetworkDataUpdate)
     }
 
-    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
+    override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
 
     }
 

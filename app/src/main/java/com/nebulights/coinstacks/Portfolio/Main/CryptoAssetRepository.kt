@@ -22,7 +22,10 @@ interface CryptoAssetContract {
     fun clearAllData()
     fun close()
     fun removeAsset(cryptoPair: CryptoPairs)
-    fun getTickers(): MutableList<CryptoPairs>
+    fun getTickersForAssets(): MutableList<CryptoPairs>
+    fun getTickersForWatchAddress(): MutableList<CryptoPairs>
+    //fun getTickers(): MutableList<CryptoPairs>
+
     fun lastUsedExchange(): String
     fun assetsVisible(): Boolean
     fun setAssetsVisibility(isVisible: Boolean)
@@ -35,11 +38,29 @@ interface CryptoAssetContract {
     fun getApiKeysNonRealmForExchange(exchange: String): BasicAuthentication
     fun removeApiKey(exchange: String)
     fun getWatchAddresses(): MutableList<WatchAddress>
-    fun createOrUpdateWatchAddress(cryptoPair: CryptoPairs, address: String)
+    fun createWatchAddress(cryptoPair: CryptoPairs, address: String, nickName: String)
+    fun updateWatchAddress(cryptoPair: CryptoPairs, newAddress: String, originalAddress: String, nickName: String)
+    fun getWatchAddress(address: String): WatchAddress?
+    fun removeWatchAddress(address: String)
 
 }
 
 class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPreferences) : CryptoAssetContract {
+    override fun removeWatchAddress(address: String) {
+        realm.executeTransaction {
+            realm.where(WatchAddressRealm::class.java).equalTo("address", address).findAll().deleteAllFromRealm()
+        }
+    }
+
+    override fun getWatchAddress(address: String): WatchAddress? {
+        val result = realm.where(WatchAddressRealm::class.java).equalTo("address", address).findFirst()
+
+        return if (result != null) {
+            WatchAddress(result.exchange, result.address, result.nickName, result.getType())
+        } else {
+            null
+        }
+    }
 
     override fun getWatchAddresses(): MutableList<WatchAddress> {
         val result = realm.where(WatchAddressRealm::class.java).findAll()
@@ -47,39 +68,51 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
         val watchAddressList: MutableList<WatchAddress> = mutableListOf()
 
         result.forEach {
-            watchAddressList.add(WatchAddress(it.exchange, it.address, it.getType()))
+            watchAddressList.add(WatchAddress(it.exchange, it.address, it.nickName, it.getType()))
         }
 
         return watchAddressList
     }
 
-    override fun createOrUpdateWatchAddress(cryptoPair: CryptoPairs, address: String) {
-        val result = realm.where(WatchAddressRealm::class.java).equalTo("type", cryptoPair.toString()).findFirst()
+//    override fun createOrUpdateWatchAddress(cryptoPair: CryptoPairs, address: String, nickName: String) {
+//        val result = realm.where(WatchAddressRealm::class.java).equalTo("type", cryptoPair.toString()).findFirst()
+//
+//        if (result == null) {
+//            createWatchAddress(cryptoPair, address, nickName)
+//        } else {
+//            updateWatchAddress(result, cryptoPair, address, nickName)
+//        }
+//
+//        setLastExchangeUsed(cryptoPair.exchange)
+//    }
 
+    override fun createWatchAddress(cryptoPair: CryptoPairs, address: String, nickName: String) {
+        val result = realm.where(WatchAddressRealm::class.java).equalTo("address", address).findFirst()
         if (result == null) {
-            createWatchAddress(cryptoPair, address)
+            realm.executeTransaction {
+                val watchAddressRealm = realm.createObject(WatchAddressRealm::class.java)
+                watchAddressRealm.exchange = cryptoPair.exchange
+                watchAddressRealm.address = address
+                watchAddressRealm.nickName = nickName
+                watchAddressRealm.setCrytpoType(cryptoPair)
+            }
         } else {
-            updateWatchAddress(result, cryptoPair, address)
+            updateWatchAddress(cryptoPair, address, result.address, nickName)
         }
-
         setLastExchangeUsed(cryptoPair.exchange)
     }
 
-    private fun createWatchAddress(cryptoPair: CryptoPairs, address: String) {
-        realm.executeTransaction {
-            val watchAddress = realm.createObject(WatchAddressRealm::class.java)
-            watchAddress.exchange = cryptoPair.exchange
-            watchAddress.address = address
-            watchAddress.setCrytpoType(cryptoPair)
+    override fun updateWatchAddress(cryptoPair: CryptoPairs, newAddress: String, originalAddress: String, nickName: String) {
+        val watchAddressRealm = realm.where(WatchAddressRealm::class.java).equalTo("address", originalAddress).findFirst()
+        if (watchAddressRealm != null) {
+            realm.executeTransaction {
+                watchAddressRealm.exchange = cryptoPair.exchange
+                watchAddressRealm.address = newAddress
+                watchAddressRealm.nickName = nickName
+                watchAddressRealm.setCrytpoType(cryptoPair)
+            }
         }
-    }
-
-    private fun updateWatchAddress(watchAddressRealm: WatchAddressRealm, cryptoPair: CryptoPairs, address: String) {
-        realm.executeTransaction {
-            watchAddressRealm.exchange = cryptoPair.exchange
-            watchAddressRealm.address = address
-            watchAddressRealm.setCrytpoType(cryptoPair)
-        }
+        setLastExchangeUsed(cryptoPair.exchange)
     }
 
     val PREF_LAST_EXCHANGE_SAVED = "lastUsedExchange"
@@ -153,9 +186,22 @@ class CryptoAssetRepository(val realm: Realm, val sharedPreferences: SharedPrefe
         return total
     }
 
-    override fun getTickers(): MutableList<CryptoPairs> {
+    override fun getTickersForAssets(): MutableList<CryptoPairs> {
         val results = realm.where(CryptoAsset::class.java).findAll().map { it.getType() }
         return results.toMutableList()
+    }
+
+    override fun getTickersForWatchAddress(): MutableList<CryptoPairs> {
+        val results = realm.where(WatchAddressRealm::class.java).findAll().map { it.getType() }
+        return results.toMutableList()
+    }
+
+    fun getTickers(): MutableList<CryptoPairs> {
+        val assetTickers = getTickersForAssets()
+        val watchAddressTickers = getTickersForWatchAddress()
+        assetTickers.addAll(watchAddressTickers)
+        return assetTickers.distinct().toMutableList()
+
     }
 
     override fun clearAllData() {

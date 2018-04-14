@@ -14,14 +14,14 @@ import kotlinx.coroutines.experimental.launch
  * Created by babramovitch on 10/25/2017.
  */
 
-class BlockExplorerRepository(private val service: BlockExplorerService) : BaseExplorer() {
+class RippleRepository(private val service: RippleService) : BaseExplorer() {
+
     private val rateLimitDelayInMillis = 1000
 
-    override fun explorerType(): CryptoTypes = CryptoTypes.BTC
+    override fun explorerType(): CryptoTypes = CryptoTypes.XRP
 
     override fun startAddressFeed(address: ArrayList<WatchAddress>, presenterCallback: NetworkCompletionCallback, explorerNetworkDataUpdate: ExplorerNetworkDataUpdate) {
         clearBalanceDisposables()
-
         launch {
             address.forEach { address ->
                 startFeed(service.getBalancesForAddresses(address.address), address, presenterCallback, explorerNetworkDataUpdate)

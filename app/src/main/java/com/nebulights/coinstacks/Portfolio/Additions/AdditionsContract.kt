@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
 import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
@@ -23,7 +24,7 @@ class AdditionsContract {
         fun setupApiSpinners(basicAuthentication: BasicAuthentication, cryptosForExchange: List<CryptoTypes>, cryptoList: List<String>)
         fun setupCryptoPairSpinner(cryptoList: List<String>)
         fun setEditModeCoinsAndApi()
-        fun setEditModeWatch()
+        fun setEditModeWatch(watchAddress: WatchAddress)
         fun setExchange(position: Int)
         fun setCryptoPair(cryptoPairIndex: Int)
         fun setCryptoQuantity(amount: String)
@@ -44,13 +45,13 @@ class AdditionsContract {
         fun createAPIKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>)
         fun updateViewsForExchangeSpinnerSelection(exchange: String)
         fun getRecordType(): RecordTypes
-        fun deleteRecord(exchange: String, userTicker: String)
+        fun deleteRecord(exchange: String, userTicker: String, address: String)
         fun setCryptoQuantity(exchange: String, ticker: String)
         fun verificationComplete()
-        fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, editing: Boolean, exchangeList: Array<String>, validator: AdditionsFormValidator)
+        fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, address: String, editing: Boolean, exchangeList: Array<String>, validator: AdditionsFormValidator)
         fun createFormValidator(observer: Observable<Boolean>)
         fun close()
-        fun createWatchAddress(sexchange: String, selectedItemPosition: Int, address: String)
+        fun createWatchAddress(sexchange: String, selectedItemPosition: Int, address: String, nickName: String)
     }
 
     interface Navigator {

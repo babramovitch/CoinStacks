@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout3"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginTop="8dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/recycler_exchange"
+        style="@style/title_style"
+        android:text="@string/dashes"
+        android:visibility="gone"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        tools:text="QuadrigaCX" />
+
+    <TextView
+        android:id="@+id/recycler_address_nick_name"
+        style="@style/title_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dashes"
+        android:textSize="@dimen/address_nick_name"
+        android:textStyle="italic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Cold Storage" />
+
+
+    <TextView
+        android:id="@+id/recycler_ticker"
+        style="@style/title_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dashes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_address_nick_name"
+
+        tools:text="BTC : CAD" />
+
+    <TextView
+        android:id="@+id/recycler_last_price"
+        style="@style/value_style"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_address_nick_name"
+        tools:text="$1,2345.00" />
+
+
+    <TextView
+        android:id="@+id/recycler_holdings_title"
+        style="@style/title_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/assets_owned"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_ticker" />
+
+    <TextView
+        android:id="@+id/recycler_holdings"
+        style="@style/value_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_ticker"
+        tools:text="20.00" />
+
+    <TextView
+        android:id="@+id/recycler_net_value_title"
+        style="@style/title_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Net Value"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_holdings_title" />
+
+    <TextView
+        android:id="@+id/recycler_net_value"
+        style="@style/value_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_holdings_title"
+        tools:text="$1,2345.00" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Network.BlockExplorers.BlockExplorer
+package com.nebulights.coinstacks.Network.BlockExplorers.BlockExplorerBCH
 
 import com.nebulights.coinstacks.Network.BlockExplorers.BaseExplorer
 import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerNetworkDataUpdate
@@ -14,10 +14,10 @@ import kotlinx.coroutines.experimental.launch
  * Created by babramovitch on 10/25/2017.
  */
 
-class BlockExplorerRepository(private val service: BlockExplorerService) : BaseExplorer() {
+class BlockDozerRepository(private val service: BlockDozerService) : BaseExplorer() {
     private val rateLimitDelayInMillis = 1000
 
-    override fun explorerType(): CryptoTypes = CryptoTypes.BTC
+    override fun explorerType(): CryptoTypes = CryptoTypes.BCH
 
     override fun startAddressFeed(address: ArrayList<WatchAddress>, presenterCallback: NetworkCompletionCallback, explorerNetworkDataUpdate: ExplorerNetworkDataUpdate) {
         clearBalanceDisposables()

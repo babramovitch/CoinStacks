@@ -7,8 +7,8 @@ import android.support.test.runner.AndroidJUnit4;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import com.nebulights.coinstacks.Network.ExchangeProvider;
-import com.nebulights.coinstacks.Network.Exchanges;
+import com.nebulights.coinstacks.Network.exchanges.ExchangeProvider;
+import com.nebulights.coinstacks.Network.exchanges.Exchanges;
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo;
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioFragment;

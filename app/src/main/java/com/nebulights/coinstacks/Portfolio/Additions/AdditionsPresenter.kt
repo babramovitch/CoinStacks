@@ -1,7 +1,8 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
-import com.nebulights.coinstacks.Network.ApiKeyValidationCallback
-import com.nebulights.coinstacks.Network.Exchanges
+import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
+import com.nebulights.coinstacks.Network.ValidationCallback
+import com.nebulights.coinstacks.Network.exchanges.Exchanges
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetContract
 import com.nebulights.coinstacks.Types.CryptoPairs
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit
 class AdditionsPresenter(
         private var view: AdditionsContract.View,
         private var exchanges: Exchanges,
+        private var explorers: Explorers,
         private val cryptoAssetRepository: CryptoAssetContract,
         private var navigator: AdditionsContract.Navigator) : AdditionsContract.Presenter {
 
@@ -29,6 +31,8 @@ class AdditionsPresenter(
     private var allTickers = enumValues<CryptoPairs>().map { it }
 
     private var record: RecordTypes = RecordTypes.COINS
+    private var editing: Boolean = false
+    private var originalAddressForEditing: String = ""
 
     private var disposable: CompositeDisposable = CompositeDisposable()
     private lateinit var validator: AdditionsFormValidator
@@ -44,6 +48,7 @@ class AdditionsPresenter(
     override fun setInitialScreenAndMode(recordType: String,
                                          exchange: String,
                                          ticker: String,
+                                         address: String,
                                          editing: Boolean,
                                          exchangeList: Array<String>,
                                          validator: AdditionsFormValidator) {
@@ -51,6 +56,8 @@ class AdditionsPresenter(
         this.validator = validator
         val type = RecordTypes.valueOf(recordType)
 
+        this.editing = editing
+        originalAddressForEditing = address
         record = type
 
         showCorrectCoinTypeDetails(type)
@@ -64,6 +71,10 @@ class AdditionsPresenter(
                     view.setEditModeCoinsAndApi()
                 }
                 RecordTypes.WATCH -> {
+                    val watchAddress = cryptoAssetRepository.getWatchAddress(address)
+                    if (watchAddress != null) {
+                        view.setEditModeWatch(watchAddress)
+                    }
                 }
             }
 
@@ -96,7 +107,7 @@ class AdditionsPresenter(
     }
 
     override fun updateViewsForExchangeSpinnerSelection(exchange: String) {
-        val exchangeTickers = getTickersForExchange(exchange)
+        var exchangeTickers = getTickersForExchange(exchange)
 
         when (record) {
             RecordTypes.API -> {
@@ -121,6 +132,7 @@ class AdditionsPresenter(
                 createFormValidator(validator.coinsValidator())
             }
             RecordTypes.WATCH -> {
+                exchangeTickers = exchangeTickers.filterNot { it.contains(CryptoTypes.XMR.name) }
                 view.setupCryptoPairSpinner(exchangeTickers)
                 createFormValidator(validator.watchAddressValidator())
             }
@@ -166,13 +178,30 @@ class AdditionsPresenter(
             }.map { ticker -> ticker.cryptoType }
 
 
-    override fun createWatchAddress(exchange: String, selectedPosition: Int, address: String) {
+    override fun createWatchAddress(exchange: String, selectedPosition: Int, address: String, nickName: String) {
         val userTicker = getTickersForExchange(exchange)[selectedPosition]
         val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
 
+        val startTime = System.currentTimeMillis()
+
+        view.showVerificationDialog()
+
         if (cryptoPair != null) {
-            cryptoAssetRepository.createOrUpdateWatchAddress(cryptoPair, address)
-            navigator.close()
+            explorers.validateWatchAddress(address, cryptoPair.cryptoType, object : ValidationCallback {
+                override fun validationSuccess() {
+                    if (editing) {
+                        cryptoAssetRepository.updateWatchAddress(cryptoPair, address, originalAddressForEditing, nickName)
+                    } else {
+                        cryptoAssetRepository.createWatchAddress(cryptoPair, address, nickName)
+                    }
+
+                    friendlyAnimationDelaysForValidationSuccess(startTime)
+                }
+
+                override fun validationError(errorBody: String?) {
+                    friendlyAnimationDelaysForValidationError(startTime, errorBody)
+                }
+            })
         }
     }
 
@@ -192,42 +221,49 @@ class AdditionsPresenter(
 
         view.showVerificationDialog()
 
-        exchanges.validateExchange(basicAuthentication, object : ApiKeyValidationCallback {
+        exchanges.validateExchange(basicAuthentication, object : ValidationCallback {
             override fun validationSuccess() {
                 cryptoAssetRepository.createOrUpdateApiKey(exchange, userName, apiPassword, apiKey, apiSecret, cryptoPairs)
-                val endTime = System.currentTimeMillis()
-                val timeDifference = endTime - startTime
-                val delay = if (timeDifference < 2000) 2000 - timeDifference else 0
-
-                disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            view.closeVerificationDialog()
-                        }))
-
-                disposable.add(Observable.timer(delay + 700, TimeUnit.MILLISECONDS)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            verificationComplete()
-                        }))
-
+                friendlyAnimationDelaysForValidationSuccess(startTime)
             }
 
             override fun validationError(errorBody: String?) {
-                val endTime = System.currentTimeMillis()
-                val timeDifference = endTime - startTime
-                val delay = if (timeDifference < 3000) 3000 - timeDifference else 0
-
-                disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            view.showValidationErrorDialog(errorBody)
-                        }))
+                friendlyAnimationDelaysForValidationError(startTime, errorBody)
             }
         })
+    }
+
+    fun friendlyAnimationDelaysForValidationSuccess(startTime: Long) {
+        val endTime = System.currentTimeMillis()
+        val timeDifference = endTime - startTime
+        val delay = if (timeDifference < 2000) 2000 - timeDifference else 0
+
+        disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    view.closeVerificationDialog()
+                }))
+
+        disposable.add(Observable.timer(delay + 700, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    verificationComplete()
+                }))
+    }
+
+    fun friendlyAnimationDelaysForValidationError(startTime: Long, error: String?) {
+        val endTime = System.currentTimeMillis()
+        val timeDifference = endTime - startTime
+        val delay = if (timeDifference < 3000) 3000 - timeDifference else 0
+
+        disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    view.showValidationErrorDialog(error)
+                }))
     }
 
     override fun verificationComplete() {
@@ -239,7 +275,7 @@ class AdditionsPresenter(
         navigator.close()
     }
 
-    override fun deleteRecord(exchange: String, userTicker: String) {
+    override fun deleteRecord(exchange: String, userTicker: String, address: String) {
         when (record) {
 
             RecordTypes.COINS -> {
@@ -258,7 +294,10 @@ class AdditionsPresenter(
                 navigator.closeWithDeletedExchange(2, exchange)
 
             }
-            RecordTypes.WATCH -> TODO()
+            RecordTypes.WATCH -> {
+                cryptoAssetRepository.removeWatchAddress(address)
+                navigator.close()
+            }
         }
     }
 

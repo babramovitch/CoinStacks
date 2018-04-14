@@ -1,10 +1,7 @@
 package com.nebulights.coinstacks.Network.exchanges
 
 import android.util.Log
-import com.nebulights.coinstacks.Network.ApiKeyValidationCallback
-import com.nebulights.coinstacks.Network.Exchange
-import com.nebulights.coinstacks.Network.NetworkCompletionCallback
-import com.nebulights.coinstacks.Network.NetworkDataUpdate
+import com.nebulights.coinstacks.Network.ValidationCallback
 import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
@@ -43,20 +40,20 @@ abstract class BaseExchange : Exchange {
         }
     }
 
-    fun <T> startPriceFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    fun <T> startPriceFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay(10, TimeUnit.SECONDS) }
-                .retryWhen { error -> error.delay(10, TimeUnit.SECONDS) }
+                .repeatWhen { result -> result.delay(20, TimeUnit.SECONDS) }
+                .retryWhen { error -> error.delay(20, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     result as NormalizedTickerData
 
-                    Log.d("Result", ticker.toString() + "last price is ${result.lastPrice()}")
+                 //   Log.d("Result", ticker.toString() + "last price is ${result.lastPrice()}")
 
                     //TODO I got a null here on last price for Quadriga
 
                     val tradingInfo = TradingInfo(result.lastPrice(), result.timeStamp())
-                    networkDataUpdate.updateData(ticker, tradingInfo)
+                    exchangeNetworkDataUpdate.updateData(ticker, tradingInfo)
                     presenterCallback.updateUi(ticker)
 
                 }, { error ->
@@ -66,7 +63,7 @@ abstract class BaseExchange : Exchange {
         tickerDisposables.add(disposable)
     }
 
-    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: BasicAuthentication, networkCompletionCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate) {
+    fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: BasicAuthentication, networkCompletionCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearBalanceDisposables()
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { result -> result.delay(15, TimeUnit.SECONDS) }
@@ -74,7 +71,7 @@ abstract class BaseExchange : Exchange {
                 .subscribe({ result ->
 
                     val balances = createNormalizedBalances(result, exchange)
-                    networkDataUpdate.updateApiData(exchange.exchange, balances)
+                    exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
                     networkCompletionCallback.updateUi(balances)
 
                 }, { error ->
@@ -87,14 +84,14 @@ abstract class BaseExchange : Exchange {
 
     //TODO remove the duplication of validateAPiKeys/startAccountBalanceFeed where the only reasl difference is the repeat
 
-    fun <T> validateAPiKeys(observable: Observable<T>, exchange: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate) {
+    fun <T> validateAPiKeys(observable: Observable<T>, exchange: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearBalanceDisposables()
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     Log.i("VALIDATED", "SUCCESS")
                     val balances = createNormalizedBalances(result, exchange)
-                    networkDataUpdate.updateApiData(exchange.exchange, balances)
+                    exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
                     presenterCallback.validationSuccess()
 
                 }, { error ->

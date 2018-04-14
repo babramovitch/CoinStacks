@@ -1,5 +1,7 @@
-package com.nebulights.coinstacks.Network
+package com.nebulights.coinstacks.Network.exchanges
 
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddressBalance
+import com.nebulights.coinstacks.Network.ValidationCallback
 import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
@@ -10,7 +12,7 @@ import com.nebulights.coinstacks.Types.userTicker
  * Created by babramovitch on 11/9/2017.
  */
 
-interface NetworkDataUpdate {
+interface ExchangeNetworkDataUpdate {
     fun updateData(ticker: CryptoPairs, data: TradingInfo)
     fun updateApiData(exchange: String, data: ApiBalances)
 }
@@ -18,24 +20,20 @@ interface NetworkDataUpdate {
 interface NetworkCompletionCallback {
     fun updateUi(ticker: CryptoPairs)
     fun updateUi(apiBalances: ApiBalances)
-}
-
-interface ApiKeyValidationCallback {
-    fun validationSuccess()
-    fun validationError(errorBody: String?)
+    fun updateUi(watchAddress: WatchAddressBalance)
 }
 
 interface Exchange {
-    fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
-    fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, networkDataUpdate: NetworkDataUpdate)
-    fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback, networkDataUpdate: NetworkDataUpdate)
+    fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
+    fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
+    fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
     fun stopFeed()
     fun feedType(): String
     fun userNameRequired(): Boolean
     fun passwordRequired(): Boolean
 }
 
-object Exchanges : NetworkDataUpdate {
+object Exchanges : ExchangeNetworkDataUpdate {
 
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickerData: MutableMap<CryptoPairs, TradingInfo> = mutableMapOf()
@@ -69,7 +67,7 @@ object Exchanges : NetworkDataUpdate {
         }
     }
 
-    fun validateExchange(authentication: BasicAuthentication, presenterCallback: ApiKeyValidationCallback) {
+    fun validateExchange(authentication: BasicAuthentication, presenterCallback: ValidationCallback) {
         repositories.forEach { repository ->
             if (repository.feedType() == authentication.exchange) {
                 repository.validateApiKeys(authentication, presenterCallback, this)
@@ -125,4 +123,5 @@ object Exchanges : NetworkDataUpdate {
     override fun updateApiData(exchange: String, data: ApiBalances) {
         apiData[exchange] = data
     }
+
 }

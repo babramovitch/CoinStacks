@@ -44,6 +44,7 @@ class Migration : RealmMigration {
                     .addField("exchange", String::class.java, FieldAttribute.REQUIRED)
                     .addField("address", String::class.java, FieldAttribute.REQUIRED)
                     .addField("type", String::class.java, FieldAttribute.REQUIRED)
+                    .addField("nickName", String::class.java, FieldAttribute.REQUIRED)
 
             oldVersion++
         }

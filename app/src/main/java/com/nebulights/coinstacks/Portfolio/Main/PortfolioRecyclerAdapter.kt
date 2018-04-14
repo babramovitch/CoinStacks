@@ -9,6 +9,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Extensions.inflate
+import android.view.LayoutInflater
+
 
 /**
  * Created by babramovitch on 10/26/2017.
@@ -22,7 +24,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         if (holder.itemViewType == 0) {
             holder as ViewHolderHeader
             holder.exchange.text = presenter.getHeader(position)
-        } else if (holder.itemViewType == 1) {
+        } else {
             holder as ViewHolderCoins
             presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
         }
@@ -34,11 +36,15 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 0 -> {
-                    val inflatedView = parent.inflate(R.layout.recycler_item_header, false)
+                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_header, parent, false)
+                    //val inflatedView = parent.inflate(R.layout.recycler_item_header, false)
                     ViewHolderHeader(inflatedView)
                 }
                 1 -> {
-                    val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
+                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_list_item, parent, false)
+                    // val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
+                    // inflatedView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+
                     ViewHolderCoins(inflatedView)
                 }
 
@@ -53,6 +59,12 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
     override fun getItemCount(): Int = presenter.displayItemCount()
 
     class ViewHolderCoins(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
+
+        @BindView(R.id.recycler_address_nick_name)
+        lateinit var addressNickName: TextView
+
+        @BindView(R.id.recycler_address_nick_name_layout)
+        lateinit var addressNickNameLayout: LinearLayout
 
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
@@ -99,9 +111,17 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             this.netValue.text = netValue
         }
 
+        override fun setWatchAddressNickName(addressNickName: String?) {
+            this.addressNickName.text = addressNickName
+        }
+
         override fun showQuantities(visible: Boolean) {
             holdingsLayout.visibility = if (visible) View.VISIBLE else View.GONE
             netValueLayout.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
+        override fun showAddressNickName(visible: Boolean) {
+            addressNickNameLayout.visibility = if (visible) View.VISIBLE else View.GONE
         }
     }
 

@@ -1,7 +1,7 @@
 package com.nebulights.coinstacks;
 
-import com.nebulights.coinstacks.Network.ExchangeProvider;
-import com.nebulights.coinstacks.Network.Exchanges;
+import com.nebulights.coinstacks.Network.exchanges.ExchangeProvider;
+import com.nebulights.coinstacks.Network.exchanges.Exchanges;
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioFragment;
 import com.nebulights.coinstacks.Portfolio.Main.PortfolioPresenter;

@@ -14,10 +14,10 @@ import kotlinx.coroutines.experimental.launch
  * Created by babramovitch on 10/25/2017.
  */
 
-class BlockExplorerRepository(private val service: BlockExplorerService) : BaseExplorer() {
+class LiteCoreRepository(private val service: LiteCoreService) : BaseExplorer() {
     private val rateLimitDelayInMillis = 1000
 
-    override fun explorerType(): CryptoTypes = CryptoTypes.BTC
+    override fun explorerType(): CryptoTypes = CryptoTypes.LTC
 
     override fun startAddressFeed(address: ArrayList<WatchAddress>, presenterCallback: NetworkCompletionCallback, explorerNetworkDataUpdate: ExplorerNetworkDataUpdate) {
         clearBalanceDisposables()

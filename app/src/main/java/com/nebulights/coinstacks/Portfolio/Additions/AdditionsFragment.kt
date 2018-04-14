@@ -2,7 +2,6 @@ package com.nebulights.coinstacks.Portfolio.Additions
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -18,20 +17,10 @@ import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Types.RecordTypes
-import android.support.v4.graphics.ColorUtils
-import android.animation.ValueAnimator
-import android.graphics.Color
-import android.R.attr.duration
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
-import android.util.Log
-import com.jakewharton.rxbinding2.view.enabled
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 
 
 class AdditionsFragment : Fragment(), AdditionsContract.View {
@@ -88,6 +77,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     @BindView(R.id.watch_text)
     lateinit var watchText: EditText
 
+    @BindView(R.id.watch_nickname_text)
+    lateinit var watchNickNameText: EditText
+
     private var dialog: AlertDialog? = null
     private val spinnerList: MutableList<Spinner> = mutableListOf()
     private var isInitialSpinner = true
@@ -121,6 +113,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         val recordType = arguments?.getString("type", "") ?: ""
         val exchange = arguments?.getString("exchange", "") ?: ""
         val ticker = arguments?.getString("ticker", "") ?: ""
+        val address = arguments?.getString("address", "") ?: ""
         editing = arguments?.getBoolean("editing", false) ?: false
 
         val exchangeList = resources.getStringArray(R.array.exchanges)
@@ -128,24 +121,26 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
         val quantityObservable = RxTextView.textChanges(quantity)
         val watchAddressObservable = RxTextView.textChanges(watchText)
+        val watchAddressNickName = RxTextView.textChanges(watchNickNameText)
         val userNameObservable = RxTextView.textChanges(userName)
         val apiKeyObservable = RxTextView.textChanges(apiKey)
         val apiSecretObservable = RxTextView.textChanges(apiSecret)
         val apiPasswordObservable = RxTextView.textChanges(apiPassword)
 
-        presenter.setInitialScreenAndMode(recordType, exchange, ticker, editing, exchangeList,
+
+        presenter.setInitialScreenAndMode(recordType, exchange, ticker, address, editing, exchangeList,
                 AdditionsFormValidator(
-                        quantityObservable, watchAddressObservable, userNameObservable, apiKeyObservable, apiSecretObservable, apiPasswordObservable)
+                        quantityObservable, watchAddressObservable, watchAddressNickName, userNameObservable, apiKeyObservable, apiSecretObservable, apiPasswordObservable)
         )
 
         spinnerExchanges.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!isInitialSpinner) {
                     presenter.updateViewsForExchangeSpinnerSelection(exchangeList[position])
-                    //apiPassword.setText("j2wosi9g7x7")
-                    //apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
-                    //apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
-                    //userName.setText("")
+                    apiPassword.setText("j2wosi9g7x7")
+                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
+                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
+                    userName.setText("")
                 } else {
                     isInitialSpinner = false
                 }
@@ -185,7 +180,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
                 }
 
                 RecordTypes.WATCH -> {
-                    presenter.createWatchAddress(exchangeList[spinnerExchanges.selectedItemPosition], spinnerCryptos.selectedItemPosition,watchText.text.toString() )
+                    presenter.createWatchAddress(exchangeList[spinnerExchanges.selectedItemPosition], spinnerCryptos.selectedItemPosition, watchText.text.toString(), watchNickNameText.text.toString())
                 }
             }
         }
@@ -223,9 +218,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
             R.id.delete_item -> {
                 if (spinnerCryptos.selectedItem == null) {
-                    presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), "")
+                    presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), "", "")
                 } else {
-                    presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), spinnerCryptos.selectedItem.toString())
+                    presenter.deleteRecord(spinnerExchanges.selectedItem.toString(), spinnerCryptos.selectedItem.toString(), watchText.text.toString())
                 }
             }
         }
@@ -256,7 +251,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         spinner.setOnTouchListener({ view, motionEvent -> true })
     }
 
-    override fun setEditModeWatch() {
+    override fun setEditModeWatch(watchAddress: WatchAddress) {
+        watchText.setText(watchAddress.address)
+        watchNickNameText.setText(watchAddress.nickName)
     }
 
     override fun showCoinAddition() {

@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Network.BlockExplorers.BlockExplorer
+package com.nebulights.coinstacks.Network.BlockExplorers.BlockCypher
 
 import com.nebulights.coinstacks.Network.BlockExplorers.BaseExplorer
 import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerNetworkDataUpdate
@@ -14,10 +14,10 @@ import kotlinx.coroutines.experimental.launch
  * Created by babramovitch on 10/25/2017.
  */
 
-class BlockExplorerRepository(private val service: BlockExplorerService) : BaseExplorer() {
+class BlockCypherRepository(private val service: BlockCypherService) : BaseExplorer() {
     private val rateLimitDelayInMillis = 1000
 
-    override fun explorerType(): CryptoTypes = CryptoTypes.BTC
+    override fun explorerType(): CryptoTypes = CryptoTypes.ETH
 
     override fun startAddressFeed(address: ArrayList<WatchAddress>, presenterCallback: NetworkCompletionCallback, explorerNetworkDataUpdate: ExplorerNetworkDataUpdate) {
         clearBalanceDisposables()

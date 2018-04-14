@@ -17,6 +17,8 @@ class DisplayBalanceItem {
     var cryptoPair: CryptoPairs? = null
     var displayRecordType: DisplayBalanceItemTypes? = null
     var quantity: BigDecimal? = null
+    var address: String? = null
+    var addressNickName: String? = ""
     var header: String = ""
 
     private constructor() {}
@@ -36,6 +38,18 @@ class DisplayBalanceItem {
             item.cryptoPair = cryptoPair
             item.displayRecordType = recordType
             item.quantity = quantity
+            return item
+        }
+
+        fun newItem(currencyPair: CryptoTypes, cryptoPair: CryptoPairs, recordType: DisplayBalanceItemTypes,
+                    quantity: BigDecimal, address: String, addressNickName: String): DisplayBalanceItem {
+            val item = DisplayBalanceItem()
+            item.currencyPair = currencyPair
+            item.cryptoPair = cryptoPair
+            item.displayRecordType = recordType
+            item.quantity = quantity
+            item.address = address
+            item.addressNickName = addressNickName
             return item
         }
     }

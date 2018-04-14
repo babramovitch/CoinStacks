@@ -1,6 +1,6 @@
 package com.nebulights.coinstacks.Types
 
-import com.nebulights.coinstacks.Network.ExchangeProvider
+import com.nebulights.coinstacks.Network.exchanges.ExchangeProvider
 
 enum class CryptoPairs(val cryptoType: CryptoTypes, val currencyType: CurrencyTypes, val ticker: String, val exchange: String) {
 

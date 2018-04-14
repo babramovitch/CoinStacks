@@ -1,4 +1,4 @@
-package com.nebulights.coinstacks.Network
+package com.nebulights.coinstacks.Network.exchanges
 
 import com.nebulights.coinstacks.Network.exchanges.BitFinex.BitFinexService
 import com.nebulights.coinstacks.Network.exchanges.BitFinex.BitFinexRepository

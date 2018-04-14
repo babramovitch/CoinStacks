@@ -6,8 +6,10 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.nebulights.coinstacks.Extensions.addFragment
-import com.nebulights.coinstacks.Network.ExchangeProvider
-import com.nebulights.coinstacks.Network.Exchanges
+import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerProvider
+import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
+import com.nebulights.coinstacks.Network.exchanges.ExchangeProvider
+import com.nebulights.coinstacks.Network.exchanges.Exchanges
 import com.nebulights.coinstacks.Portfolio.Main.CryptoAssetRepository
 import com.nebulights.coinstacks.R
 import io.realm.Realm
@@ -61,7 +63,10 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
         val cryptoAssetRepository = CryptoAssetRepository(Realm.getDefaultInstance(),
                 PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
-        presenter = AdditionsPresenter(additionsFragment, exchanges, cryptoAssetRepository, this)
+        val explorers = Explorers
+        explorers.loadRepositories(ExplorerProvider)
+
+        presenter = AdditionsPresenter(additionsFragment, exchanges, explorers, cryptoAssetRepository, this)
 
 
 //        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
