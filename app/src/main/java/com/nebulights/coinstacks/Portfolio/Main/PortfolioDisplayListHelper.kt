@@ -112,9 +112,20 @@ object PortfolioDisplayListHelper {
                     isNewRecordType(previousType, sortedList[index].displayRecordType!!) ||
                     isNewExchange(previousExchange, sortedList[index].cryptoPair?.exchange)) {
 
+                val isNewExchange = isNewExchange(previousExchange, sortedList[index].cryptoPair?.exchange)
+
                 previousExchange = sortedList[index].cryptoPair!!.exchange
                 previousType = sortedList[index].displayRecordType!!
-                sortedList.add(index, DisplayBalanceItem.newHeader(sortedList[index].cryptoPair!!.exchange + " " + nameForHeader(sortedList[index].displayRecordType!!)))
+
+                if (!isNewExchange) {
+                    sortedList.add(index, DisplayBalanceItem.newSubHeader(nameForHeader(sortedList[index].displayRecordType!!)))
+                } else {
+                    sortedList.add(index, DisplayBalanceItem.newHeader(sortedList[index].cryptoPair!!.exchange))
+                    if (!locked) {
+                        index += 1
+                        sortedList.add(index, DisplayBalanceItem.newSubHeader(nameForHeader(sortedList[index].displayRecordType!!)))
+                    }
+                }
             }
             index += 1
         }
@@ -129,6 +140,7 @@ object PortfolioDisplayListHelper {
                 DisplayBalanceItemTypes.API -> "Exchange Balances"
                 DisplayBalanceItemTypes.WATCH -> "Address Balances"
                 DisplayBalanceItemTypes.HEADER -> ""
+                DisplayBalanceItemTypes.SUB_HEADER -> ""
             }
         } else {
             ""

@@ -124,8 +124,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                     && cryptoAssetRepository.isPasswordSet()
 
     override fun updateUi(ticker: CryptoPairs) {
-        if(!initialLoadComplete) {
-             view.updateUi()
+        if (!initialLoadComplete) {
+            view.updateUi()
         }
     }
 
@@ -158,7 +158,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun stopFeed() {
         timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
-        explorers.stopFeed()
+
     }
 
     override fun addNew(recordTypes: RecordTypes) {
@@ -166,7 +166,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun rowItemClicked(adapterPosition: Int) {
-        if (cryptoAssetRepository.assetsVisible()) {
+        if (cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet()) {
             val item = displayList[adapterPosition]
             when (item.displayRecordType) {
                 DisplayBalanceItemTypes.COINS -> navigation.editItem(RecordTypes.COINS, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
@@ -323,8 +323,14 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
     }
 
-    override fun recyclerViewType(position: Int): Int =
-            if (displayList[position].displayRecordType == DisplayBalanceItemTypes.HEADER) 0 else 1
+    override fun recyclerViewType(position: Int): Int {
+        return when {
+            displayList[position].displayRecordType == DisplayBalanceItemTypes.HEADER -> 0
+            displayList[position].displayRecordType == DisplayBalanceItemTypes.SUB_HEADER -> 1
+            else -> 2
+        }
+    }
+
 
     override fun getHeader(position: Int): String = displayList[position].header
 

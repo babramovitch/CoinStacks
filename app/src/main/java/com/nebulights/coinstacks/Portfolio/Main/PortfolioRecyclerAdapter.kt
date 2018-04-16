@@ -21,7 +21,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        if (holder.itemViewType == 0) {
+        if (holder.itemViewType == 0 || holder.itemViewType == 1) {
             holder as ViewHolderHeader
             holder.exchange.text = presenter.getHeader(position)
         } else {
@@ -41,6 +41,11 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
                     ViewHolderHeader(inflatedView)
                 }
                 1 -> {
+                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_sub_header, parent, false)
+                    //val inflatedView = parent.inflate(R.layout.recycler_item_header, false)
+                    ViewHolderHeader(inflatedView)
+                }
+                2 -> {
                     val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_list_item, parent, false)
                     // val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
                     // inflatedView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)

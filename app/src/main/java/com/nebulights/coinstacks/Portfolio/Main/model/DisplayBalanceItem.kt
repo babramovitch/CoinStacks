@@ -31,6 +31,13 @@ class DisplayBalanceItem {
             return item
         }
 
+        fun newSubHeader(header: String): DisplayBalanceItem {
+            val item = DisplayBalanceItem()
+            item.header = header
+            item.displayRecordType = DisplayBalanceItemTypes.SUB_HEADER
+            return item
+        }
+
         fun newItem(currencyPair: CryptoTypes, cryptoPair: CryptoPairs, recordType: DisplayBalanceItemTypes,
                     quantity: BigDecimal): DisplayBalanceItem {
             val item = DisplayBalanceItem()
