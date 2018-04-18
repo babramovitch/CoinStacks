@@ -12,6 +12,7 @@ import com.nebulights.coinstacks.Types.userTicker
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -141,13 +142,13 @@ class AdditionsPresenter(
 
     override fun createFormValidator(observer: Observable<Boolean>) {
         disposable.clear()
-        disposable.add(observer.subscribe { isValid ->
+        observer.subscribe { isValid ->
             if (isValid) {
                 view.enableSaveButton(true)
             } else {
                 view.enableSaveButton(false)
             }
-        })
+        }.addTo(disposable)
     }
 
     override fun lastUsedExchange(exchanges: Array<String>): Int {
@@ -238,19 +239,19 @@ class AdditionsPresenter(
         val timeDifference = endTime - startTime
         val delay = if (timeDifference < 2000) 2000 - timeDifference else 0
 
-        disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
+        Observable.timer(delay, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     view.closeVerificationDialog()
-                }))
+                }).addTo(disposable)
 
-        disposable.add(Observable.timer(delay + 700, TimeUnit.MILLISECONDS)
+        Observable.timer(delay + 700, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     verificationComplete()
-                }))
+                }).addTo(disposable)
     }
 
     fun friendlyAnimationDelaysForValidationError(startTime: Long, error: String?) {
@@ -258,12 +259,12 @@ class AdditionsPresenter(
         val timeDifference = endTime - startTime
         val delay = if (timeDifference < 3000) 3000 - timeDifference else 0
 
-        disposable.add(Observable.timer(delay, TimeUnit.MILLISECONDS)
+        Observable.timer(delay, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     view.showValidationErrorDialog(error)
-                }))
+                }).addTo(disposable)
     }
 
     override fun verificationComplete() {

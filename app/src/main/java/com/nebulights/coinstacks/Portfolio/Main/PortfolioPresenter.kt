@@ -17,6 +17,7 @@ import com.nebulights.coinstacks.Types.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
@@ -108,15 +109,14 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         //TODO double check this gets refreshed properly when adding new item
         explorers.startFeed(cryptoAssetRepository.getWatchAddresses(), this)
 
-        disposable.add(Observable.timer(10, TimeUnit.SECONDS)
+        Observable.timer(10, TimeUnit.SECONDS)
                 .repeatWhen { result -> result }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     initialLoadComplete = true
-                    Log.i("UI UPDATE", "UPDATING UI")
                     view.updateUi()
-                }))
+                }).addTo(disposable)
     }
 
     private fun shouldSecureData(timeSincePaused: Long): Boolean =
