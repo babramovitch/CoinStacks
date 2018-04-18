@@ -2,6 +2,7 @@ package com.nebulights.coinstacks.Portfolio.Main
 
 import android.util.Log
 import com.nebulights.coinstacks.Constants
+import com.nebulights.coinstacks.Extensions.dp
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
 import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddressBalance
 import com.nebulights.coinstacks.Network.exchanges.Exchanges
@@ -78,7 +79,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun resultFromAdditions(requestCode: Int, resultCode: Int, exchange: String?) {
-        initialLoadComplete = false
         if (requestCode == Constants.REQUEST_ADD_ITEM && resultCode == 1) {
             refreshData()
         } else if (requestCode == Constants.REQUEST_ADD_ITEM && resultCode == 2) {
@@ -158,7 +158,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun stopFeed() {
         timeStopped = System.currentTimeMillis()
         exchanges.stopFeed()
-
+        explorers.stopFeed()
+        initialLoadComplete = false //reset feed so fresh data comes in when restarted
     }
 
     override fun addNew(recordTypes: RecordTypes) {
@@ -363,6 +364,12 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
             row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
             row.showAddressNickName(!item.addressNickName.isNullOrEmpty())
+
+            if (item.lastRowInGroup) {
+                row.adjustRowBottomMargin(8.dp)
+            } else {
+                row.adjustRowBottomMargin(0)
+            }
         }
     }
 

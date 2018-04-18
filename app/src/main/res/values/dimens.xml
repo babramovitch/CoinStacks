@@ -6,5 +6,8 @@
     <dimen name="dialog_text_size">16sp</dimen>
     <dimen name="api_nested_margins">10dp</dimen>
     <dimen name="address_nick_name">16sp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+
+    <dimen name="card_field_height">8dp</dimen>
 
 </resources>

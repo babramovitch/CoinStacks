@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -56,7 +57,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
     @BindView(R.id.net_worth_amount)
     lateinit var netWorth: TextView
     @BindView(R.id.net_worth_amount_layout)
-    lateinit var netWorthLayout: LinearLayout
+    lateinit var netWorthLayout: CardView
     @BindView(R.id.recycler_view)
     lateinit var recyclerView: RecyclerView
     @BindView(R.id.speedDial)
@@ -118,7 +119,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         //recyclerView.addItemDecoration(HeaderItemDecoration(recyclerView, this))
 
 
-        recyclerView.addItemDecoration(BottomOffsetDecoration(50.dp))
+        recyclerView.addItemDecoration(BottomOffsetDecoration(30.dp))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
     }
 

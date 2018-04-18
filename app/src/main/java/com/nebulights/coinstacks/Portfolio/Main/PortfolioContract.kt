@@ -28,6 +28,7 @@ class PortfolioContract {
         fun showQuantities(visible: Boolean)
         fun showAddressNickName(visible: Boolean)
         fun setWatchAddressNickName(addressNickName: String?)
+        fun adjustRowBottomMargin(amount: Int)
     }
 
     interface Presenter {

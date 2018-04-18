@@ -19,6 +19,7 @@ import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Types.RecordTypes
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.support.v7.widget.CardView
 import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
 import io.reactivex.disposables.CompositeDisposable
 
@@ -30,7 +31,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     @BindView(R.id.spinner_crypto_layout)
     lateinit var spinnerCrytpoLayout: LinearLayout
     @BindView(R.id.coins_layout)
-    lateinit var coinLayout: LinearLayout
+    lateinit var coinLayout: CardView
     @BindView(R.id.api_layout)
     lateinit var apiLayout: LinearLayout
     @BindView(R.id.watch_layout)

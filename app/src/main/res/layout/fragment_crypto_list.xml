@@ -4,66 +4,71 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="vertical">-->
 
-        <LinearLayout
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_scrollFlags="scroll|enterAlways">
+
+        <android.support.v7.widget.CardView
             android:id="@+id/net_worth_amount_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/default_margin_half"
-            android:minHeight="50dp">
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="@dimen/api_nested_margins"
+            android:layout_marginRight="@dimen/api_nested_margins"
+            android:layout_marginTop="@dimen/api_nested_margins"
+            android:minHeight="50dp"
+            app:cardBackgroundColor="@color/card_color"
+            app:cardElevation="@dimen/card_elevation">
 
-            <TextView
-                android:id="@+id/net_worth_title"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:gravity="left|center_vertical"
-                android:text="@string/networth"
-                android:textSize="@dimen/net_worth_font_size"
-                android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/net_worth_amount"
-                style="@style/width_half_weight"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:layout_marginRight="@dimen/default_margin"
-                android:gravity="right|center_vertical"
-                android:minHeight="50dp"
-                android:textSize="@dimen/net_worth_font_size"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/net_worth_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/api_nested_margins"
+                    android:gravity="left|center_vertical"
+                    android:text="@string/networth"
+                    android:textSize="@dimen/net_worth_font_size"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/net_worth_amount"
+                    style="@style/width_half_weight"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:layout_marginRight="@dimen/default_margin"
+                    android:gravity="right|center_vertical"
+                    android:minHeight="50dp"
+                    android:textSize="@dimen/net_worth_font_size"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-        <!--<View-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="@color/colorAccent" />-->
+        </android.support.v7.widget.CardView>
+    </android.support.design.widget.AppBarLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/default_margin_half"
-            android:layout_marginLeft="@dimen/default_margin"
-            android:layout_marginRight="@dimen/default_margin"
-            android:paddingTop="2dp" />
-
-    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout
-    android:id="@+id/overlay"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#59F2F0E6" />
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#59F2F0E6" />
+    <!--</LinearLayout>-->
 
-    <!--<com.leinardi.android.speeddial.SpeedDialOverlayLayout-->
-        <!--android:id="@+id/overlay"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
 
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/speedDial"
@@ -72,17 +77,5 @@
         android:layout_gravity="bottom|end"
         app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"
         app:srcCompat="@drawable/ic_add_white_24dp" />
-
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:id="@+id/fab"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_margin="16dp"-->
-    <!--app:fabSize="normal"-->
-    <!--android:src="@drawable/ic_add_white_24dp"-->
-
-    <!--app:layout_anchor="@id/recycler_view"-->
-    <!--app:layout_anchorGravity="bottom|center"/>-->
-
 
 </android.support.design.widget.CoordinatorLayout>

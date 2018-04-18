@@ -36,6 +36,8 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
             }
         }
 
+        supportActionBar?.elevation = 0.0f
+
         var portfolioFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as PortfolioFragment?
 
         if (portfolioFragment == null) {

@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -8,16 +9,14 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.nebulights.coinstacks.R
-import com.nebulights.coinstacks.Extensions.inflate
 import android.view.LayoutInflater
-
+import com.nebulights.coinstacks.Extensions.dp
 
 /**
  * Created by babramovitch on 10/26/2017.
  */
 
 class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
@@ -29,7 +28,6 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             presenter.onBindRepositoryRowViewAtPosition(holder.adapterPosition, holder)
         }
 
-        //TODO Launch edit fragment or list of items under that exch
         holder.itemView.setOnClickListener { presenter.rowItemClicked(holder.adapterPosition) }
     }
 
@@ -37,19 +35,14 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             when (viewType) {
                 0 -> {
                     val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_header, parent, false)
-                    //val inflatedView = parent.inflate(R.layout.recycler_item_header, false)
                     ViewHolderHeader(inflatedView)
                 }
                 1 -> {
                     val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_sub_header, parent, false)
-                    //val inflatedView = parent.inflate(R.layout.recycler_item_header, false)
                     ViewHolderHeader(inflatedView)
                 }
                 2 -> {
                     val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_list_item, parent, false)
-                    // val inflatedView = parent.inflate(R.layout.recycler_list_item, false)
-                    // inflatedView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-
                     ViewHolderCoins(inflatedView)
                 }
 
@@ -65,8 +58,12 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
     class ViewHolderCoins(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
+
         @BindView(R.id.recycler_address_nick_name)
         lateinit var addressNickName: TextView
+
+        @BindView(R.id.recycler_item_card)
+        lateinit var cardView: CardView
 
         @BindView(R.id.recycler_address_nick_name_layout)
         lateinit var addressNickNameLayout: LinearLayout
@@ -128,16 +125,32 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         override fun showAddressNickName(visible: Boolean) {
             addressNickNameLayout.visibility = if (visible) View.VISIBLE else View.GONE
         }
+
+        override fun adjustRowBottomMargin(amount: Int) {
+            val param = netValueLayout.layoutParams as LinearLayout.LayoutParams
+            param.setMargins(0, 0, 0, amount);
+            netValueLayout.layoutParams = param
+
+            if (amount == 0) {
+                val layoutParams = cardView.getLayoutParams() as ViewGroup.MarginLayoutParams
+                layoutParams.setMargins(0, 0, 0, 0)
+                cardView.requestLayout()
+            } else {
+                val layoutParams = cardView.getLayoutParams() as ViewGroup.MarginLayoutParams
+                layoutParams.setMargins(0, 0, 0, 5.dp)
+                cardView.requestLayout()
+            }
+
+
+        }
     }
 
     class ViewHolderHeader(view: View) : RecyclerView.ViewHolder(view) {
-
         @BindView(R.id.recycler_exchange)
         lateinit var exchange: TextView
 
         init {
             ButterKnife.bind(this, view)
         }
-
     }
 }

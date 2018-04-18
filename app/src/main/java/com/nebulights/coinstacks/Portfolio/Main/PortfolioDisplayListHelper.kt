@@ -120,6 +120,11 @@ object PortfolioDisplayListHelper {
                 if (!isNewExchange) {
                     sortedList.add(index, DisplayBalanceItem.newSubHeader(nameForHeader(sortedList[index].displayRecordType!!)))
                 } else {
+
+                    if (!isFirstIndex(index)) {
+                        sortedList[index - 1].lastRowInGroup = true
+                    }
+
                     sortedList.add(index, DisplayBalanceItem.newHeader(sortedList[index].cryptoPair!!.exchange))
                     if (!locked) {
                         index += 1
@@ -128,6 +133,10 @@ object PortfolioDisplayListHelper {
                 }
             }
             index += 1
+        }
+
+        if (index > 0) {
+            sortedList[index - 1].lastRowInGroup = true
         }
 
         return sortedList

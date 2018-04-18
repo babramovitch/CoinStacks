@@ -7,9 +7,12 @@
     <color name="black">#000000</color>
     <color name="backgroundOffWhite">#EEEEEE</color>
 
-    <color name="seperatorGray">#BDC3C7</color>
+    <color name="seperatorGray">#d6d9dc</color>
 
     <color name="validationRequired">#ff6666</color>
 
-    "#FFCC00"
+    <color name="primarylight">#02afca</color>
+    <color name="white">#FFFFFF</color>
+    <color name="card_color">#fafafa</color>
 </resources>
+

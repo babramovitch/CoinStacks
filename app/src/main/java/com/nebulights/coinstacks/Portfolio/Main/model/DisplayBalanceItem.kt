@@ -20,6 +20,7 @@ class DisplayBalanceItem {
     var address: String? = null
     var addressNickName: String? = ""
     var header: String = ""
+    var lastRowInGroup = false
 
     private constructor() {}
 
