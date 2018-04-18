@@ -2,7 +2,7 @@ package com.nebulights.coinstacks.Network.exchanges.Bitstamp.model
 
 import com.nebulights.coinstacks.Network.exchanges.NormalizedTickerData
 
-data class CurrentTradingInfo(val last: String,
+data class CurrentTradingInfo(val last: String?,
                               val high: String,
                               val low: String,
                               val vwap: String,
@@ -11,7 +11,7 @@ data class CurrentTradingInfo(val last: String,
                               val ask: String,
                               val timestamp: String,
                               val open: String) : NormalizedTickerData {
-    override fun lastPrice(): String = last
+    override fun lastPrice(): String = last ?: "0"
 
     override fun timeStamp(): String = timestamp
 }
