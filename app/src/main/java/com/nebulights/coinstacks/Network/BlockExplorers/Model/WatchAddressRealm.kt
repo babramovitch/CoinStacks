@@ -16,7 +16,6 @@ open class WatchAddressRealm : RealmObject() {
     var type: String = ""
     var nickName: String = ""
 
-
     fun setCrytpoType(cryptoPairs: CryptoPairs) {
         this.type = cryptoPairs.toString()
     }

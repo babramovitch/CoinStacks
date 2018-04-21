@@ -63,7 +63,7 @@ abstract class BaseExplorer : Explorer {
                 .subscribe({ result ->
                     presenterCallback.validationSuccess()
                 }, { error ->
-                    presenterCallback.validationError("Error Validating Address")
+                    presenterCallback.validationError("explorer", "Error Validating Address")
                     error.printStackTrace()
                 })
 

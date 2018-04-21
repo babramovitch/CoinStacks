@@ -199,7 +199,7 @@ class AdditionsPresenter(
                     friendlyAnimationDelaysForValidationSuccess(startTime)
                 }
 
-                override fun validationError(errorBody: String?) {
+                override fun validationError(exchange: String, errorBody: String?) {
                     friendlyAnimationDelaysForValidationError(startTime, errorBody)
                 }
             })
@@ -228,7 +228,7 @@ class AdditionsPresenter(
                 friendlyAnimationDelaysForValidationSuccess(startTime)
             }
 
-            override fun validationError(errorBody: String?) {
+            override fun validationError(exchange: String, errorBody: String?) {
                 friendlyAnimationDelaysForValidationError(startTime, errorBody)
             }
         })

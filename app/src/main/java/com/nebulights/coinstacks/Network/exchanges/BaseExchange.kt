@@ -5,12 +5,14 @@ import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
 import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.NetworkErrors
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 
@@ -40,17 +42,31 @@ abstract class BaseExchange : Exchange {
         }
     }
 
+    var priceFeedRateLimit = 0
+
     fun <T> startPriceFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay(20, TimeUnit.SECONDS) }
+                .repeatWhen { result -> result.delay((20 + (priceFeedRateLimit * 20)).toLong(), TimeUnit.SECONDS) }
                 .retryWhen { error -> error.delay(20, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     result as NormalizedTickerData
-                    val tradingInfo = TradingInfo(result.lastPrice(), result.timeStamp())
-                    exchangeNetworkDataUpdate.updateData(ticker, tradingInfo)
-                    presenterCallback.updateUi(ticker)
+                    try {
+                        val tradingInfo = TradingInfo(result.lastPrice(), result.timeStamp())
+                        exchangeNetworkDataUpdate.updateData(ticker, tradingInfo)
+                        presenterCallback.updateUi(ticker)
+                        if (priceFeedRateLimit != 0) {
+                            priceFeedRateLimit -= 1
+                        }
+                    } catch (exception: Exception) {
+                        when (exception) {
+                            is NullPointerException -> exchangeNetworkDataUpdate.staleDataFromError(ticker)
+                            is IllegalArgumentException -> exchangeNetworkDataUpdate.staleDataFromError(ticker)
+                        }
+                        priceFeedRateLimit += 1
+                    }
                 }, { error ->
+                    exchangeNetworkDataUpdate.staleDataFromError(ticker)
                     error.printStackTrace()
                 }).addTo(tickerDisposables)
     }
@@ -61,29 +77,27 @@ abstract class BaseExchange : Exchange {
                 .repeatWhen { result -> result.delay(15, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
-                    val balances = createNormalizedBalances(result, exchange)
-                    exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
-                    networkCompletionCallback.updateUi(balances)
+                    try {
+                        val balances = createNormalizedBalances(result, exchange)
+                        exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
+                        networkCompletionCallback.updateUi(balances)
+                    } catch (exception: NullPointerException) {
+                        exchangeNetworkDataUpdate.staleApiDataFromError(exchange.exchange)
+                        networkCompletionCallback.onNetworkError(exchange.exchange, NetworkErrors.NULL)
+                    }
                 }, { error ->
+                    if (error is HttpException) {
+                        try {
+                            val errorBody = error.response().errorBody()?.string()
+                            networkCompletionCallback.onNetworkError(exchange.exchange, errorBody)
+                        } catch (exception: Exception) {
+                            networkCompletionCallback.onNetworkError(exchange.exchange, NetworkErrors.UNKNOWN)
+                        }
+                    } else {
+                        networkCompletionCallback.onNetworkError(exchange.exchange, error.localizedMessage)
+                    }
+                    exchangeNetworkDataUpdate.staleApiDataFromError(exchange.exchange)
                     error.printStackTrace()
-                }).addTo(balanceDisposables)
-    }
-
-    //TODO remove the duplication of validateAPiKeys/startAccountBalanceFeed where the only real difference is the repeat
-
-    fun <T> validateAPiKeys(observable: Observable<T>, exchange: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-        clearBalanceDisposables()
-        observable.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({ result ->
-                    val balances = createNormalizedBalances(result, exchange)
-                    exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
-                    presenterCallback.validationSuccess()
-                }, { error ->
-                    error as HttpException
-                    val errorBody = error.response().errorBody()?.string()
-                    error.printStackTrace()
-                    presenterCallback.validationError(errorBody)
                 }).addTo(balanceDisposables)
     }
 
@@ -96,6 +110,35 @@ abstract class BaseExchange : Exchange {
             result as NormalizedBalanceData
             ApiBalances.create(exchange.exchange, exchange.getCryptoPairsMap(), result)
         }
+    }
+
+    //TODO remove the duplication of validateAPiKeys/startAccountBalanceFeed where the only real difference is the repeat
+
+    fun <T> validateAPiKeys(observable: Observable<T>, exchange: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
+        clearBalanceDisposables()
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    try {
+                        val balances = createNormalizedBalances(result, exchange)
+                        exchangeNetworkDataUpdate.updateApiData(exchange.exchange, balances)
+                        presenterCallback.validationSuccess()
+                    } catch (exception: NullPointerException) {
+                        presenterCallback.validationError(exchange.exchange, "Error Validating Credentials")
+                    }
+                }, { error ->
+                    if (error is HttpException) {
+                        try {
+                            val errorBody = error.response().errorBody()?.string()
+                            presenterCallback.validationError(exchange.exchange, errorBody)
+                        } catch (exception: Exception) {
+                            presenterCallback.validationError(exchange.exchange, "Unknown Error")
+                        }
+                    } else {
+                        presenterCallback.validationError(exchange.exchange, error.localizedMessage)
+                    }
+                    error.printStackTrace()
+                }).addTo(balanceDisposables)
     }
 
     override fun stopFeed() {

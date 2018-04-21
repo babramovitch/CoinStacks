@@ -4,6 +4,7 @@ import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Types.CurrencyTypes
 import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 
 /**
@@ -25,23 +26,33 @@ data class CexBalances(
         val RUB: Balance,
         val GHS: Balance
 ) : NormalizedBalanceData {
-    override fun getBalance(currency: String): String = when(currency) {
-        CryptoTypes.BTC.name -> (BigDecimal(BTC.available) + BigDecimal(BTC.orders)).toString()
-        CryptoTypes.BCH.name -> (BigDecimal(BCH.available) + BigDecimal(BCH.orders)).toString()
-        CryptoTypes.ETH.name -> (BigDecimal(ETH.available) + BigDecimal(ETH.orders)).toString()
-        CryptoTypes.LTC.name -> (BigDecimal(LTC.available) + BigDecimal(LTC.orders)).toString()
-        //CryptoTypes.DASH.name ->
-        //CryptoTypes.ZEC.name ->
-        CurrencyTypes.USD.name -> (BigDecimal(USD.available) + BigDecimal(USD.orders)).toString()
-        CurrencyTypes.EUR.name -> (BigDecimal(EUR.available) + BigDecimal(EUR.orders)).toString()
-        CurrencyTypes.GBP.name ->  (BigDecimal(GBP.available) + BigDecimal(GBP.orders)).toString()
-        CurrencyTypes.RUB.name ->  (BigDecimal(RUB.available) + BigDecimal(RUB.orders)).toString()
-        //CurrencyTypes.GHS.name -> usd_balance
+    override fun getBalance(currency: String): String = when (currency) {
+        CryptoTypes.BTC.name -> balanceString(BTC.available, BTC.orders)
+        CryptoTypes.BCH.name -> balanceString(BCH.available, BCH.orders)
+        CryptoTypes.ETH.name -> balanceString(ETH.available, ETH.orders)
+        CryptoTypes.LTC.name -> balanceString(LTC.available, LTC.orders)
+    //CryptoTypes.DASH.name ->
+    //CryptoTypes.ZEC.name ->
+        CurrencyTypes.USD.name -> balanceString(USD.available, USD.orders)
+        CurrencyTypes.EUR.name -> balanceString(EUR.available, EUR.orders)
+        CurrencyTypes.GBP.name -> balanceString(GBP.available, GBP.orders)
+        CurrencyTypes.RUB.name -> balanceString(RUB.available, RUB.orders)
+    //CurrencyTypes.GHS.name -> usd_balance
         else -> "0"
+    }
+
+    private fun balanceString(available: String?, orders: String?): String {
+        return if (available != null && orders != null) {
+            var amount = BigDecimal(BTC.available ?: "0") + BigDecimal(BTC.orders ?: "0")
+            amount = amount.setScale(4, RoundingMode.DOWN)
+            amount.toPlainString()
+        } else {
+            "NA"
+        }
     }
 }
 
 data class Balance(
-        val available: String,
-        val orders: String
+        val available: String?,
+        val orders: String?
 )

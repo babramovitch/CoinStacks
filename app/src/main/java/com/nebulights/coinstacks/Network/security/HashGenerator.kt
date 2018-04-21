@@ -26,6 +26,7 @@ open class HashGenerator {
         }
 
         fun generateHmacDigest(message: ByteArray, key: ByteArray, hashingAlgorithm: HashingAlgorithms): String {
+
             try {
                 val bytes = generateHmac(message, key, hashingAlgorithm)
                 return bytes.toHex()

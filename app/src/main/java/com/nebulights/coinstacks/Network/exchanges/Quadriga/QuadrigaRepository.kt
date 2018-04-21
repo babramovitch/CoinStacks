@@ -34,7 +34,7 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
                 startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
                         ticker, presenterCallback, exchangeNetworkDataUpdate)
                 if (tickers.size > Constants.rateLimitSizeThreshold) {
-                    delay(Constants.tickerDelayInMillis)
+                    delay(2500)
                 }
             }
         }
@@ -50,21 +50,26 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
     }
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-
+        super.validateAPiKeys(service.getBalances(generateAuthenticationDetails(basicAuthentication)), basicAuthentication, presenterCallback, exchangeNetworkDataUpdate)
     }
+
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {
 
         val nonce = System.currentTimeMillis()
         val clientId = basicAuthentication.userName
         val secret = basicAuthentication.apiSecret
+
         val key = basicAuthentication.apiKey
 
         val mergedString = nonce.toString() + clientId + key
+
         val signature = HashGenerator.generateHmacDigest(mergedString.toByteArray(), secret.toByteArray(),
                 HashingAlgorithms.HmacSHA256)
 
-        return AuthenticationDetails(key, nonce, signature)
+
+
+        return AuthenticationDetails(key, signature, nonce)
 
     }
 }

@@ -70,7 +70,7 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
                     exchangeNetworkDataUpdate)
 
         } catch (exception: IllegalArgumentException) {
-            presenterCallback.validationError("Error using Secret Key.  Verify all details are correct")
+            presenterCallback.validationError(basicAuthentication.exchange, "Error using Secret Key.  Verify all details are correct")
             return
         }
     }

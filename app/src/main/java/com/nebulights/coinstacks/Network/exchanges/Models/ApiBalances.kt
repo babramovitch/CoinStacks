@@ -9,26 +9,26 @@ import java.math.BigDecimal
 data class ApiBalances(
         val exchange: String,
         val displayBalancesAs: MutableMap<CryptoTypes, CryptoPairs>,
-        val btcBalance: BigDecimal,
-        val bchBalance: BigDecimal,
-        val ltcBalance: BigDecimal,
-        val ethBalance: BigDecimal,
-        val xrpBalance: BigDecimal,
-        val xmrBalance: BigDecimal,
-        val btgBalance: BigDecimal,
-        val cadBalance: BigDecimal,
-        val usdBalance: BigDecimal,
-        val eurBalance: BigDecimal,
-        val gbpBalance: BigDecimal,
-        val rubBalance: BigDecimal) {
+        val btcBalance: BigDecimal = BigDecimal.ZERO,
+        val bchBalance: BigDecimal = BigDecimal.ZERO,
+        val ltcBalance: BigDecimal = BigDecimal.ZERO,
+        val ethBalance: BigDecimal = BigDecimal.ZERO,
+        val xrpBalance: BigDecimal = BigDecimal.ZERO,
+        val xmrBalance: BigDecimal = BigDecimal.ZERO,
+        val btgBalance: BigDecimal = BigDecimal.ZERO,
+        val cadBalance: BigDecimal = BigDecimal.ZERO,
+        val usdBalance: BigDecimal = BigDecimal.ZERO,
+        val eurBalance: BigDecimal = BigDecimal.ZERO,
+        val gbpBalance: BigDecimal = BigDecimal.ZERO,
+        val rubBalance: BigDecimal = BigDecimal.ZERO) {
 
     companion object {
         fun create(exchange: String, displayBalances: MutableMap<CryptoTypes, CryptoPairs>, data: NormalizedBalanceData): ApiBalances {
 
             return ApiBalances(exchange,
                     displayBalances,
-                    BigDecimal("5").stripTrailingZeros(),
-                    BigDecimal(data.getBalance(CryptoTypes.BCH.name)).stripTrailingZeros(),
+                    BigDecimal(data.getBalance(CryptoTypes.BTC.name)).stripTrailingZeros(),
+                    BigDecimal("2").stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.LTC.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.ETH.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.XRP.name)).stripTrailingZeros(),
@@ -65,7 +65,6 @@ data class ApiBalances(
                     return BigDecimal(balance)
                 }
             }
-
             return BigDecimal.ZERO
         }
     }

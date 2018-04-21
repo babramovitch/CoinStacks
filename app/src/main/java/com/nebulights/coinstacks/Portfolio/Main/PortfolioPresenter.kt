@@ -1,6 +1,5 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
-import android.util.Log
 import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Extensions.dp
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
@@ -32,6 +31,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                          private val cryptoAssetRepository: CryptoAssetContract,
                          private val navigation: PortfolioContract.Navigator) :
         PortfolioContract.Presenter, NetworkCompletionCallback {
+
 
     private val TAG = "PortfolioPresenter"
 
@@ -76,6 +76,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         if (!initialLoadComplete) {
             view.updateUi()
+            view.hasStaleData(exchanges.isAnyDataStale())
         }
     }
 
@@ -115,6 +116,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     initialLoadComplete = true
+                    view.hasStaleData(exchanges.isAnyDataStale())
                     view.updateUi()
                 }).addTo(disposable)
     }
@@ -126,6 +128,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     override fun updateUi(ticker: CryptoPairs) {
         if (!initialLoadComplete) {
             view.updateUi()
+            view.hasStaleData(exchanges.isAnyDataStale())
         }
     }
 
@@ -365,12 +368,26 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
             row.showAddressNickName(!item.addressNickName.isNullOrEmpty())
 
+            row.setRowAsStale(exchanges.isRecordStale(item.cryptoPair!!, item.displayRecordType))
+
             if (item.lastRowInGroup) {
                 row.adjustRowBottomMargin(8.dp)
             } else {
                 row.adjustRowBottomMargin(0)
             }
         }
+    }
+
+    override fun onNetworkError(exchange: String) {
+
+    }
+
+    override fun onNetworkError(exchange: String, error: NetworkErrors) {
+
+    }
+
+    override fun onNetworkError(exchange: String, message: String?) {
+
     }
 
     override fun backPressed() {

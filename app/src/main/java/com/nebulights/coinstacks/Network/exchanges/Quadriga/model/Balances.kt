@@ -7,7 +7,7 @@ import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
 /**
  * Created by babramovitch on 2018-02-21.
  */
-data class QuadrigaBalances (
+data class QuadrigaBalances(
         val btc_available: String,
         val btc_reserved: String,
         val btc_balance: String,
@@ -36,10 +36,11 @@ data class QuadrigaBalances (
         val xau_reserved: String,
         val xau_balance: String,
         val fee: String,
-        val fees: Fees
+        val fees: Fees,
+        val error: Error
 ) : NormalizedBalanceData {
 
-    override fun getBalance(currency: String): String = when(currency) {
+    override fun getBalance(currency: String): String = when (currency) {
         CryptoTypes.BTC.name -> btc_balance
         CryptoTypes.BCH.name -> bch_balance
         CryptoTypes.BTG.name -> btg_balance
@@ -50,6 +51,12 @@ data class QuadrigaBalances (
         else -> "0"
     }
 }
+
+data class Error(
+        val code: Int,
+        val message: String
+)
+
 
 data class Fees(
         val btc_cad: String,

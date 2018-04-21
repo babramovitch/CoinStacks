@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -58,7 +59,6 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
     class ViewHolderCoins(view: View) : RecyclerView.ViewHolder(view), PortfolioContract.ViewRow {
 
-
         @BindView(R.id.recycler_address_nick_name)
         lateinit var addressNickName: TextView
 
@@ -106,7 +106,11 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         }
 
         override fun setHoldings(holdings: String) {
-            this.holdings.text = holdings
+            if (holdings == "-1") {
+                this.holdings.text = "error"
+            } else {
+                this.holdings.text = holdings
+            }
         }
 
         override fun setNetValue(netValue: String) {
@@ -140,8 +144,14 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
                 layoutParams.setMargins(0, 0, 0, 5.dp)
                 cardView.requestLayout()
             }
+        }
 
-
+        override fun setRowAsStale(isStale: Boolean) {
+            if (isStale) {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(cardView.context, R.color.card_color_stale_data))
+            } else {
+                cardView.setCardBackgroundColor(ContextCompat.getColor(cardView.context, R.color.card_color))
+            }
         }
     }
 

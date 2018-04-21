@@ -25,9 +25,15 @@ import com.nebulights.coinstacks.Types.RecordTypes
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.fragment_crypto_list.*
+import com.getkeepsafe.taptargetview.TapTargetView
+import android.graphics.drawable.Drawable
+import android.graphics.Typeface
+import com.getkeepsafe.taptargetview.TapTarget
+
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecoration.StickyHeaderInterface {
+
     override fun getHeaderPositionForItem(itemPosition: Int): Int =
             (itemPosition downTo 0)
                     .map { Pair(isHeader(it), it) }
@@ -45,7 +51,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
             }
 
             val textView = header.findViewById<TextView>(R.id.recycler_exchange)
-            Log.i("TAG", "Header: " +  presenter.getHeader(headerPosition))
+            Log.i("TAG", "Header: " + presenter.getHeader(headerPosition))
             textView.text = presenter.getHeader(headerPosition)
         }
     }
@@ -67,7 +73,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
 
     private lateinit var presenter: PortfolioContract.Presenter
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var menu: Menu
+    private var menu: Menu? = null
 
     private var dialog: AlertDialog? = null
 
@@ -158,8 +164,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
 
 
     override fun showAssetQuantites(isVisible: Boolean) {
-        menu.findItem(R.id.locked_data).isVisible = !isVisible
-        menu.findItem(R.id.unlocked_data).isVisible = isVisible
+        menu?.findItem(R.id.locked_data)?.isVisible = !isVisible
+        menu?.findItem(R.id.unlocked_data)?.isVisible = isVisible
 
         recyclerView.adapter.notifyDataSetChanged()
 
@@ -271,14 +277,23 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         }
     }
 
+    override fun hasStaleData(hasStaleData: Boolean) {
+        val color = if (hasStaleData) ContextCompat.getColor(activity!!, R.color.card_color_stale_data)
+        else ContextCompat.getColor(netWorthLayout.context, R.color.card_color)
+        netWorthLayout.setCardBackgroundColor(color)
+        menu?.findItem(R.id.warning)?.isVisible = hasStaleData
+    }
+
     override fun resetUi() {
         netWorth.text = getString(R.string.zero_dollar)
         recyclerView.adapter.notifyDataSetChanged()
     }
 
+
     override fun onPause() {
         presenter.stopFeed()
         super.onPause()
+
     }
 
     override fun onDestroy() {

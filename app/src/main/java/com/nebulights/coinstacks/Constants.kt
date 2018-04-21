@@ -9,4 +9,6 @@ object Constants {
     const val REQUEST_ADD_ITEM = 10
     const val tickerDelayInMillis = 1000
     const val rateLimitSizeThreshold = 2
+
+    const val ERROR_NULL = 1000
 }

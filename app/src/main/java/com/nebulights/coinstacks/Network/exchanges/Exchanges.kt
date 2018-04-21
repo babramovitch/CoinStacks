@@ -6,6 +6,8 @@ import com.nebulights.coinstacks.Network.exchanges.Models.ApiBalances
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
 import com.nebulights.coinstacks.Network.exchanges.Models.TradingInfo
 import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.DisplayBalanceItemTypes
+import com.nebulights.coinstacks.Types.NetworkErrors
 import com.nebulights.coinstacks.Types.userTicker
 
 /**
@@ -14,13 +16,19 @@ import com.nebulights.coinstacks.Types.userTicker
 
 interface ExchangeNetworkDataUpdate {
     fun updateData(ticker: CryptoPairs, data: TradingInfo)
+    fun staleDataFromError(ticker: CryptoPairs)
+
     fun updateApiData(exchange: String, data: ApiBalances)
+    fun staleApiDataFromError(exchange: String)
 }
 
 interface NetworkCompletionCallback {
     fun updateUi(ticker: CryptoPairs)
     fun updateUi(apiBalances: ApiBalances)
     fun updateUi(watchAddress: WatchAddressBalance)
+    fun onNetworkError(exchange: String)
+    fun onNetworkError(exchange: String, error: NetworkErrors)
+    fun onNetworkError(exchange: String, message: String?)
 }
 
 interface Exchange {
@@ -40,6 +48,8 @@ object Exchanges : ExchangeNetworkDataUpdate {
     private var apiData: MutableMap<String, ApiBalances> = mutableMapOf()
     private lateinit var repositories: List<Exchange>
 
+    private var staleTickerData: MutableMap<CryptoPairs, Boolean> = mutableMapOf()
+    private var staleApiData: MutableMap<String, Boolean> = mutableMapOf()
 
     fun loadRepositories(exchangeProvider: ExchangeProvider) {
         repositories = exchangeProvider.getAllRepositories()
@@ -118,10 +128,36 @@ object Exchanges : ExchangeNetworkDataUpdate {
 
     override fun updateData(ticker: CryptoPairs, data: TradingInfo) {
         tickerData[ticker] = data
+        staleTickerData.remove(ticker)
     }
 
     override fun updateApiData(exchange: String, data: ApiBalances) {
         apiData[exchange] = data
+        staleApiData.remove(exchange)
+    }
+
+    override fun staleDataFromError(cryptoPairs: CryptoPairs) {
+        staleTickerData[cryptoPairs] = true
+    }
+
+    override fun staleApiDataFromError(exchange: String) {
+        staleApiData[exchange] = true
+    }
+
+    fun isRecordStale(cryptoPair: CryptoPairs, displayRecordType: DisplayBalanceItemTypes?): Boolean {
+        return when (displayRecordType) {
+            DisplayBalanceItemTypes.COINS -> staleTickerData[cryptoPair] != null
+            DisplayBalanceItemTypes.API -> staleApiData[cryptoPair.exchange] != null || staleTickerData[cryptoPair] != null
+            DisplayBalanceItemTypes.WATCH -> staleTickerData[cryptoPair] != null
+            DisplayBalanceItemTypes.HEADER -> false
+            DisplayBalanceItemTypes.SUB_HEADER -> false
+            else -> false
+        }
+    }
+
+    fun isAnyDataStale(): Boolean {
+        return staleTickerData.isNotEmpty() || this.staleApiData.isNotEmpty()
+
     }
 
 }

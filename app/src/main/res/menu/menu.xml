@@ -4,6 +4,14 @@
     tools:context=".MainActivity">
 
     <item
+        android:id="@+id/warning"
+        android:icon="@drawable/ic_error_outline_red_400_24dp"
+        android:title="Data Error"
+        android:visible="false"
+        app:showAsAction="always" />
+
+
+    <item
         android:id="@+id/locked_data"
         android:icon="@drawable/ic_lock_outline_white_24dp"
         android:title="Protect Data"
@@ -15,5 +23,6 @@
         android:title="Protect Data"
         android:visible="true"
         app:showAsAction="always" />
+
 
 </menu>

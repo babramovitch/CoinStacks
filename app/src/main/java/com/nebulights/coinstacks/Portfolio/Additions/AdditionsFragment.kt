@@ -138,10 +138,15 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!isInitialSpinner) {
                     presenter.updateViewsForExchangeSpinnerSelection(exchangeList[position])
-                    apiPassword.setText("j2wosi9g7x7")
-                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
-                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
-                    userName.setText("")
+//                    apiPassword.setText("j2wosi9g7x7")
+//                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
+//                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
+//                    userName.setText("")
+
+                    apiPassword.setText("")
+                    apiKey.setText("oXVQnuYbnP")
+                    apiSecret.setText("85a1e31656070949c1932df0656a152c")
+                    userName.setText("30171")
                 } else {
                     isInitialSpinner = false
                 }
