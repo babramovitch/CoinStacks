@@ -17,7 +17,7 @@ class PortfolioContract {
         fun showAssetQuantites(isVisible: Boolean)
         fun showAddNewPasswordDialog()
         fun showUnlockDialog(firstAttempt: Boolean)
-        fun showConfirmDeleteAllDialog()
+        fun showForgotPasswordlDialog()
     }
 
     interface ViewRow {
@@ -45,6 +45,7 @@ class PortfolioContract {
         fun displayItemCount(): Int
         fun onBindRepositoryRowViewAtPosition(position: Int, row: ViewRow)
 
+        fun forgotPasswordPressed()
         fun clearAssets()
         fun getTickers(): List<CryptoPairs>
         fun getTickersForExchange(exchange: String): List<String>

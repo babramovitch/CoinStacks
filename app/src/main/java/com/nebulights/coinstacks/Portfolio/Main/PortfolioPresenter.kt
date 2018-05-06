@@ -32,7 +32,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
                          private val navigation: PortfolioContract.Navigator) :
         PortfolioContract.Presenter, NetworkCompletionCallback {
 
-
     private val TAG = "PortfolioPresenter"
 
     private var tickers: MutableList<CryptoPairs> = mutableListOf()
@@ -185,11 +184,14 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun showConfirmDeleteAllDialog() {
-        view.showConfirmDeleteAllDialog()
+        view.showForgotPasswordlDialog()
+    }
+
+    override fun forgotPasswordPressed() {
+       view.showForgotPasswordlDialog()
     }
 
     override fun clearAssets() {
-        //TODO clear doesn't work with new data
         cryptoAssetRepository.clearAllData()
 
         if (!cryptoAssetRepository.assetsVisible()) {
@@ -199,6 +201,9 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         }
 
         tickers.clear()
+        exchanges.clearAll()
+        explorers.clearAll()
+        displayList.clear()
         view.resetUi()
     }
 

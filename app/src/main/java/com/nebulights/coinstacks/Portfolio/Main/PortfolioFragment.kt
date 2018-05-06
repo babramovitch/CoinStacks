@@ -151,12 +151,12 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun showConfirmDeleteAllDialog() {
+    override fun showForgotPasswordlDialog() {
         if (context != null) {
             val builder = AlertDialog.Builder(context!!)
             builder.setTitle(getString(R.string.remove_assets_title))
             builder.setMessage(getString(R.string.remove_all_assets_message))
-            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+            builder.setPositiveButton(getString(R.string.dialog_confirm_delete_all_data), { dialog, which ->
                 presenter.clearAssets()
             })
 
@@ -191,7 +191,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             { dialog, which -> dialog.cancel() })
 
         builder.setNeutralButton(getString(R.string.forgot_password), { dialog, which ->
-            presenter.clearAssets()
+            presenter.forgotPasswordPressed()
         })
 
         showDialog(builder.create(), true)

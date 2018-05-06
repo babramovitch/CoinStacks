@@ -27,6 +27,10 @@ object Explorers : ExplorerNetworkDataUpdate {
     private var repositories: List<Explorer> = listOf()
     private var apiData: MutableMap<String, WatchAddressBalance> = mutableMapOf()
 
+    fun clearAll(){
+        apiData.clear()
+    }
+
     fun loadRepositories(explorerProvider: ExplorerProvider) {
         if(repositories.isEmpty()) {
             repositories = explorerProvider.getAllRepositories()

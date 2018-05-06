@@ -52,6 +52,13 @@ object Exchanges : ExchangeNetworkDataUpdate {
     private var staleTickerData: MutableMap<CryptoPairs, Boolean> = mutableMapOf()
     private var staleApiData: MutableMap<String, Boolean> = mutableMapOf()
 
+    fun clearAll(){
+        tickerData.clear()
+        apiData.clear()
+        staleTickerData.clear()
+        staleApiData.clear()
+    }
+
     fun loadRepositories(exchangeProvider: ExchangeProvider) {
         if(repositories.isEmpty()) {
             repositories = exchangeProvider.getAllRepositories()

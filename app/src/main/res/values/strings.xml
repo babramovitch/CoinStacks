@@ -16,8 +16,9 @@
     <string name="forgot_password">Forgot Password</string>
     <string name="enter_password">Enter Password</string>
     <string name="invalid_password">Invalid Password</string>
-    <string name="remove_assets_title">Remove Coins</string>
-    <string name="remove_all_assets_message">Are you sure you want to remove all coins?</string>
+    <string name="remove_assets_title">Forgot Password</string>
+    <string name="remove_all_assets_message">To continue using Coin Stacks, all data will be deleted.</string>
+    <string name="dialog_confirm_delete_all_data">Delete All data</string>
     <string name="add_password_dialog_title">Add Password</string>
     <string name="password_hint">4 digits</string>
     <string name="confirm_password_hint">same 4 digits</string>
@@ -38,5 +39,6 @@
     <string name="manual_entry_fab">Manual Entry</string>
     <string name="exchange_apis_fab">Exchange APIs</string>
     <string name="watch_address_fab">Watch Address</string>
+
 
 </resources>
