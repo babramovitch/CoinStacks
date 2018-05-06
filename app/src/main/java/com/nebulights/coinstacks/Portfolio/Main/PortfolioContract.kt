@@ -11,7 +11,7 @@ class PortfolioContract {
 
     interface View {
         fun updateUi()
-        fun hasStaleData(boolean: Boolean)
+        fun hasStaleData(hasStaleData: Boolean)
         fun resetUi()
         fun setPresenter(presenter: Presenter)
         fun showAssetQuantites(isVisible: Boolean)
@@ -27,10 +27,13 @@ class PortfolioContract {
         fun setNetValue(netValue: String)
         fun setExchange(exchange: String)
         fun showQuantities(visible: Boolean)
+        fun showNetvalue(visible: Boolean)
         fun showAddressNickName(visible: Boolean)
         fun setWatchAddressNickName(addressNickName: String?)
         fun adjustRowBottomMargin(amount: Int)
         fun setRowAsStale(isStale: Boolean)
+        fun setCryptoCurrency()
+        fun setFiatCurrency()
     }
 
     interface Presenter {

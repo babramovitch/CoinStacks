@@ -93,6 +93,17 @@ object PortfolioDisplayListHelper {
                     displayList.add(displayItem)
                 }
             }
+
+            val nonZeroFiatBalances = apiData.getNonZeroFiatBalances()
+
+                nonZeroFiatBalances.forEach {
+                    val balance = apiData.getBalance(it.name)
+                    val displayItem = DisplayBalanceItem.newItem(it, exchange, DisplayBalanceItemTypes.API, balance)
+                    displayList.add(displayItem)
+
+                }
+
+
         }
 
         return displayList
@@ -104,17 +115,17 @@ object PortfolioDisplayListHelper {
         var previousType = DisplayBalanceItemTypes.HEADER
         var index = 0
 
-        val sortedList = displayList.sortedWith(compareBy({ it.cryptoPair?.exchange }, { it.displayRecordType }, { it.currencyPair })).toMutableList()
+        val sortedList = displayList.sortedWith(compareBy({ it.exchange }, { it.displayRecordType }, { it.fiatCurrency}, { it.cryptoPair })).toMutableList()
 
         while (index < sortedList.size) {
 
             if (isFirstIndex(index) ||
                     isNewRecordType(previousType, sortedList[index].displayRecordType!!) ||
-                    isNewExchange(previousExchange, sortedList[index].cryptoPair?.exchange)) {
+                    isNewExchange(previousExchange, sortedList[index].exchange)) {
 
-                val isNewExchange = isNewExchange(previousExchange, sortedList[index].cryptoPair?.exchange)
+                val isNewExchange = isNewExchange(previousExchange, sortedList[index].exchange)
 
-                previousExchange = sortedList[index].cryptoPair!!.exchange
+                previousExchange = sortedList[index].exchange!!
                 previousType = sortedList[index].displayRecordType!!
 
                 if (!isNewExchange) {
@@ -125,7 +136,7 @@ object PortfolioDisplayListHelper {
                         sortedList[index - 1].lastRowInGroup = true
                     }
 
-                    sortedList.add(index, DisplayBalanceItem.newHeader(sortedList[index].cryptoPair!!.exchange))
+                    sortedList.add(index, DisplayBalanceItem.newHeader(sortedList[index].exchange!!))
                     if (!locked) {
                         index += 1
                         sortedList.add(index, DisplayBalanceItem.newSubHeader(nameForHeader(sortedList[index].displayRecordType!!)))

@@ -3,21 +3,22 @@ package com.nebulights.coinstacks.Portfolio.Main
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.nebulights.coinstacks.R
-import android.view.LayoutInflater
 import com.nebulights.coinstacks.Extensions.dp
+import com.nebulights.coinstacks.R
 
 /**
  * Created by babramovitch on 10/26/2017.
  */
 
-class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presenter) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
@@ -30,26 +31,29 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         }
 
         holder.itemView.setOnClickListener { presenter.rowItemClicked(holder.adapterPosition) }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            when (viewType) {
-                0 -> {
-                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_header, parent, false)
-                    ViewHolderHeader(inflatedView)
-                }
-                1 -> {
-                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_sub_header, parent, false)
-                    ViewHolderHeader(inflatedView)
-                }
-                2 -> {
-                    val inflatedView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_list_item, parent, false)
-                    ViewHolderCoins(inflatedView)
-                }
-
-                else -> throw IllegalArgumentException("Wrong type of view")
+        when (viewType) {
+            0 -> {
+                val inflatedView = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.recycler_item_header, parent, false)
+                ViewHolderHeader(inflatedView)
+            }
+            1 -> {
+                val inflatedView = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.recycler_item_sub_header, parent, false)
+                ViewHolderHeader(inflatedView)
+            }
+            2 -> {
+                val inflatedView = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.recycler_list_item, parent, false)
+                ViewHolderCoins(inflatedView)
             }
 
+            else -> throw IllegalArgumentException("Wrong type of view")
+        }
 
     override fun getItemViewType(position: Int): Int {
         return presenter.recyclerViewType(position)
@@ -99,10 +103,12 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         override fun setTicker(ticker: String) {
             this.ticker.text = ticker
+
         }
 
         override fun setLastPrice(lastPrice: String) {
             this.lastPrice.text = lastPrice
+
         }
 
         override fun setHoldings(holdings: String) {
@@ -111,6 +117,7 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             } else {
                 this.holdings.text = holdings
             }
+
         }
 
         override fun setNetValue(netValue: String) {
@@ -123,7 +130,20 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         override fun showQuantities(visible: Boolean) {
             holdingsLayout.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
+        override fun showNetvalue(visible: Boolean) {
             netValueLayout.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+
+        override fun setCryptoCurrency() {
+            showQuantities(true)
+            showNetvalue(true)
+        }
+
+        override fun setFiatCurrency() {
+            showQuantities(false)
+
         }
 
         override fun showAddressNickName(visible: Boolean) {
@@ -148,9 +168,19 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         override fun setRowAsStale(isStale: Boolean) {
             if (isStale) {
-                cardView.setCardBackgroundColor(ContextCompat.getColor(cardView.context, R.color.card_color_stale_data))
+                cardView.setCardBackgroundColor(
+                    ContextCompat.getColor(
+                        cardView.context,
+                        R.color.card_color_stale_data
+                    )
+                )
             } else {
-                cardView.setCardBackgroundColor(ContextCompat.getColor(cardView.context, R.color.card_color))
+                cardView.setCardBackgroundColor(
+                    ContextCompat.getColor(
+                        cardView.context,
+                        R.color.card_color
+                    )
+                )
             }
         }
     }
@@ -158,6 +188,9 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
     class ViewHolderHeader(view: View) : RecyclerView.ViewHolder(view) {
         @BindView(R.id.recycler_exchange)
         lateinit var exchange: TextView
+
+        @BindView(R.id.card_view_header)
+        lateinit var cardView: CardView
 
         init {
             ButterKnife.bind(this, view)

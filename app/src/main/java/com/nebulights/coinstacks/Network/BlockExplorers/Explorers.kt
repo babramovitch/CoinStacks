@@ -24,17 +24,16 @@ interface Explorer {
 
 object Explorers : ExplorerNetworkDataUpdate {
 
-
-    private lateinit var repositories: List<Explorer>
+    private var repositories: List<Explorer> = listOf()
     private var apiData: MutableMap<String, WatchAddressBalance> = mutableMapOf()
 
-
     fun loadRepositories(explorerProvider: ExplorerProvider) {
-        repositories = explorerProvider.getAllRepositories()
+        if(repositories.isEmpty()) {
+            repositories = explorerProvider.getAllRepositories()
+        }
     }
 
     fun startFeed(watchAddress: MutableList<WatchAddress>, presenterCallback: NetworkCompletionCallback) {
-
         removeNoLongerValidWatchAddresses(watchAddress)
 
         repositories.forEach { repository ->
@@ -76,6 +75,5 @@ object Explorers : ExplorerNetworkDataUpdate {
     }
 
     fun getWatchAddressData(): MutableMap<String, WatchAddressBalance> = apiData
-
 
 }

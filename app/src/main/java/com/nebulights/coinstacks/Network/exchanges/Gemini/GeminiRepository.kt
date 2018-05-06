@@ -30,14 +30,26 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
+        addToPriceFeed(tickers, presenterCallback, exchangeNetworkDataUpdate)
+    }
+
+    override fun addToPriceFeed(
+        tickers: List<CryptoPairs>,
+        presenterCallback: NetworkCompletionCallback,
+        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+    ) {
+        var delay = 0L
 
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
-                        ticker, presenterCallback, exchangeNetworkDataUpdate)
-                if (tickers.size > Constants.rateLimitSizeThreshold) {
-                    delay(Constants.tickerDelayInMillis)
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
+                    ticker, presenterCallback, exchangeNetworkDataUpdate)
+
+                if (totalDisposables()> Constants.rateLimitSizeThreshold) {
+                    delay += 5000
                 }
+
+                delay( 500)
             }
         }
     }

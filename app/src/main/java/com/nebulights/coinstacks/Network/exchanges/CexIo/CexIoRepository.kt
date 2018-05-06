@@ -30,14 +30,26 @@ class CexIoRepository(private val service: CexIoService) : BaseExchange() {
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
+        addToPriceFeed(tickers, presenterCallback, exchangeNetworkDataUpdate)
+    }
 
+    override fun addToPriceFeed(
+        tickers: List<CryptoPairs>,
+        presenterCallback: NetworkCompletionCallback,
+        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+    ) {
+        var delay = 0L
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.cryptoType.name, ticker.currencyType.name),
-                        ticker, presenterCallback, exchangeNetworkDataUpdate)
-                if (tickers.size > Constants.rateLimitSizeThreshold) {
-                    delay(Constants.tickerDelayInMillis)
+
+                if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+                    delay += 2000
                 }
+
+                startPriceFeed(service.getCurrentTradingInfo(ticker.cryptoType.name, ticker.currencyType.name), delay,
+                    ticker, presenterCallback, exchangeNetworkDataUpdate)
+
+                delay( 500)
             }
         }
     }

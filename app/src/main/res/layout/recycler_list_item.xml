@@ -17,10 +17,10 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="@dimen/api_nested_margins"
             android:layout_marginRight="@dimen/api_nested_margins"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -87,11 +87,13 @@
                     tools:text="20.00" />
             </LinearLayout>
 
+
             <LinearLayout
                 android:id="@+id/recycler_net_value_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp">
+
 
                 <TextView
                     android:id="@+id/recycler_net_value_title"

@@ -77,6 +77,6 @@
         android:layout_marginTop="30dp"
         android:layout_gravity="bottom|right"
         app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"
-        app:srcCompat="@drawable/ic_add_white_24dp" />
+        app:sdMainFabOpenSrc="@drawable/ic_add_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>

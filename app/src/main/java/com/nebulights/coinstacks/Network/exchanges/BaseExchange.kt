@@ -12,9 +12,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
-import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
-
 
 /**
  * Created by babramovitch on 10/25/2017.
@@ -42,12 +40,10 @@ abstract class BaseExchange : Exchange {
         }
     }
 
-    var priceFeedRateLimit = 0
-
-    fun <T> startPriceFeed(observable: Observable<T>, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-        observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay((20 + (priceFeedRateLimit * 20)).toLong(), TimeUnit.SECONDS) }
-                .retryWhen { error -> error.delay(20, TimeUnit.SECONDS) }
+    fun <T> startPriceFeed(observable: Observable<T>, delay: Long, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
+       observable.observeOn(AndroidSchedulers.mainThread())
+                .repeatWhen { result ->result.delay((20000 + delay), TimeUnit.MILLISECONDS) }
+                .retryWhen { error -> error.delay(20000 + delay, TimeUnit.MILLISECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     result as NormalizedTickerData
@@ -55,15 +51,11 @@ abstract class BaseExchange : Exchange {
                         val tradingInfo = TradingInfo(result.lastPrice(), result.timeStamp())
                         exchangeNetworkDataUpdate.updateData(ticker, tradingInfo)
                         presenterCallback.updateUi(ticker)
-                        if (priceFeedRateLimit != 0) {
-                            priceFeedRateLimit -= 1
-                        }
                     } catch (exception: Exception) {
                         when (exception) {
                             is NullPointerException -> exchangeNetworkDataUpdate.staleDataFromError(ticker)
                             is IllegalArgumentException -> exchangeNetworkDataUpdate.staleDataFromError(ticker)
                         }
-                        priceFeedRateLimit += 1
                     }
                 }, { error ->
                     exchangeNetworkDataUpdate.staleDataFromError(ticker)
@@ -74,7 +66,7 @@ abstract class BaseExchange : Exchange {
     fun <T> startAccountBalanceFeed(observable: Observable<T>, exchange: BasicAuthentication, networkCompletionCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearBalanceDisposables()
         observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result -> result.delay(15, TimeUnit.SECONDS) }
+                .repeatWhen { result -> result.delay(60, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     try {
@@ -139,6 +131,10 @@ abstract class BaseExchange : Exchange {
                     }
                     error.printStackTrace()
                 }).addTo(balanceDisposables)
+    }
+
+    fun totalDisposables(): Int {
+        return tickerDisposables.size() + balanceDisposables.size()
     }
 
     override fun stopFeed() {

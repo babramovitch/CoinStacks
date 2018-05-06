@@ -23,15 +23,26 @@ class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchang
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
+        addToPriceFeed(tickers,presenterCallback,exchangeNetworkDataUpdate)
+    }
 
-        launch(CommonPool) {
+    override fun addToPriceFeed(
+        tickers: List<CryptoPairs>,
+        presenterCallback: NetworkCompletionCallback,
+        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+    ) {
+        var delay = 0L
+
+        launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker),
-                        ticker, presenterCallback, exchangeNetworkDataUpdate)
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
+                    ticker, presenterCallback, exchangeNetworkDataUpdate)
 
-                if (tickers.size > Constants.rateLimitSizeThreshold) {
-                    delay(Constants.tickerDelayInMillis)
+                if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+                    delay += 5000
                 }
+
+                delay( 500)
             }
         }
     }

@@ -106,8 +106,6 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         exchanges.startFeed(tickers, this)
         exchanges.startBalanceFeed(cryptoAssetRepository.getApiKeysNonRealm(), this)
-
-        //TODO double check this gets refreshed properly when adding new item
         explorers.startFeed(cryptoAssetRepository.getWatchAddresses(), this)
 
         Observable.timer(10, TimeUnit.SECONDS)
@@ -137,8 +135,8 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         refreshData()
 
-        if (newTickers) {
-            exchanges.startFeed(tickers, this)
+        if (newTickers.isNotEmpty()) {
+            exchanges.addToFeed(newTickers, this)
         }
     }
 
@@ -146,16 +144,20 @@ class PortfolioPresenter(private var exchanges: Exchanges,
         refreshData()
     }
 
-    private fun newTickersInBalances(apiBalances: ApiBalances): Boolean {
+    private fun newTickersInBalances(apiBalances: ApiBalances): MutableList<CryptoPairs> {
         val nonZeroCryptoPairs = apiBalances.getCryptoPairsForNonZeroBalances(apiBalances.displayBalancesAs)
+
+        val newTickersFound: MutableList<CryptoPairs> = mutableListOf()
+
 
         nonZeroCryptoPairs.forEach {
             if (tickers.indexOf(it) == -1 && temporaryNonZeroBalanceTickers.indexOf(it) == -1) {
                 temporaryNonZeroBalanceTickers.add(it)
+                newTickersFound.add(it)
             }
         }
 
-        return temporaryNonZeroBalanceTickers.isNotEmpty()
+        return newTickersFound
     }
 
     override fun stopFeed() {
@@ -174,11 +176,10 @@ class PortfolioPresenter(private var exchanges: Exchanges,
             val item = displayList[adapterPosition]
             when (item.displayRecordType) {
                 DisplayBalanceItemTypes.COINS -> navigation.editItem(RecordTypes.COINS, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker())
-                DisplayBalanceItemTypes.API -> navigation.editItem(RecordTypes.API, item.cryptoPair, item.cryptoPair!!.exchange, "")
+                DisplayBalanceItemTypes.API -> navigation.editItem(RecordTypes.API, item.cryptoPair, item.exchange!!, "")
                 DisplayBalanceItemTypes.WATCH -> navigation.editWatchAddressItem(RecordTypes.WATCH, item.cryptoPair, item.cryptoPair!!.exchange, item.cryptoPair!!.userTicker(), item.address!!)
-                else -> {
-                    //do nothing when a header is pressed.
-                }
+                DisplayBalanceItemTypes.HEADER -> {/*do nothing*/}
+                DisplayBalanceItemTypes.SUB_HEADER -> {/*do nothing*/}
             }
         }
     }
@@ -188,6 +189,7 @@ class PortfolioPresenter(private var exchanges: Exchanges,
     }
 
     override fun clearAssets() {
+        //TODO clear doesn't work with new data
         cryptoAssetRepository.clearAllData()
 
         if (!cryptoAssetRepository.assetsVisible()) {
@@ -238,6 +240,13 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
             if (subTotal.compareTo(BigDecimal.ZERO) != 0) {
                 netWorth[ticker.currencyType] = subTotal
+            }
+        }
+
+        exchanges.getApiData().forEach { apiData ->
+            val fiatBalances = apiData.value.getNonZeroFiatBalances()
+            fiatBalances.forEach {
+                netWorth[it] = netWorth[it]?.plus(apiData.value.getBalance(it.name)) ?: apiData.value.getBalance(it.name)
             }
         }
 
@@ -344,31 +353,54 @@ class PortfolioPresenter(private var exchanges: Exchanges,
 
         if (item.displayRecordType != DisplayBalanceItemTypes.HEADER) { // This shouldn't happen but being extra safe
 
-            val currentTradingInfo = getCurrentTradingData(item.cryptoPair!!)
+            if(!item.isFiatRecord()) {
+                val currentTradingInfo = getCurrentTradingData(item.cryptoPair!!)
 
-            row.setTicker(item.cryptoPair!!.userTicker())
-            row.setExchange(item.cryptoPair!!.exchange)
-            row.setHoldings(item.quantity!!.toPlainString())
-            row.setWatchAddressNickName(item.addressNickName)
+                row.setTicker(item.cryptoPair!!.userTicker())
+                row.setExchange(item.cryptoPair!!.exchange)
+                row.setHoldings(item.roundedQuantity())
+                row.setWatchAddressNickName(item.addressNickName)
 
-            if (currentTradingInfo != null) {
-                val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
-                if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
-                    row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
+                if (currentTradingInfo != null) {
+                    val lastPrice = stringSafeBigDecimal(currentTradingInfo.lastPrice)
+                    if (lastPrice < BigDecimal.TEN && lastPrice != BigDecimal.ZERO) {
+                        row.setLastPrice(smallCurrencyFormatter().format(lastPrice))
+                    } else {
+                        row.setLastPrice(currencyFormatter().format(lastPrice))
+                    }
+                    row.setNetValue(
+                        currencyFormatter().format(
+                            netValue(
+                                lastPrice,
+                                item.quantity!!
+                            )
+                        )
+                    )
                 } else {
-                    row.setLastPrice(currencyFormatter().format(lastPrice))
+                    row.setLastPrice("---")
+                    row.setNetValue("---")
                 }
-                row.setHoldings(item.quantity!!.toPlainString())
-                row.setNetValue(currencyFormatter().format(netValue(lastPrice, item.quantity!!)))
-            } else {
+
+                row.setCryptoCurrency()
+                row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+
+            }else if(item.isFiatRecord()){
                 row.setLastPrice("---")
-                row.setNetValue("---")
+
+                row.setTicker(item.fiatCurrency!!.name)
+                row.setHoldings("")
+                row.setLastPrice("")
+                row.setFiatCurrency()
+                row.setNetValue(item.roundedQuantity())
+                row.setWatchAddressNickName(item.addressNickName)
+                row.showQuantities(false)
             }
 
-            row.showQuantities(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
             row.showAddressNickName(!item.addressNickName.isNullOrEmpty())
+            row.setRowAsStale(exchanges.isRecordStale(item.cryptoPair, item.exchange!!, item.displayRecordType))
 
-            row.setRowAsStale(exchanges.isRecordStale(item.cryptoPair!!, item.displayRecordType))
+            row.showNetvalue(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
+
 
             if (item.lastRowInGroup) {
                 row.adjustRowBottomMargin(8.dp)

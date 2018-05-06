@@ -7,7 +7,6 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -19,46 +18,13 @@ import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialOverlayLayout
 import com.leinardi.android.speeddial.SpeedDialView
 import com.nebulights.coinstacks.Extensions.dp
-import com.nebulights.coinstacks.Extensions.notNull
 import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Types.RecordTypes
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
-import kotlinx.android.synthetic.main.fragment_crypto_list.*
-import com.getkeepsafe.taptargetview.TapTargetView
-import android.graphics.drawable.Drawable
-import android.graphics.Typeface
-import com.getkeepsafe.taptargetview.TapTarget
-
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecoration.StickyHeaderInterface {
-
-    override fun getHeaderPositionForItem(itemPosition: Int): Int =
-            (itemPosition downTo 0)
-                    .map { Pair(isHeader(it), it) }
-                    .firstOrNull { it.first }?.second ?: RecyclerView.NO_POSITION
-
-    override fun getHeaderLayout(headerPosition: Int): Int {
-        return R.layout.recycler_item_header
-    }
-
-    override fun bindHeaderData(header: View, headerPosition: Int) {
-        if (headerPosition == RecyclerView.NO_POSITION) header.layoutParams.height = 0
-        else {
-            activity?.let {
-                header.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.backgroundOffWhite))
-            }
-
-            val textView = header.findViewById<TextView>(R.id.recycler_exchange)
-            Log.i("TAG", "Header: " + presenter.getHeader(headerPosition))
-            textView.text = presenter.getHeader(headerPosition)
-        }
-    }
-
-    override fun isHeader(itemPosition: Int): Boolean {
-        return presenter.recyclerViewType(itemPosition) == 0
-    }
+class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     @BindView(R.id.net_worth_amount)
     lateinit var netWorth: TextView
@@ -92,8 +58,10 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         super.onCreate(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         val rootView = inflater.inflate(R.layout.fragment_crypto_list, container, false)
         ButterKnife.bind(this, rootView)
@@ -124,41 +92,37 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         //recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         //recyclerView.addItemDecoration(HeaderItemDecoration(recyclerView, this))
 
-
-        recyclerView.addItemDecoration(BottomOffsetDecoration(30.dp))
+        recyclerView.addItemDecoration(BottomOffsetDecoration(60.dp))
         recyclerView.adapter = PortfolioRecyclerAdapter(presenter)
     }
 
     fun setupSpeeDialFab() {
-        floatingActionbutton.speedDialOverlayLayout = speedDialOverlay;
+        floatingActionbutton.overlayLayout = speedDialOverlay
 
-        floatingActionbutton.setMainFabOnClickListener {
-            if (floatingActionbutton.isFabMenuOpen) {
-                floatingActionbutton.closeOptionsMenu()
-            }
-        }
+        floatingActionbutton.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_add_coins, R.drawable.ic_attach_money_white_24dp)
+                .setLabel(getString(R.string.manual_entry_fab)).create()
+        )
 
-        floatingActionbutton.addFabOptionItem(
-                SpeedDialActionItem.Builder(R.id.fab_add_coins, R.drawable.ic_attach_money_white_24dp)
-                        .setLabel(getString(R.string.manual_entry_fab)).create())
+        floatingActionbutton.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_add_exchange, R.drawable.ic_vpn_key_white_24dp)
+                .setLabel(getString(R.string.exchange_apis_fab)).create()
+        )
 
-        floatingActionbutton.addFabOptionItem(
-                SpeedDialActionItem.Builder(R.id.fab_add_exchange, R.drawable.ic_vpn_key_white_24dp)
-                        .setLabel(getString(R.string.exchange_apis_fab)).create())
+        floatingActionbutton.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_add_watch, R.drawable.ic_remove_red_eye_white_24dp)
+                .setLabel(getString(R.string.watch_address_fab)).create()
+        )
 
-        floatingActionbutton.addFabOptionItem(
-                SpeedDialActionItem.Builder(R.id.fab_add_watch, R.drawable.ic_remove_red_eye_white_24dp)
-                        .setLabel(getString(R.string.watch_address_fab)).create())
-
-        floatingActionbutton.setOptionFabSelectedListener({ speedDialActionItem ->
+        floatingActionbutton.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { speedDialActionItem ->
             when (speedDialActionItem.id) {
                 R.id.fab_add_coins -> presenter.addNew(RecordTypes.COINS)
                 R.id.fab_add_exchange -> presenter.addNew(RecordTypes.API)
                 R.id.fab_add_watch -> presenter.addNew(RecordTypes.WATCH)
-                else -> {
+                else -> { /*do nothing*/
                 }
             }
-            floatingActionbutton.closeOptionsMenu()
+            false
         })
     }
 
@@ -171,7 +135,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
 
         netWorth.text = presenter.getNetWorthDisplayString()
         netWorthLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
-        speedDial.visibility = if (isVisible) View.VISIBLE else View.GONE
+        floatingActionbutton.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -196,7 +160,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
                 presenter.clearAssets()
             })
 
-            builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+            builder.setNegativeButton(
+                getString(R.string.dialog_cancel),
+                { dialog, which -> dialog.cancel() })
 
             showDialog(builder.create(), false)
         }
@@ -220,7 +186,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
             presenter.unlockData(password.text.toString())
         })
 
-        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+        builder.setNegativeButton(
+            getString(R.string.dialog_cancel),
+            { dialog, which -> dialog.cancel() })
 
         builder.setNeutralButton(getString(R.string.forgot_password), { dialog, which ->
             presenter.clearAssets()
@@ -240,9 +208,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         val confirmPasswordObservable = RxTextView.textChanges(passwordConfirm).skip(1)
 
         val isPasswordValid: Observable<Boolean> = Observable.combineLatest(
-                passwordObservable,
-                confirmPasswordObservable,
-                BiFunction { password, confirmPassword -> password.length == 4 && password.toString() == confirmPassword.toString() })
+            passwordObservable,
+            confirmPasswordObservable,
+            BiFunction { password, confirmPassword -> password.length == 4 && password.toString() == confirmPassword.toString() })
 
         isPasswordValid.subscribe { isValid ->
             dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = isValid
@@ -256,7 +224,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
             activity!!.recreate() //recreating to force the secure screen which requires a restart
         })
 
-        builder.setNegativeButton(getString(R.string.dialog_cancel), { dialog, which -> dialog.cancel() })
+        builder.setNegativeButton(
+            getString(R.string.dialog_cancel),
+            { dialog, which -> dialog.cancel() })
 
         showDialog(builder.create(), true)
         dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
@@ -278,8 +248,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
     }
 
     override fun hasStaleData(hasStaleData: Boolean) {
-        val color = if (hasStaleData) ContextCompat.getColor(activity!!, R.color.card_color_stale_data)
-        else ContextCompat.getColor(netWorthLayout.context, R.color.card_color)
+        val color =
+            if (hasStaleData) ContextCompat.getColor(activity!!, R.color.card_color_stale_data)
+            else ContextCompat.getColor(netWorthLayout.context, R.color.card_color)
         netWorthLayout.setCardBackgroundColor(color)
         menu?.findItem(R.id.warning)?.isVisible = hasStaleData
     }
@@ -289,16 +260,18 @@ class PortfolioFragment : Fragment(), PortfolioContract.View, HeaderItemDecorati
         recyclerView.adapter.notifyDataSetChanged()
     }
 
-
     override fun onPause() {
-        presenter.stopFeed()
         super.onPause()
+    }
 
+    override fun onStop() {
+        presenter.stopFeed()
+        super.onStop()
     }
 
     override fun onDestroy() {
         presenter.onDetach()
-        dialog.notNull { dialog!!.dismiss() }
+        dialog?.dismiss()
         super.onDestroy()
     }
 }

@@ -35,6 +35,7 @@ interface Exchange {
     fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
     fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
     fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
+    fun addToPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate)
     fun stopFeed()
     fun feedType(): String
     fun userNameRequired(): Boolean
@@ -46,13 +47,15 @@ object Exchanges : ExchangeNetworkDataUpdate {
     private var allTickers = enumValues<CryptoPairs>().map { it }
     private var tickerData: MutableMap<CryptoPairs, TradingInfo> = mutableMapOf()
     private var apiData: MutableMap<String, ApiBalances> = mutableMapOf()
-    private lateinit var repositories: List<Exchange>
+    private var repositories: List<Exchange> = listOf()
 
     private var staleTickerData: MutableMap<CryptoPairs, Boolean> = mutableMapOf()
     private var staleApiData: MutableMap<String, Boolean> = mutableMapOf()
 
     fun loadRepositories(exchangeProvider: ExchangeProvider) {
-        repositories = exchangeProvider.getAllRepositories()
+        if(repositories.isEmpty()) {
+            repositories = exchangeProvider.getAllRepositories()
+        }
     }
 
     fun startFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback) {
@@ -62,6 +65,17 @@ object Exchanges : ExchangeNetworkDataUpdate {
 
             if (filteredTickers.isNotEmpty()) {
                 repository.startPriceFeed(filteredTickers, presenterCallback, this)
+            }
+        }
+    }
+
+    fun addToFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback) {
+        repositories.forEach { repository ->
+
+            val filteredTickers = getTickers(tickers, repository.feedType())
+
+            if (filteredTickers.isNotEmpty()) {
+                repository.addToPriceFeed(filteredTickers, presenterCallback, this)
             }
         }
     }
@@ -144,10 +158,10 @@ object Exchanges : ExchangeNetworkDataUpdate {
         staleApiData[exchange] = true
     }
 
-    fun isRecordStale(cryptoPair: CryptoPairs, displayRecordType: DisplayBalanceItemTypes?): Boolean {
+    fun isRecordStale(cryptoPair: CryptoPairs?, exchange: String, displayRecordType: DisplayBalanceItemTypes?): Boolean {
         return when (displayRecordType) {
             DisplayBalanceItemTypes.COINS -> staleTickerData[cryptoPair] != null
-            DisplayBalanceItemTypes.API -> staleApiData[cryptoPair.exchange] != null || staleTickerData[cryptoPair] != null
+            DisplayBalanceItemTypes.API -> staleApiData[exchange] != null || staleTickerData[cryptoPair] != null
             DisplayBalanceItemTypes.WATCH -> staleTickerData[cryptoPair] != null
             DisplayBalanceItemTypes.HEADER -> false
             DisplayBalanceItemTypes.SUB_HEADER -> false

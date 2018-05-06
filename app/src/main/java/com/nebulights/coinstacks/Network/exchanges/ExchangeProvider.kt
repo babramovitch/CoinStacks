@@ -42,7 +42,7 @@ object ExchangeProvider {
 
     private fun setupOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BODY // .BODY for full log output
+        interceptor.level = HttpLoggingInterceptor.Level.BASIC // .BODY for full log output
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
 
