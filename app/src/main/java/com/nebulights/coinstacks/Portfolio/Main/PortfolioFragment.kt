@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
@@ -9,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
@@ -20,6 +22,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import com.nebulights.coinstacks.Extensions.dp
 import com.nebulights.coinstacks.R
 import com.nebulights.coinstacks.Types.RecordTypes
+import com.wooplr.spotlight.SpotlightView
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 
@@ -71,6 +74,30 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
         netWorth.text = presenter.getNetWorthDisplayString()
 
+        SpotlightView.Builder(activity)
+             .introAnimationDuration(300)
+            .enableRevealAnimation(true)
+            .performClick(true)
+            .fadeinTextDuration(0)
+            .headingTvColor(ContextCompat.getColor(floatingActionbutton.context, R.color.white))
+            .headingTvSize(32)
+            .headingTvText("Getting Started")
+            .subHeadingTvColor(ContextCompat.getColor(floatingActionbutton.context, R.color.white))
+            .subHeadingTvSize(16)
+            .subHeadingTvText("Add coins to start tracking their value")
+            .maskColor(Color.parseColor("#aa000000"))
+            .target(floatingActionbutton)
+            .lineAnimDuration(400)
+            .lineAndArcColor(
+                ContextCompat.getColor(
+                    floatingActionbutton.context,
+                    R.color.colorAccent))
+            .dismissOnTouch(true)
+            .dismissOnBackPress(true)
+            .enableDismissAfterShown(true)
+            .usageId("1351") //UNIQUE ID
+            .show();
+
         return rootView
     }
 
@@ -84,6 +111,10 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     override fun onStart() {
         presenter.startFeed()
         super.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     fun setupRecyclerView() {
@@ -156,9 +187,11 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             val builder = AlertDialog.Builder(context!!)
             builder.setTitle(getString(R.string.remove_assets_title))
             builder.setMessage(getString(R.string.remove_all_assets_message))
-            builder.setPositiveButton(getString(R.string.dialog_confirm_delete_all_data), { dialog, which ->
-                presenter.clearAssets()
-            })
+            builder.setPositiveButton(
+                getString(R.string.dialog_confirm_delete_all_data),
+                { dialog, which ->
+                    presenter.clearAssets()
+                })
 
             builder.setNegativeButton(
                 getString(R.string.dialog_cancel),
