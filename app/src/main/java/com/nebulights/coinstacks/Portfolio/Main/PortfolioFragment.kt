@@ -81,9 +81,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onResume() {
+    override fun onStart() {
         presenter.startFeed()
-        super.onResume()
+        super.onStart()
     }
 
     fun setupRecyclerView() {
