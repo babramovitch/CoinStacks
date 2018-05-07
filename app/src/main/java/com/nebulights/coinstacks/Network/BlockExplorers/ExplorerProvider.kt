@@ -1,5 +1,7 @@
 package com.nebulights.coinstacks.Network.BlockExplorers
 
+import com.nebulights.coinstacks.Network.BlockExplorers.BitcoinGold.BitcoinGoldRepository
+import com.nebulights.coinstacks.Network.BlockExplorers.BitcoinGold.BitcoinGoldService
 import com.nebulights.coinstacks.Network.BlockExplorers.BlockCypher.BlockCypherRepository
 import com.nebulights.coinstacks.Network.BlockExplorers.BlockCypher.BlockCypherService
 import com.nebulights.coinstacks.Network.BlockExplorers.BlockExplorer.*
@@ -25,10 +27,11 @@ object ExplorerProvider {
     val LITECORE_URL = "https://insight.litecore.io/"
     val BLOCKDOZER_URL = "https://blockdozer.com/"
     val RIPPLE_URL = "https://data.ripple.com/"
+    val BITCOIN_GOLD_URL = "https://explorer.bitcoingold.org/"
 
     private fun setupOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BASIC // .BODY for full log output
+        interceptor.level = HttpLoggingInterceptor.Level.BODY // .BODY for full log output
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
 
@@ -63,6 +66,10 @@ object ExplorerProvider {
         return RippleRepository(create(RippleService::class.java, RIPPLE_URL))
     }
 
+    private fun provideBitcoinGoldRepository(): BitcoinGoldRepository {
+        return BitcoinGoldRepository(create(BitcoinGoldService::class.java, BITCOIN_GOLD_URL))
+    }
+
     fun getAllRepositories(): List<Explorer> {
         val repositories: MutableList<Explorer> = mutableListOf()
         repositories.add(provideBlockExplorerRepository())
@@ -70,6 +77,7 @@ object ExplorerProvider {
         repositories.add(provideBlockCypherRepository())
         repositories.add(provideLiteCoreRepository())
         repositories.add(provideRippleRepository())
+        repositories.add(provideBitcoinGoldRepository())
         return repositories
     }
 }

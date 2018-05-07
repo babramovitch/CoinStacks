@@ -22,6 +22,10 @@ import android.animation.ObjectAnimator
 import android.support.v7.widget.CardView
 import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
 import io.reactivex.disposables.CompositeDisposable
+import android.text.util.Linkify
+import android.widget.TextView
+
+
 
 
 class AdditionsFragment : Fragment(), AdditionsContract.View {
@@ -80,6 +84,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
     @BindView(R.id.watch_nickname_text)
     lateinit var watchNickNameText: EditText
+
+    @BindView(R.id.transmitted_to_text)
+    lateinit var transmittedToText: TextView
 
     private var dialog: AlertDialog? = null
     private val spinnerList: MutableList<Spinner> = mutableListOf()
@@ -143,10 +150,15 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 //                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
 //                    userName.setText("")
 
-                    apiPassword.setText("")
-                    apiKey.setText("oXVQnuYbnP")
-                    apiSecret.setText("85a1e31656070949c1932df0656a152c")
-                    userName.setText("30171")
+//                    apiPassword.setText("")
+//                    apiKey.setText("oXVQnuYbnP")
+//                    apiSecret.setText("85a1e31656070949c1932df0656a152c")
+//                    userName.setText("30171")
+
+                    apiPassword.setText("j2wosi9g7x7")
+                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
+                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
+
                 } else {
                     isInitialSpinner = false
                 }
@@ -303,15 +315,23 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
     override fun setupCryptoPairSpinner(cryptoList: List<String>) {
         spinnerCryptos.adapter = ArrayAdapter(activity, R.layout.spinner_item, cryptoList)
+
         spinnerCryptos.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 presenter.setCryptoQuantity(spinnerExchanges.selectedItem.toString(), spinnerCryptos.selectedItem.toString())
+                presenter.setExplorerFromUserTicker(spinnerCryptos.selectedItem.toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
     }
+
+    override fun setExplorer(explorerAddress: String, currency: String) {
+        transmittedToText.text = getString(R.string.transmit_to_explorer, currency, explorerAddress)
+        Linkify.addLinks(transmittedToText, Linkify.ALL)
+    }
+
 
     /**
      * Dynamically generate a list of layouts with a header/spinner based on the submitted list of trading pairs

@@ -32,6 +32,7 @@ class AdditionsContract {
         fun closeVerificationDialog()
         fun showValidationErrorDialog(message: String?)
         fun enableSaveButton(isEnabled: Boolean)
+        fun setExplorer(explorerAddress: String, currency: String)
     }
 
     interface Presenter {
@@ -51,7 +52,8 @@ class AdditionsContract {
         fun setInitialScreenAndMode(recordType: String, exchange: String, ticker: String, address: String, editing: Boolean, exchangeList: Array<String>, validator: AdditionsFormValidator)
         fun createFormValidator(observer: Observable<Boolean>)
         fun close()
-        fun createWatchAddress(sexchange: String, selectedItemPosition: Int, address: String, nickName: String)
+        fun createWatchAddress(exchange: String, selectedItemPosition: Int, address: String, nickName: String)
+        fun setExplorerFromUserTicker(userTicker: String)
     }
 
     interface Navigator {

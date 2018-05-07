@@ -135,9 +135,17 @@ class AdditionsPresenter(
             RecordTypes.WATCH -> {
                 exchangeTickers = exchangeTickers.filterNot { it.contains(CryptoTypes.XMR.name) }
                 view.setupCryptoPairSpinner(exchangeTickers)
+                setExplorerFromUserTicker(exchangeTickers[0])
+
                 createFormValidator(validator.watchAddressValidator())
             }
         }
+    }
+
+    override fun setExplorerFromUserTicker(userTicker: String){
+        val firstTicker = userTicker.split(" : ")
+        val type = CryptoTypes.valueOf(firstTicker[0])
+        view.setExplorer(type.explorerWebsite, firstTicker[0])
     }
 
     override fun createFormValidator(observer: Observable<Boolean>) {

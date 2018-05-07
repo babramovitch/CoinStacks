@@ -39,6 +39,7 @@
     <string name="manual_entry_fab">Manual Entry</string>
     <string name="exchange_apis_fab">Exchange APIs</string>
     <string name="watch_address_fab">Watch Address</string>
+    <string name="transmit_to_explorer">%1$s Balances Requested From\n\n%2$s</string>
 
 
 </resources>
