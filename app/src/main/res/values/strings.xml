@@ -41,5 +41,8 @@
     <string name="watch_address_fab">Watch Address</string>
     <string name="transmit_to_explorer">%1$s Balances Queried From\n\n%2$s</string>
 
+    <string name="net_value_cash">%1$s Balance</string>
+    <string name="net_value_crypto">Net Value</string>
+
 
 </resources>

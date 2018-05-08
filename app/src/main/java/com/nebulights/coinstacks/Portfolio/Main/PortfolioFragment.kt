@@ -118,7 +118,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
                 .setLabel(getString(R.string.watch_address_fab)).create()
         )
 
-        floatingActionbutton.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { speedDialActionItem ->
+        floatingActionbutton.setOnActionSelectedListener({ speedDialActionItem ->
             when (speedDialActionItem.id) {
                 R.id.fab_add_coins -> presenter.addNew(RecordTypes.COINS)
                 R.id.fab_add_exchange -> presenter.addNew(RecordTypes.API)

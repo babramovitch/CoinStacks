@@ -1,6 +1,7 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
 import com.nebulights.coinstacks.Types.CryptoPairs
+import com.nebulights.coinstacks.Types.CurrencyTypes
 import com.nebulights.coinstacks.Types.RecordTypes
 
 /**
@@ -33,7 +34,7 @@ class PortfolioContract {
         fun adjustRowBottomMargin(amount: Int)
         fun setRowAsStale(isStale: Boolean)
         fun setCryptoCurrency()
-        fun setFiatCurrency()
+        fun setFiatCurrency(currencyTypes: CurrencyTypes)
     }
 
     interface Presenter {

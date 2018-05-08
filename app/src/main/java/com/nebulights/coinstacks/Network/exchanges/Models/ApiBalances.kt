@@ -27,22 +27,18 @@ data class ApiBalances(
 
             return ApiBalances(exchange,
                     displayBalances,
-                    BigDecimal("2").stripTrailingZeros(),
+                    BigDecimal(data.getBalance(CryptoTypes.BTC.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.BCH.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.LTC.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.ETH.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.XRP.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.XMR.name)).stripTrailingZeros(),
                     BigDecimal(data.getBalance(CryptoTypes.BTG.name)).stripTrailingZeros(),
-                    BigDecimal("200.00").stripTrailingZeros(),
-//                    BigDecimal(data.getBalance(CurrencyTypes.USD.name)).stripTrailingZeros(),
-//                    BigDecimal(data.getBalance(CurrencyTypes.EUR.name)).stripTrailingZeros(),
-//                    BigDecimal(data.getBalance(CurrencyTypes.GBP.name)).stripTrailingZeros(),
-//                    BigDecimal(data.getBalance(CurrencyTypes.RUB.name)).stripTrailingZeros())
-                BigDecimal("300.00").stripTrailingZeros(),
-                BigDecimal("400.00").stripTrailingZeros(),
-                BigDecimal("500.00").stripTrailingZeros(),
-                 BigDecimal("600.00").stripTrailingZeros())
+                    BigDecimal(data.getBalance(CurrencyTypes.USD.name)).stripTrailingZeros(),
+                    BigDecimal(data.getBalance(CurrencyTypes.EUR.name)).stripTrailingZeros(),
+                    BigDecimal(data.getBalance(CurrencyTypes.GBP.name)).stripTrailingZeros(),
+                    BigDecimal(data.getBalance(CurrencyTypes.RUB.name)).stripTrailingZeros())
+
         }
 
         fun create(exchange: String, displayBalances: MutableMap<CryptoTypes, CryptoPairs>, data: Array<NormalizedBalanceData>): ApiBalances =
@@ -55,15 +51,11 @@ data class ApiBalances(
                         findBalance(CryptoTypes.XRP.name, data),
                         findBalance(CryptoTypes.XMR.name, data),
                         findBalance(CryptoTypes.BTG.name, data),
-                    BigDecimal("300.00").stripTrailingZeros(),
-                    BigDecimal("400.00").stripTrailingZeros(),
-                    BigDecimal("500.00").stripTrailingZeros(),
-                    BigDecimal("600.00").stripTrailingZeros()
-//                        findBalance(CurrencyTypes.CAD.name, data),
-//                        findBalance(CurrencyTypes.USD.name, data),
-//                        findBalance(CurrencyTypes.EUR.name, data),
-//                        findBalance(CurrencyTypes.GBP.name, data),
-//                        findBalance(CurrencyTypes.RUB.name, data)
+                        findBalance(CurrencyTypes.CAD.name, data),
+                        findBalance(CurrencyTypes.USD.name, data),
+                        findBalance(CurrencyTypes.EUR.name, data),
+                        findBalance(CurrencyTypes.GBP.name, data),
+                        findBalance(CurrencyTypes.RUB.name, data)
                 )
 
         private fun findBalance(currency: String, data: Array<NormalizedBalanceData>): BigDecimal {
@@ -78,9 +70,7 @@ data class ApiBalances(
     }
 
     fun getCryptoPairsForNonZeroBalances(cryptoPairMap: MutableMap<CryptoTypes, CryptoPairs>): MutableList<CryptoPairs> {
-
-        //TODO get an error java.lang.ArithmeticException: Rounding necessary
-
+        
         val pairs: MutableList<CryptoPairs> = mutableListOf()
 
         val zero = BigDecimal("0.0").setScale(8)
@@ -149,12 +139,4 @@ data class ApiBalances(
         CurrencyTypes.RUB.name -> rubBalance
         else -> BigDecimal.ZERO
     }
-
-//    fun getBalance(currencyType: CurrencyTypes): BigDecimal = when (currencyType) {
-//        CurrencyTypes.CAD -> cadBalance
-//        CurrencyTypes.USD -> usdBalance
-//        CurrencyTypes.EUR -> eurBalance
-//        CurrencyTypes.GBP -> gbpBalance
-//        CurrencyTypes.RUB -> rubBalance
-//    }
 }

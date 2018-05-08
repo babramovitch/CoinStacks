@@ -425,7 +425,7 @@ class PortfolioPresenter(
                 row.setTicker(item.fiatCurrency!!.name)
                 row.setHoldings("")
                 row.setLastPrice("")
-                row.setFiatCurrency()
+                row.setFiatCurrency(item.fiatCurrency!!)
                 row.setNetValue(item.roundedQuantity())
                 row.setWatchAddressNickName(item.addressNickName)
                 row.showQuantities(false)

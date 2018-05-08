@@ -12,6 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.nebulights.coinstacks.Extensions.dp
 import com.nebulights.coinstacks.R
+import com.nebulights.coinstacks.Types.CurrencyTypes
 
 /**
  * Created by babramovitch on 10/26/2017.
@@ -75,6 +76,9 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         @BindView(R.id.recycler_ticker)
         lateinit var ticker: TextView
 
+        @BindView(R.id.recycler_last_price_layout)
+        lateinit var lastPriceLayout: LinearLayout
+
         @BindView(R.id.recycler_exchange)
         lateinit var exchange: TextView
 
@@ -89,6 +93,9 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
 
         @BindView(R.id.recycler_net_value)
         lateinit var netValue: TextView
+
+        @BindView(R.id.recycler_net_value_title)
+        lateinit var netValueTitle: TextView
 
         @BindView(R.id.recycler_net_value_layout)
         lateinit var netValueLayout: LinearLayout
@@ -117,7 +124,6 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             } else {
                 this.holdings.text = holdings
             }
-
         }
 
         override fun setNetValue(netValue: String) {
@@ -137,13 +143,16 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
         }
 
         override fun setCryptoCurrency() {
+            netValueTitle.text = netValueTitle.resources.getString(R.string.net_value_crypto)
             showQuantities(true)
             showNetvalue(true)
+            lastPriceLayout.visibility = View.VISIBLE
         }
 
-        override fun setFiatCurrency() {
+        override fun setFiatCurrency(currencyTypes: CurrencyTypes) {
+            netValueTitle.text = netValueTitle.resources.getString(R.string.net_value_cash, currencyTypes.name)
             showQuantities(false)
-
+            lastPriceLayout.visibility = View.GONE
         }
 
         override fun showAddressNickName(visible: Boolean) {
@@ -156,11 +165,11 @@ class PortfolioRecyclerAdapter(private val presenter: PortfolioContract.Presente
             netValueLayout.layoutParams = param
 
             if (amount == 0) {
-                val layoutParams = cardView.getLayoutParams() as ViewGroup.MarginLayoutParams
+                val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.setMargins(0, 0, 0, 0)
                 cardView.requestLayout()
             } else {
-                val layoutParams = cardView.getLayoutParams() as ViewGroup.MarginLayoutParams
+                val layoutParams = cardView.layoutParams as ViewGroup.MarginLayoutParams
                 layoutParams.setMargins(0, 0, 0, 5.dp)
                 cardView.requestLayout()
             }
