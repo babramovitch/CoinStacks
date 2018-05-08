@@ -21,8 +21,13 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
 
     override val userNameRequired: Boolean = true
     override val passwordRequired: Boolean = false
+    override val userNameText = "Customer ID"
 
     override fun feedType(): String = ExchangeProvider.BITSTAMP_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
@@ -64,7 +69,16 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
     }
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-
+        super.validateAPiKeys(Observable
+            .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
+            .flatMap<Any> { details ->
+                service.getBalances(
+                    details.key,
+                    details.signature,
+                    details.nonce)
+            }, basicAuthentication,
+            presenterCallback,
+            exchangeNetworkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

@@ -40,6 +40,7 @@ interface Exchange {
     fun feedType(): String
     fun userNameRequired(): Boolean
     fun passwordRequired(): Boolean
+    fun userNameText(): String
 }
 
 object Exchanges : ExchangeNetworkDataUpdate {
@@ -141,6 +142,11 @@ object Exchanges : ExchangeNetworkDataUpdate {
             repositories.first { details ->
                 details.feedType() == exchange
             }.userNameRequired()
+
+    fun userNameText(exchange: String): String =
+        repositories.first { details ->
+            details.feedType() == exchange
+        }.userNameText()
 
     fun passwordRequiredForAuthentication(exchange: String): Boolean =
             repositories.first { details ->

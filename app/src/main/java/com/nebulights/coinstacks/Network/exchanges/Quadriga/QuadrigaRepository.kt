@@ -25,8 +25,13 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
 
     override val userNameRequired: Boolean = true
     override val passwordRequired: Boolean = false
+    override val userNameText = "Client ID"
 
     override fun feedType(): String = ExchangeProvider.QUADRIGACX_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(
         tickers: List<CryptoPairs>,

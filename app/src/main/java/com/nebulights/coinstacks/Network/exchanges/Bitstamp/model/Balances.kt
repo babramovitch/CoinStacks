@@ -3,6 +3,7 @@ package com.nebulights.coinstacks.Network.exchanges.Bitstamp.model
 import com.nebulights.coinstacks.Types.CryptoTypes
 import com.nebulights.coinstacks.Types.CurrencyTypes
 import com.nebulights.coinstacks.Network.exchanges.NormalizedBalanceData
+import java.math.BigDecimal
 
 /**
  * Created by babramovitch on 2018-02-27.
@@ -39,14 +40,14 @@ data class Balances(
 ) : NormalizedBalanceData {
 
     override fun getBalance(currency: String): String = when (currency) {
-        CryptoTypes.BTC.name -> btc_balance ?: "NA"
-        CryptoTypes.BCH.name -> bch_balance ?: "NA"
-        CryptoTypes.ETH.name -> eth_balance ?: "NA"
-        CryptoTypes.LTC.name -> ltc_balance ?: "NA"
-        CryptoTypes.XRP.name -> xrp_balance ?: "NA"
-        CurrencyTypes.USD.name -> usd_balance ?: "NA"
-        CurrencyTypes.EUR.name -> eur_balance ?: "NA"
-        else -> "NA"
+        CryptoTypes.BTC.name -> btc_balance ?: "0"
+        CryptoTypes.BCH.name -> bch_balance ?: "0"
+        CryptoTypes.ETH.name -> eth_balance ?: "0"
+        CryptoTypes.LTC.name -> ltc_balance ?: "0"
+        CryptoTypes.XRP.name -> xrp_balance ?: "0"
+        CurrencyTypes.USD.name -> usd_balance ?: "0"
+        CurrencyTypes.EUR.name -> eur_balance ?: "0"
+        else -> "0"
     }
 
 

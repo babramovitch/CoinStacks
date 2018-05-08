@@ -25,9 +25,6 @@ import io.reactivex.disposables.CompositeDisposable
 import android.text.util.Linkify
 import android.widget.TextView
 
-
-
-
 class AdditionsFragment : Fragment(), AdditionsContract.View {
 
     private lateinit var presenter: AdditionsContract.Presenter
@@ -87,6 +84,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
 
     @BindView(R.id.transmitted_to_text)
     lateinit var transmittedToText: TextView
+
+    @BindView(R.id.api_user_name_title)
+    lateinit var apiUserNameTitle: TextView
 
     private var dialog: AlertDialog? = null
     private val spinnerList: MutableList<Spinner> = mutableListOf()
@@ -294,7 +294,10 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         saveButton.text = "Verify & Save API Keys"
     }
 
-    override fun showAuthenticationRequirements(userName: Boolean, password: Boolean) {
+    override fun showAuthenticationRequirements(
+        userName: Boolean,
+        password: Boolean,
+        userNameText: String) {
         apiUserNameLayout.visibility = if (userName) View.VISIBLE else View.GONE
         apiPasswordLayout.visibility = if (password) {
             apiSecret.nextFocusDownId = R.id.api_password_text
@@ -303,6 +306,8 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
             apiSecret.nextFocusDownId = EditorInfo.IME_ACTION_DONE
             View.GONE
         }
+
+        apiUserNameTitle.text = userNameText
     }
 
     override fun showWatchAddition() {

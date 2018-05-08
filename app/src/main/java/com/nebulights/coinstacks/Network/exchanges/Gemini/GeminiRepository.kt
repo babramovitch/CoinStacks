@@ -25,8 +25,13 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
 
     override val userNameRequired: Boolean = false
     override val passwordRequired: Boolean = false
+    override val userNameText = ""
 
     override fun feedType(): String = ExchangeProvider.GEMINI_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
@@ -71,7 +76,19 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
     }
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-
+        super.validateAPiKeys(Observable
+            .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
+            .flatMap<Any> { details ->
+                service.getBalances("no-cache",
+                    0,
+                    "text/plain",
+                    details.key,
+                    details.payload,
+                    details.signature,
+                    details.balanceRequest)
+            }, basicAuthentication,
+            presenterCallback,
+            exchangeNetworkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

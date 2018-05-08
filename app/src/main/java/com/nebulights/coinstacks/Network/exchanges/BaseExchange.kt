@@ -25,6 +25,7 @@ abstract class BaseExchange : Exchange {
 
     abstract val userNameRequired: Boolean
     abstract val passwordRequired: Boolean
+    abstract val userNameText: String
 
     abstract fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any
 

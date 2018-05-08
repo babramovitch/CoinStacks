@@ -114,7 +114,8 @@ class AdditionsPresenter(
             RecordTypes.API -> {
                 view.showAuthenticationRequirements(
                         exchanges.userNameRequiredForAuthentication(exchange),
-                        exchanges.passwordRequiredForAuthentication(exchange))
+                        exchanges.passwordRequiredForAuthentication(exchange),
+                        exchanges.userNameText(exchange))
 
 
                 view.setupApiSpinners(cryptoAssetRepository.getApiKeysNonRealmForExchange(exchange),

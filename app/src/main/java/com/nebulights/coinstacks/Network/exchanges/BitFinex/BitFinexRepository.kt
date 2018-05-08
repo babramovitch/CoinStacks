@@ -18,8 +18,13 @@ class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchang
 
     override val userNameRequired: Boolean = false
     override val passwordRequired: Boolean = false
+    override val userNameText = ""
 
     override fun feedType(): String = ExchangeProvider.BITFINEX_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
@@ -52,7 +57,7 @@ class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchang
     }
 
     override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any {

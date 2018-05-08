@@ -19,7 +19,7 @@ class AdditionsContract {
         fun showCoinAddition()
         fun showAPIAddition()
         fun showWatchAddition()
-        fun showAuthenticationRequirements(userName: Boolean, password: Boolean)
+        fun showAuthenticationRequirements(userName: Boolean, password: Boolean, userNameText: String)
         fun setAuthenticationDetails(basicAuthentication: BasicAuthentication)
         fun setupApiSpinners(basicAuthentication: BasicAuthentication, cryptosForExchange: List<CryptoTypes>, cryptoList: List<String>)
         fun setupCryptoPairSpinner(cryptoList: List<String>)

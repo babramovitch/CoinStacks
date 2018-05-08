@@ -25,8 +25,13 @@ class CexIoRepository(private val service: CexIoService) : BaseExchange() {
 
     override val userNameRequired: Boolean = true
     override val passwordRequired: Boolean = false
+    override val userNameText = "User ID"
 
     override fun feedType(): String = ExchangeProvider.CEXIO_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()

@@ -21,8 +21,13 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
 
     override val userNameRequired: Boolean = false
     override val passwordRequired: Boolean = true
+    override val userNameText = ""
 
     override fun feedType(): String = ExchangeProvider.GDAX_NAME
+
+    override fun userNameText(): String {
+        return userNameText
+    }
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
