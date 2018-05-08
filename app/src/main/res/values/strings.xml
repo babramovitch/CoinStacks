@@ -43,6 +43,8 @@
 
     <string name="net_value_cash">%1$s Balance</string>
     <string name="net_value_crypto">Net Value</string>
+    <string name="dialog_stale_data_title">Stale Data</string>
+    <string name="dialog_stale_data_message">Data highlighted in yellow failed to retrieve new data.\n\nIts possible that too many queries are happening at once and a rate limit has been reached.\n\nThe issue may resolve itself when limits are reset each minute.\n\nAdditional details will be available in a future update.</string>
 
 
 </resources>

@@ -145,14 +145,30 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.locked_data -> {
-                presenter.unlockData()
+                presenter.unlockDataPressed()
             }
 
             R.id.unlocked_data -> {
-                presenter.lockData()
+                presenter.lockDataPressed()
+            }
+            R.id.warning -> {
+                presenter.warningPressed()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun showWarningdialog() {
+        if(context != null) {
+            val builder = AlertDialog.Builder(context!!)
+            builder.setTitle(getString(R.string.dialog_stale_data_title))
+            builder.setMessage(getString(R.string.dialog_stale_data_message))
+            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+               dialog.dismiss()
+            })
+
+            showDialog(builder.create(), true)
+        }
     }
 
     override fun showForgotPasswordlDialog() {
@@ -189,7 +205,7 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         builder.setTitle(if (firstAttempt) getString(R.string.enter_password) else getString(R.string.invalid_password))
         builder.setView(input)
         builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-            presenter.unlockData(password.text.toString())
+            presenter.unlockDataPressed(password.text.toString())
         })
 
         builder.setNegativeButton(

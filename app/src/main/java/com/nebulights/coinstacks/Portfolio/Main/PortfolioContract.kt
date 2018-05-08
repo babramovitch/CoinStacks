@@ -19,6 +19,7 @@ class PortfolioContract {
         fun showAddNewPasswordDialog()
         fun showUnlockDialog(firstAttempt: Boolean)
         fun showForgotPasswordlDialog()
+        fun showWarningdialog()
     }
 
     interface ViewRow {
@@ -56,9 +57,9 @@ class PortfolioContract {
         fun setAssetsVisibility(isVisible: Boolean)
         fun setAssetLockedState()
         fun savePassword(password: String)
-        fun lockData()
-        fun unlockData()
-        fun unlockData(password: String)
+        fun lockDataPressed()
+        fun unlockDataPressed()
+        fun unlockDataPressed(password: String)
 
         fun recyclerViewType(position: Int): Int
         fun getHeader(position: Int): String
@@ -67,6 +68,7 @@ class PortfolioContract {
         fun deleteApiData(exchange: String)
         fun resultFromAdditions(requestCode: Int, resultCode: Int, stringExtra: String?)
         fun backPressed()
+        fun warningPressed()
     }
 
     interface Navigator {

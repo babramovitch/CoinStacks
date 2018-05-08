@@ -104,7 +104,7 @@ class PortfolioPresenter(
         refreshData()
 
         if (shouldSecureData(timeStopped)) {
-            lockData()
+            lockDataPressed()
         }
 
         exchanges.startFeed(tickers, this)
@@ -347,7 +347,7 @@ class PortfolioPresenter(
         cryptoAssetRepository.setAssetsVisibility(isVisible)
     }
 
-    override fun lockData() {
+    override fun lockDataPressed() {
         if (!cryptoAssetRepository.isPasswordSet()) {
             view.showAddNewPasswordDialog()
         } else {
@@ -357,11 +357,11 @@ class PortfolioPresenter(
         }
     }
 
-    override fun unlockData() {
+    override fun unlockDataPressed() {
         view.showUnlockDialog(true)
     }
 
-    override fun unlockData(password: String) {
+    override fun unlockDataPressed(password: String) {
         if (cryptoAssetRepository.isPasswordValid(password)) {
             cryptoAssetRepository.setAssetsVisibility(true)
             view.showAssetQuantites(true)
@@ -369,6 +369,10 @@ class PortfolioPresenter(
         } else {
             view.showUnlockDialog(false)
         }
+    }
+
+    override fun warningPressed() {
+        view.showWarningdialog()
     }
 
     override fun recyclerViewType(position: Int): Int {

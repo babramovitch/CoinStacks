@@ -70,7 +70,7 @@ data class ApiBalances(
     }
 
     fun getCryptoPairsForNonZeroBalances(cryptoPairMap: MutableMap<CryptoTypes, CryptoPairs>): MutableList<CryptoPairs> {
-        
+
         val pairs: MutableList<CryptoPairs> = mutableListOf()
 
         val zero = BigDecimal("0.0").setScale(8)
