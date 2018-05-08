@@ -36,13 +36,13 @@ object ExchangeProvider {
     val BITFINEX_URL = "https://api.bitfinex.com/"
     val BITSTAMP_URL = "https://www.bitstamp.net/"
     val CEXIO_URL = "https://cex.io/"
-    val GDAX_URL = "https://api-public.sandbox.gdax.com/"
+    val GDAX_URL = "https://api.gdax.com/"
     val GEMINI_URL = "https://api.sandbox.gemini.com"
     val QUADRIGACX_URL = "https://api.quadrigacx.com"
 
     private fun setupOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
-        interceptor.level = HttpLoggingInterceptor.Level.BASIC // .BODY for full log output
+        interceptor.level = HttpLoggingInterceptor.Level.BODY // .BODY for full log output
         return OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
 
