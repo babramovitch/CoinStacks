@@ -295,11 +295,11 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     }
 
     override fun showAuthenticationRequirements(
-        userName: Boolean,
-        password: Boolean,
+        userNameRequired: Boolean,
+        passwordRequired: Boolean,
         userNameText: String) {
-        apiUserNameLayout.visibility = if (userName) View.VISIBLE else View.GONE
-        apiPasswordLayout.visibility = if (password) {
+        apiUserNameLayout.visibility = if (userNameRequired) View.VISIBLE else View.GONE
+        apiPasswordLayout.visibility = if (passwordRequired) {
             apiSecret.nextFocusDownId = R.id.api_password_text
             View.VISIBLE
         } else {
@@ -308,6 +308,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         }
 
         apiUserNameTitle.text = userNameText
+        userName.hint = getString(R.string.api_key_user_hint, userNameText)
     }
 
     override fun showWatchAddition() {

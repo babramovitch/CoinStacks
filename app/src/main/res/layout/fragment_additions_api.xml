@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/api_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -88,7 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="User Name"
+                    tools:text="user name"
                     android:textColor="@color/black"
                     android:textSize="@dimen/dialog_text_size" />
 
@@ -97,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:hint="User Name For API Key"
+             
                     android:inputType="text"
                     android:maxLines="1"
                     android:nextFocusDown="@+id/api_key_text"
