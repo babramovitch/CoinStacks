@@ -430,7 +430,7 @@ class PortfolioPresenter(
                 row.setHoldings("")
                 row.setLastPrice("")
                 row.setFiatCurrency(item.fiatCurrency!!)
-                row.setNetValue(item.roundedQuantity())
+                row.setNetValue(currencyFormatter().format(item.quantity ?: BigDecimal.ZERO))
                 row.setWatchAddressNickName(item.addressNickName)
                 row.showQuantities(false)
             }
