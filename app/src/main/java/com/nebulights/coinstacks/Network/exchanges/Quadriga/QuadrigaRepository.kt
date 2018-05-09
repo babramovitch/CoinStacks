@@ -34,66 +34,65 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
     }
 
     override fun startPriceFeed(
-        tickers: List<CryptoPairs>,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+            tickers: List<CryptoPairs>,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
     ) {
-     //   clearTickerDisposables()
+        clearTickerDisposables()
         addToPriceFeed(tickers, presenterCallback, exchangeNetworkDataUpdate)
     }
 
     override fun addToPriceFeed(
-        tickers: List<CryptoPairs>,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-        var repeatDelayFromSize = 0L
+            tickers: List<CryptoPairs>,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
 
         if (totalDisposables() > Constants.rateLimitSizeThreshold) {
             repeatDelayFromSize += 10000
         }
 
-      //  launch {
+        launch {
             tickers.forEach { ticker ->
                 startPriceFeed(
-                    service.getCurrentTradingInfo(ticker.ticker),
-                    repeatDelayFromSize,
-                    ticker,
-                    presenterCallback,
-                    exchangeNetworkDataUpdate)
+                        service.getCurrentTradingInfo(ticker.ticker),
+                        repeatDelayFromSize,
+                        ticker,
+                        presenterCallback,
+                        exchangeNetworkDataUpdate)
 
-               // delay(200)
+                delay(delayBetweenLoopCalls)
             }
         }
-    //}
+    }
 
     override fun startAccountFeed(
-        basicAuthentication: BasicAuthentication,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
+            basicAuthentication: BasicAuthentication,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
 
         super.startAccountBalanceFeed(
-            Observable
-                .defer<AuthenticationDetails> {
-                    Observable.just(
-                        generateAuthenticationDetails(basicAuthentication)
-                    )
-                }
-                .flatMap<Any> { balances -> service.getBalances(balances) },
-            basicAuthentication,
-            presenterCallback,
-            exchangeNetworkDataUpdate)
+                Observable
+                        .defer<AuthenticationDetails> {
+                            Observable.just(
+                                    generateAuthenticationDetails(basicAuthentication)
+                            )
+                        }
+                        .flatMap<Any> { balances -> service.getBalances(balances) },
+                basicAuthentication,
+                presenterCallback,
+                exchangeNetworkDataUpdate)
     }
 
     override fun validateApiKeys(
-        basicAuthentication: BasicAuthentication,
-        presenterCallback: ValidationCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
+            basicAuthentication: BasicAuthentication,
+            presenterCallback: ValidationCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
 
         super.validateAPiKeys(
-            service.getBalances(generateAuthenticationDetails(basicAuthentication)),
-            basicAuthentication,
-            presenterCallback,
-            exchangeNetworkDataUpdate)
+                service.getBalances(generateAuthenticationDetails(basicAuthentication)),
+                basicAuthentication,
+                presenterCallback,
+                exchangeNetworkDataUpdate)
     }
 
 
@@ -108,8 +107,8 @@ class QuadrigaRepository(private val service: QuadrigaService) : BaseExchange() 
         val mergedString = nonce.toString() + clientId + key
 
         val signature = HashGenerator.generateHmacDigest(
-            mergedString.toByteArray(), secret.toByteArray(),
-            HashingAlgorithms.HmacSHA256
+                mergedString.toByteArray(), secret.toByteArray(),
+                HashingAlgorithms.HmacSHA256
         )
 
         return AuthenticationDetails(key, signature, nonce)

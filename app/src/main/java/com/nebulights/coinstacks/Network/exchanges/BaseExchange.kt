@@ -27,6 +27,9 @@ abstract class BaseExchange : Exchange {
     abstract val passwordRequired: Boolean
     abstract val userNameText: String
 
+    var repeatDelayFromSize = 0L
+    var delayBetweenLoopCalls = 250
+
     abstract fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any
 
     fun clearTickerDisposables() {

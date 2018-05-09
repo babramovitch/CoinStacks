@@ -36,22 +36,20 @@ class GdaxRepository(private val service: GdaxService) : BaseExchange(), Exchang
     }
 
     override fun addToPriceFeed(
-        tickers: List<CryptoPairs>,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+            tickers: List<CryptoPairs>,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
     ) {
-        var delay = 0L
+        if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+            repeatDelayFromSize += 10000
+        }
 
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
-                    ticker, presenterCallback, exchangeNetworkDataUpdate)
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), repeatDelayFromSize,
+                        ticker, presenterCallback, exchangeNetworkDataUpdate)
 
-                if (totalDisposables() > Constants.rateLimitSizeThreshold) {
-                    delay += 5000
-                }
-
-                delay( 500)
+                delay(delayBetweenLoopCalls)
             }
         }
     }

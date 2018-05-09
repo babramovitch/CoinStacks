@@ -31,26 +31,25 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
-        addToPriceFeed(tickers, presenterCallback,exchangeNetworkDataUpdate)
+        addToPriceFeed(tickers, presenterCallback, exchangeNetworkDataUpdate)
     }
 
     override fun addToPriceFeed(
-        tickers: List<CryptoPairs>,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+            tickers: List<CryptoPairs>,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
     ) {
-        var delay = 0L
+
+        if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+            repeatDelayFromSize += 10000
+        }
 
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
-                    ticker, presenterCallback, exchangeNetworkDataUpdate)
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), repeatDelayFromSize,
+                        ticker, presenterCallback, exchangeNetworkDataUpdate)
 
-                if (totalDisposables() > Constants.rateLimitSizeThreshold) {
-                    delay += 5000
-                }
-
-                delay( 500)
+                delay(delayBetweenLoopCalls)
             }
         }
     }
@@ -70,15 +69,15 @@ class BitstampRepository(private val service: BitstampService) : BaseExchange(),
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         super.validateAPiKeys(Observable
-            .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
-            .flatMap<Any> { details ->
-                service.getBalances(
-                    details.key,
-                    details.signature,
-                    details.nonce)
-            }, basicAuthentication,
-            presenterCallback,
-            exchangeNetworkDataUpdate)
+                .defer<AuthenticationDetails> { Observable.just(generateAuthenticationDetails(basicAuthentication)) }
+                .flatMap<Any> { details ->
+                    service.getBalances(
+                            details.key,
+                            details.signature,
+                            details.nonce)
+                }, basicAuthentication,
+                presenterCallback,
+                exchangeNetworkDataUpdate)
     }
 
     override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {

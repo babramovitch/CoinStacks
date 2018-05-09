@@ -1,12 +1,17 @@
 package com.nebulights.coinstacks.Network.exchanges.BitFinex
 
-import android.util.Log
+import android.util.Base64
 import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Network.ValidationCallback
 import com.nebulights.coinstacks.Network.exchanges.*
+import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.AuthenticationDetails
+import com.nebulights.coinstacks.Network.exchanges.BitFinex.model.Payload
 import com.nebulights.coinstacks.Types.CryptoPairs
 import com.nebulights.coinstacks.Network.exchanges.Models.BasicAuthentication
-import kotlinx.coroutines.experimental.CommonPool
+import com.nebulights.coinstacks.Network.security.HashGenerator
+import com.nebulights.coinstacks.Network.security.HashingAlgorithms
+import com.squareup.moshi.Moshi
+import io.reactivex.Observable
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
@@ -28,39 +33,85 @@ class BitFinexRepository(val service: BitFinexService) : BaseExchange(), Exchang
 
     override fun startPriceFeed(tickers: List<CryptoPairs>, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
         clearTickerDisposables()
-        addToPriceFeed(tickers,presenterCallback,exchangeNetworkDataUpdate)
+        addToPriceFeed(tickers, presenterCallback, exchangeNetworkDataUpdate)
     }
 
     override fun addToPriceFeed(
-        tickers: List<CryptoPairs>,
-        presenterCallback: NetworkCompletionCallback,
-        exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
+            tickers: List<CryptoPairs>,
+            presenterCallback: NetworkCompletionCallback,
+            exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
     ) {
-        var delay = 0L
+        if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+            repeatDelayFromSize += 10000
+        }
 
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
-                    ticker, presenterCallback, exchangeNetworkDataUpdate)
-
-                if (totalDisposables() > Constants.rateLimitSizeThreshold) {
-                    delay += 5000
-                }
-
-                delay( 500)
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), repeatDelayFromSize,
+                        ticker, presenterCallback, exchangeNetworkDataUpdate)
+                delay(delayBetweenLoopCalls)
             }
         }
     }
 
     override fun validateApiKeys(basicAuthentication: BasicAuthentication, presenterCallback: ValidationCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
+        try {
+            val details = generateAuthenticationDetails(basicAuthentication)
 
+            validateAPiKeys(service.getBalances(
+                    "application/json",
+                    "application/json",
+                    details.key,
+                    details.payload64,
+                    details.signature)
+                    , basicAuthentication,
+                    presenterCallback,
+                    exchangeNetworkDataUpdate)
+
+        } catch (exception: IllegalArgumentException) {
+            presenterCallback.validationError(basicAuthentication.exchange, "Error using Secret Key.  Verify all details are correct")
+            return
+        }
     }
 
     override fun startAccountFeed(basicAuthentication: BasicAuthentication, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-
+        startAccountBalanceFeed(
+                Observable
+                        .defer<AuthenticationDetails> {
+                            Observable.just(
+                                    generateAuthenticationDetails(basicAuthentication))
+                        }
+                        .flatMap<Any> { details ->
+                            service.getBalances(
+                                    "application/json",
+                                    "application/json",
+                                    details.key,
+                                    details.payload64,
+                                    details.signature)
+                        }, basicAuthentication,
+                presenterCallback,
+                exchangeNetworkDataUpdate)
     }
 
-    override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): Any {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun generateAuthenticationDetails(basicAuthentication: BasicAuthentication): AuthenticationDetails {
+        val api = "/v1/balances"
+
+        val timestamp = System.currentTimeMillis().toString()
+        val key = basicAuthentication.apiKey
+        val secret = basicAuthentication.apiSecret
+
+        val payloadObject = Payload(api, timestamp)
+
+        val moshi = Moshi.Builder().build()
+        val jsonAdapter = moshi.adapter<Payload>(Payload::class.java)
+
+        val payloadJson = jsonAdapter.toJson(payloadObject)
+        val payloadBase64 = Base64.encodeToString(payloadJson.toByteArray(), Base64.NO_WRAP)
+
+        val signature: String = HashGenerator.generateHmacDigest(payloadBase64.toByteArray(),
+                secret.toByteArray(), HashingAlgorithms.HmacSHA384).toLowerCase()
+
+        return AuthenticationDetails(key, payloadBase64, signature)
     }
 }
+

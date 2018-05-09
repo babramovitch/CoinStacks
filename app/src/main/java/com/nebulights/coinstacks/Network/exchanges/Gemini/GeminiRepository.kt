@@ -43,18 +43,17 @@ class GeminiRepository(private val service: GeminiService) : BaseExchange(), Exc
         presenterCallback: NetworkCompletionCallback,
         exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate
     ) {
-        var delay = 0L
+
+        if (totalDisposables() > Constants.rateLimitSizeThreshold) {
+            repeatDelayFromSize += 10000
+        }
 
         launch {
             tickers.forEach { ticker ->
-                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), delay,
+                startPriceFeed(service.getCurrentTradingInfo(ticker.ticker), repeatDelayFromSize,
                     ticker, presenterCallback, exchangeNetworkDataUpdate)
 
-                if (totalDisposables()> Constants.rateLimitSizeThreshold) {
-                    delay += 5000
-                }
-
-                delay( 500)
+                delay(delayBetweenLoopCalls)
             }
         }
     }
