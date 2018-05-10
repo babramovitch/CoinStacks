@@ -18,6 +18,7 @@ package com.nebulights.coinstacks
 
 import io.realm.DynamicRealm
 import io.realm.FieldAttribute
+import io.realm.RealmList
 import io.realm.RealmMigration
 
 /**
@@ -39,6 +40,8 @@ class Migration : RealmMigration {
                     .addField("apiSecret", String::class.java, FieldAttribute.REQUIRED)
                     .addField("password", String::class.java, FieldAttribute.REQUIRED)
                     .addField("userName", String::class.java, FieldAttribute.REQUIRED)
+                    .addRealmListField("cryptoTypes", String::class.java)
+
 
             schema.create("WatchAddressRealm")
                     .addField("exchange", String::class.java, FieldAttribute.REQUIRED)

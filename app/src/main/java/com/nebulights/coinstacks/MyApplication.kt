@@ -25,7 +25,7 @@ class MyApplication : Application() {
                 .migration(Migration())
                 .build()
 
-        Realm.setDefaultConfiguration(config1);
+        Realm.setDefaultConfiguration(config1)
 
         val realm = Realm.getDefaultInstance()
 
