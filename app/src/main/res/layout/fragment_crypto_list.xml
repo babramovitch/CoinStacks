@@ -64,7 +64,7 @@
 
     <ImageView
         android:id="@+id/emptyRecyclerViewImage"
-        android:layout_margin="100dp"
+        android:padding="100dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible"
@@ -76,9 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#59F2F0E6" />
-    <!--</LinearLayout>-->
-
-
+    
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/speedDial"
         android:layout_width="wrap_content"
