@@ -37,7 +37,7 @@ object ExchangeProvider {
     val BITSTAMP_URL = "https://www.bitstamp.net/"
     val CEXIO_URL = "https://cex.io/"
     val GDAX_URL = "https://api.gdax.com/"
-    val GEMINI_URL = "https://api.sandbox.gemini.com"
+    val GEMINI_URL = "https://api.gemini.com"
     val QUADRIGACX_URL = "https://api.quadrigacx.com"
 
     private fun setupOkHttpClient(): OkHttpClient {
