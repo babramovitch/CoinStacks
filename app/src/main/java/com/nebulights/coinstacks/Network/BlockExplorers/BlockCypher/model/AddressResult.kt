@@ -22,6 +22,6 @@ data class AddressResult(
         val pool_nonce: String
 ) : NormalizedEthereumBalanceData {
     override fun getAddressBalance(): BigDecimal {
-        return (BigDecimal(balance).setScale(22) / BigDecimal("10000000000000000000000").setScale(22)).stripTrailingZeros()
+        return (BigDecimal(balance).setScale(18) / BigDecimal("1000000000000000000").setScale(18)).stripTrailingZeros()
     }
 }
