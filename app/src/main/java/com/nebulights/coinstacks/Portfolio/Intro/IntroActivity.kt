@@ -32,21 +32,21 @@ class IntroActivity : AppIntro() {
 
         val sliderPage0 = SliderPage()
         sliderPage0.title = "Welcome to CoinStacks"
-        sliderPage0.description = "CoinStacks lets you track all your coins tradable against fiat currency using prices directly from the exchanges you use."
+        sliderPage0.description = "Want to lean more about Coin Stacks?\n\nCheck out the brief guide by swiping left!"
         sliderPage0.imageDrawable = R.drawable.coins
         sliderPage0.bgColor = ContextCompat.getColor(this, R.color.colorPrimary)
         addSlide(AppIntroFragment.newInstance(sliderPage0))
 
         val sliderPage1 = SliderPage()
         sliderPage1.title = "Privacy First"
-        sliderPage1.description = "Your privacy is taken seriously.\n\nCoinStacks is open source, and does not collect information related to crypto holdings.\n\nOnly anonymous crash reports and very basic usage stats like 'Daily Active Users' are collected."
+        sliderPage1.description = "Coin Stacks does not, and will never collect any crypto related information. To ensure a safe and transparent environment, Coin Stacks is open source\n\nAnonymous crash reports and very basic usage stats like 'Daily Active Users' are collected."
         sliderPage1.imageDrawable = R.drawable.private_sign
         sliderPage1.bgColor = ContextCompat.getColor(this, R.color.colorAccent)
         addSlide(AppIntroFragment.newInstance(sliderPage1))
 
         val sliderPage2 = SliderPage()
         sliderPage2.title = "Watch An Address"
-        sliderPage2.description = "Add a coins public address and it's quantity and value will automatically update"
+        sliderPage2.description = "Add a coins public address and it's quantity and value will automatically update using public block explorers."
         sliderPage2.imageDrawable = R.drawable.monitor
         sliderPage2.bgColor = ContextCompat.getColor(this, R.color.colorPrimary)
         addSlide(AppIntroFragment.newInstance(sliderPage2))
@@ -67,16 +67,21 @@ class IntroActivity : AppIntro() {
 
         setSeparatorColor(Color.TRANSPARENT)
 
-        showSkipButton(false)
+        showSkipButton(true)
         isProgressButtonEnabled = true
     }
 
     override fun onDonePressed(currentFragment: Fragment) {
         super.onDonePressed(currentFragment)
-
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.edit().putBoolean(Constants.FIRST_LOAD_KEY, false).apply()
+        finish()
+    }
 
+    override fun onSkipPressed(currentFragment: Fragment?) {
+        super.onSkipPressed(currentFragment)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs.edit().putBoolean(Constants.FIRST_LOAD_KEY, false).apply()
         finish()
     }
 
