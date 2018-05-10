@@ -62,6 +62,15 @@
         android:layout_marginRight="@dimen/default_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <ImageView
+        android:id="@+id/emptyRecyclerViewImage"
+        android:layout_margin="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:tint="@color/seperatorGray"
+        android:src="@drawable/coins"/>
+
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout
         android:id="@+id/overlay"
         android:layout_width="match_parent"

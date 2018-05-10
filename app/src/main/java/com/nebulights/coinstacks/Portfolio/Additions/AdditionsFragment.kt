@@ -134,7 +134,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         val apiKeyObservable = RxTextView.textChanges(apiKey)
         val apiSecretObservable = RxTextView.textChanges(apiSecret)
         val apiPasswordObservable = RxTextView.textChanges(apiPassword)
-        
+
         presenter.setInitialScreenAndMode(recordType, exchange, ticker, address, editing, exchangeList,
                 AdditionsFormValidator(
                         quantityObservable, watchAddressObservable, watchAddressNickName, userNameObservable, apiKeyObservable, apiSecretObservable, apiPasswordObservable)

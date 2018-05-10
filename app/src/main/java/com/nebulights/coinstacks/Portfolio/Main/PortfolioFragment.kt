@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import butterknife.BindView
@@ -36,6 +37,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     lateinit var floatingActionbutton: SpeedDialView
     @BindView(R.id.overlay)
     lateinit var speedDialOverlay: SpeedDialOverlayLayout
+    @BindView(R.id.emptyRecyclerViewImage)
+    lateinit var emptyRecyclerViewImage: ImageView
 
     private lateinit var presenter: PortfolioContract.Presenter
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -128,6 +131,10 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             }
             false
         })
+
+        emptyRecyclerViewImage.setOnClickListener {
+            floatingActionbutton.open(true)
+        }
     }
 
 
@@ -264,6 +271,13 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi() {
         if (this::netWorth.isInitialized) {
+
+            if(recyclerView.adapter.itemCount == 0){
+                emptyRecyclerViewImage.visibility = View.VISIBLE
+            }else{
+                emptyRecyclerViewImage.visibility = View.GONE
+            }
+
             netWorth.text = presenter.getNetWorthDisplayString()
             recyclerView.adapter.notifyDataSetChanged()
         }
