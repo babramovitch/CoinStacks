@@ -134,8 +134,7 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
         val apiKeyObservable = RxTextView.textChanges(apiKey)
         val apiSecretObservable = RxTextView.textChanges(apiSecret)
         val apiPasswordObservable = RxTextView.textChanges(apiPassword)
-
-
+        
         presenter.setInitialScreenAndMode(recordType, exchange, ticker, address, editing, exchangeList,
                 AdditionsFormValidator(
                         quantityObservable, watchAddressObservable, watchAddressNickName, userNameObservable, apiKeyObservable, apiSecretObservable, apiPasswordObservable)
@@ -145,20 +144,6 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!isInitialSpinner) {
                     presenter.updateViewsForExchangeSpinnerSelection(exchangeList[position])
-//                    apiPassword.setText("j2wosi9g7x7")
-//                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
-//                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
-//                    userName.setText("")
-
-//                    apiPassword.setText("")
-//                    apiKey.setText("oXVQnuYbnP")
-//                    apiSecret.setText("85a1e31656070949c1932df0656a152c")
-//                    userName.setText("30171")
-
-                    apiPassword.setText("j2wosi9g7x7")
-                    apiKey.setText("e9582aba5f3d49c2ebdb0ee9a0200c78")
-                    apiSecret.setText("eSsSokvRjfQhsqYrCRLJdURGHyrbcaQl4eNcWxOf+scz5yK7/4D/oYO/+bjEfKwl2UV6HwUu9GildYvknycVrA==")
-
                 } else {
                     isInitialSpinner = false
                 }
@@ -295,9 +280,9 @@ class AdditionsFragment : Fragment(), AdditionsContract.View {
     }
 
     override fun showAuthenticationRequirements(
-        userNameRequired: Boolean,
-        passwordRequired: Boolean,
-        userNameText: String) {
+            userNameRequired: Boolean,
+            passwordRequired: Boolean,
+            userNameText: String) {
         apiUserNameLayout.visibility = if (userNameRequired) View.VISIBLE else View.GONE
         apiPasswordLayout.visibility = if (passwordRequired) {
             apiSecret.nextFocusDownId = R.id.api_password_text
