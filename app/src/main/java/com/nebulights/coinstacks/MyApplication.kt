@@ -23,15 +23,11 @@ class MyApplication : Application() {
         val config1 = RealmConfiguration.Builder()
                 .schemaVersion(1)
                 .migration(Migration())
-                .deleteRealmIfMigrationNeeded()
                 .build()
 
         Realm.setDefaultConfiguration(config1);
 
-
         val realm = Realm.getDefaultInstance()
-
-
 
         val cryptoAssetRepository = CryptoAssetRepository(realm, PreferenceManager.getDefaultSharedPreferences(this))
       //  cryptoAssetRepository.clearAllData()
