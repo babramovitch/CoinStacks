@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import com.nebulights.coinstacks.Common.ConnectionChecker
 import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerProvider
@@ -65,7 +66,7 @@ class PortfolioActivity : AppCompatActivity(), PortfolioContract.Navigator {
                 PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
         presenter = PortfolioPresenter(exchanges, explorers,
-                portfolioFragment, cryptoAssetRepository, this)
+                portfolioFragment, cryptoAssetRepository, this, ConnectionChecker(this))
 
 //        if (cryptoAssetRepository.isPasswordSet()) {
 //            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,

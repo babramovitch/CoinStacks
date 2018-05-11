@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Additions
 
+import com.nebulights.coinstacks.Common.ConnectionChecker
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
 import com.nebulights.coinstacks.Network.ValidationCallback
 import com.nebulights.coinstacks.Network.exchanges.Exchanges
@@ -25,7 +26,8 @@ class AdditionsPresenter(
         private var exchanges: Exchanges,
         private var explorers: Explorers,
         private val cryptoAssetRepository: CryptoAssetContract,
-        private var navigator: AdditionsContract.Navigator) : AdditionsContract.Presenter {
+        private var navigator: AdditionsContract.Navigator,
+        private var connectionChecker: ConnectionChecker) : AdditionsContract.Presenter {
 
 
     private val TAG = "AdditionsPresenter"
@@ -189,6 +191,12 @@ class AdditionsPresenter(
 
 
     override fun createWatchAddress(exchange: String, selectedPosition: Int, address: String, nickName: String) {
+
+        if(!connectionChecker.isInternetAvailable()){
+            view.showValidationErrorDialog(connectionChecker.noInternetMessage)
+            return
+        }
+
         val userTicker = getTickersForExchange(exchange)[selectedPosition]
         val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
 
@@ -216,6 +224,7 @@ class AdditionsPresenter(
     }
 
     override fun createAsset(exchange: String, selectedPosition: Int, quantity: String, price: String) {
+
         val userTicker = getTickersForExchange(exchange)[selectedPosition]
         val cryptoPair = allTickers.find { ticker -> (ticker.exchange.toLowerCase() == exchange.toLowerCase() && ticker.userTicker() == userTicker) }
 
@@ -225,6 +234,12 @@ class AdditionsPresenter(
     }
 
     override fun createAPIKey(exchange: String, userName: String, apiPassword: String, apiKey: String, apiSecret: String, cryptoPairs: List<CryptoPairs>) {
+
+        if(!connectionChecker.isInternetAvailable()){
+            view.showValidationErrorDialog(connectionChecker.noInternetMessage)
+            return
+        }
+
         val basicAuthentication = BasicAuthentication(exchange, apiKey, apiSecret, apiPassword, userName, listOf())
 
         val startTime = System.currentTimeMillis()

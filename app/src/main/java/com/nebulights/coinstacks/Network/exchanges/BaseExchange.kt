@@ -11,7 +11,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.launch
 import retrofit2.HttpException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -45,9 +47,8 @@ abstract class BaseExchange : Exchange {
     }
 
     fun <T> startPriceFeed(observable: Observable<T>, delay: Long, ticker: CryptoPairs, presenterCallback: NetworkCompletionCallback, exchangeNetworkDataUpdate: ExchangeNetworkDataUpdate) {
-       observable.observeOn(AndroidSchedulers.mainThread())
-                .repeatWhen { result ->result.delay((20000 + delay), TimeUnit.MILLISECONDS) }
-                .retryWhen { error -> error.delay(20000 + delay, TimeUnit.MILLISECONDS) }
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .repeatWhen { result -> result.delay((20000 + delay), TimeUnit.MILLISECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     result as NormalizedTickerData
@@ -63,7 +64,15 @@ abstract class BaseExchange : Exchange {
                     }
                 }, { error ->
                     exchangeNetworkDataUpdate.staleDataFromError(ticker)
-                    error.printStackTrace()
+                    presenterCallback.updateUi(ticker)
+
+                    Observable
+                            .timer(20000, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe {
+                                startPriceFeed(observable, delay, ticker, presenterCallback, exchangeNetworkDataUpdate)
+                            }.addTo(tickerDisposables)
+
                 }).addTo(tickerDisposables)
     }
 
@@ -93,6 +102,14 @@ abstract class BaseExchange : Exchange {
                         networkCompletionCallback.onNetworkError(exchange.exchange, error.localizedMessage)
                     }
                     exchangeNetworkDataUpdate.staleApiDataFromError(exchange.exchange)
+
+                    Observable
+                            .timer(60000, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe {
+                                startAccountBalanceFeed(observable, exchange, networkCompletionCallback, exchangeNetworkDataUpdate)
+                            }.addTo(tickerDisposables)
+
                     error.printStackTrace()
                 }).addTo(balanceDisposables)
     }

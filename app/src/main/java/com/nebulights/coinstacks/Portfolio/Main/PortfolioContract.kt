@@ -12,7 +12,7 @@ class PortfolioContract {
 
     interface View {
         fun updateUi()
-        fun hasStaleData(hasStaleData: Boolean)
+        fun hasStaleData(hasStaleExchangeData: Boolean, hasStaleExplorerData: Boolean)
         fun resetUi()
         fun setPresenter(presenter: Presenter)
         fun showAssetQuantites(isVisible: Boolean)
@@ -20,6 +20,8 @@ class PortfolioContract {
         fun showUnlockDialog(firstAttempt: Boolean)
         fun showForgotPasswordlDialog()
         fun showWarningdialog()
+        fun showNoInternetDialog()
+        fun networkError()
     }
 
     interface ViewRow {

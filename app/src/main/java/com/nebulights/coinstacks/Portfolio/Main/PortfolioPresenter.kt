@@ -1,5 +1,6 @@
 package com.nebulights.coinstacks.Portfolio.Main
 
+import com.nebulights.coinstacks.Common.ConnectionChecker
 import com.nebulights.coinstacks.Constants
 import com.nebulights.coinstacks.Extensions.dp
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
@@ -30,7 +31,8 @@ class PortfolioPresenter(
     private var explorers: Explorers,
     private var view: PortfolioContract.View,
     private val cryptoAssetRepository: CryptoAssetContract,
-    private val navigation: PortfolioContract.Navigator) :
+    private val navigation: PortfolioContract.Navigator,
+    private val connectionChecker: ConnectionChecker) :
     PortfolioContract.Presenter, NetworkCompletionCallback {
 
     private val TAG = "PortfolioPresenter"
@@ -82,7 +84,7 @@ class PortfolioPresenter(
 
         if (!initialLoadComplete) {
             view.updateUi()
-            view.hasStaleData(exchanges.isAnyDataStale())
+            view.hasStaleData(exchanges.isAnyDataStale(), explorers.isAnyDataStale())
         }
     }
 
@@ -117,7 +119,7 @@ class PortfolioPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 initialLoadComplete = true
-                view.hasStaleData(exchanges.isAnyDataStale())
+                view.hasStaleData(exchanges.isAnyDataStale(), explorers.isAnyDataStale())
                 view.updateUi()
             }).addTo(disposable)
     }
@@ -129,7 +131,7 @@ class PortfolioPresenter(
     override fun updateUi(ticker: CryptoPairs) {
         if (!initialLoadComplete) {
             view.updateUi()
-            view.hasStaleData(exchanges.isAnyDataStale())
+            view.hasStaleData(exchanges.isAnyDataStale(), explorers.isAnyDataStale())
         }
     }
 
@@ -372,7 +374,11 @@ class PortfolioPresenter(
     }
 
     override fun warningPressed() {
-        view.showWarningdialog()
+        if(connectionChecker.isInternetAvailable()) {
+            view.showWarningdialog()
+        }else{
+            view.showNoInternetDialog()
+        }
     }
 
     override fun recyclerViewType(position: Int): Int {
@@ -440,7 +446,7 @@ class PortfolioPresenter(
                 exchanges.isRecordStale(
                     item.cryptoPair,
                     item.exchange!!,
-                    item.displayRecordType))
+                    item.displayRecordType) || explorers.isRecordStale(item.address))
 
             row.showNetvalue(cryptoAssetRepository.assetsVisible() || !cryptoAssetRepository.isPasswordSet())
 
@@ -453,8 +459,8 @@ class PortfolioPresenter(
         }
     }
 
-    override fun onNetworkError(exchange: String) {
-
+    override fun onNetworkError(exchange: String?) {
+        view.networkError()
     }
 
     override fun onNetworkError(exchange: String, error: NetworkErrors) {

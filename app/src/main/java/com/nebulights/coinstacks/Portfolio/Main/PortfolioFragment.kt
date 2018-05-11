@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -62,8 +63,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
 
         val rootView = inflater.inflate(R.layout.fragment_crypto_list, container, false)
@@ -107,18 +108,18 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         floatingActionbutton.overlayLayout = speedDialOverlay
 
         floatingActionbutton.addActionItem(
-            SpeedDialActionItem.Builder(R.id.fab_add_coins, R.drawable.ic_attach_money_white_24dp)
-                .setLabel(getString(R.string.manual_entry_fab)).create()
+                SpeedDialActionItem.Builder(R.id.fab_add_coins, R.drawable.ic_attach_money_white_24dp)
+                        .setLabel(getString(R.string.manual_entry_fab)).create()
         )
 
         floatingActionbutton.addActionItem(
-            SpeedDialActionItem.Builder(R.id.fab_add_exchange, R.drawable.ic_vpn_key_white_24dp)
-                .setLabel(getString(R.string.exchange_apis_fab)).create()
+                SpeedDialActionItem.Builder(R.id.fab_add_exchange, R.drawable.ic_vpn_key_white_24dp)
+                        .setLabel(getString(R.string.exchange_apis_fab)).create()
         )
 
         floatingActionbutton.addActionItem(
-            SpeedDialActionItem.Builder(R.id.fab_add_watch, R.drawable.ic_remove_red_eye_white_24dp)
-                .setLabel(getString(R.string.watch_address_fab)).create()
+                SpeedDialActionItem.Builder(R.id.fab_add_watch, R.drawable.ic_remove_red_eye_white_24dp)
+                        .setLabel(getString(R.string.watch_address_fab)).create()
         )
 
         floatingActionbutton.setOnActionSelectedListener({ speedDialActionItem ->
@@ -166,17 +167,31 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
     }
 
     override fun showWarningdialog() {
-        if(context != null) {
+        if (context != null) {
             val builder = AlertDialog.Builder(context!!)
             builder.setTitle(getString(R.string.dialog_stale_data_title))
             builder.setMessage(getString(R.string.dialog_stale_data_message))
             builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
-               dialog.dismiss()
+                dialog.dismiss()
             })
 
             showDialog(builder.create(), true)
         }
     }
+
+    override fun showNoInternetDialog() {
+        if (context != null) {
+            val builder = AlertDialog.Builder(context!!)
+            builder.setTitle(getString(R.string.dialog_no_internet_title))
+            builder.setMessage(getString(R.string.dialog_no_internet_message))
+            builder.setPositiveButton(getString(R.string.dialog_ok), { dialog, which ->
+                dialog.dismiss()
+            })
+
+            showDialog(builder.create(), true)
+        }
+    }
+
 
     override fun showForgotPasswordlDialog() {
         if (context != null) {
@@ -184,14 +199,14 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
             builder.setTitle(getString(R.string.remove_assets_title))
             builder.setMessage(getString(R.string.remove_all_assets_message))
             builder.setPositiveButton(
-                getString(R.string.dialog_confirm_delete_all_data),
-                { dialog, which ->
-                    presenter.clearAssets()
-                })
+                    getString(R.string.dialog_confirm_delete_all_data),
+                    { dialog, which ->
+                        presenter.clearAssets()
+                    })
 
             builder.setNegativeButton(
-                getString(R.string.dialog_cancel),
-                { dialog, which -> dialog.cancel() })
+                    getString(R.string.dialog_cancel),
+                    { dialog, which -> dialog.cancel() })
 
             showDialog(builder.create(), false)
         }
@@ -216,8 +231,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         })
 
         builder.setNegativeButton(
-            getString(R.string.dialog_cancel),
-            { dialog, which -> dialog.cancel() })
+                getString(R.string.dialog_cancel),
+                { dialog, which -> dialog.cancel() })
 
         builder.setNeutralButton(getString(R.string.forgot_password), { dialog, which ->
             presenter.forgotPasswordPressed()
@@ -237,9 +252,9 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         val confirmPasswordObservable = RxTextView.textChanges(passwordConfirm).skip(1)
 
         val isPasswordValid: Observable<Boolean> = Observable.combineLatest(
-            passwordObservable,
-            confirmPasswordObservable,
-            BiFunction { password, confirmPassword -> password.length == 4 && password.toString() == confirmPassword.toString() })
+                passwordObservable,
+                confirmPasswordObservable,
+                BiFunction { password, confirmPassword -> password.length == 4 && password.toString() == confirmPassword.toString() })
 
         isPasswordValid.subscribe { isValid ->
             dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = isValid
@@ -254,8 +269,8 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
         })
 
         builder.setNegativeButton(
-            getString(R.string.dialog_cancel),
-            { dialog, which -> dialog.cancel() })
+                getString(R.string.dialog_cancel),
+                { dialog, which -> dialog.cancel() })
 
         showDialog(builder.create(), true)
         dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
@@ -271,29 +286,35 @@ class PortfolioFragment : Fragment(), PortfolioContract.View {
 
     override fun updateUi() {
         if (this::netWorth.isInitialized) {
-
-            if(recyclerView.adapter.itemCount == 0){
-                emptyRecyclerViewImage.visibility = View.VISIBLE
-            }else{
-                emptyRecyclerViewImage.visibility = View.GONE
-            }
-
+            setEmptyRecyclerViewState()
             netWorth.text = presenter.getNetWorthDisplayString()
             recyclerView.adapter.notifyDataSetChanged()
         }
     }
 
-    override fun hasStaleData(hasStaleData: Boolean) {
+    fun setEmptyRecyclerViewState() {
+        if (recyclerView.adapter.itemCount == 0) {
+            emptyRecyclerViewImage.visibility = View.VISIBLE
+        } else {
+            emptyRecyclerViewImage.visibility = View.GONE
+        }
+    }
+
+    override fun networkError() {
+    }
+
+    override fun hasStaleData(hasStaleExchangeData: Boolean, hasStaleExplorerData: Boolean) {
         val color =
-            if (hasStaleData) ContextCompat.getColor(activity!!, R.color.card_color_stale_data)
-            else ContextCompat.getColor(netWorthLayout.context, R.color.card_color)
+                if (hasStaleExchangeData) ContextCompat.getColor(activity!!, R.color.card_color_stale_data)
+                else ContextCompat.getColor(netWorthLayout.context, R.color.card_color)
         netWorthLayout.setCardBackgroundColor(color)
-        menu?.findItem(R.id.warning)?.isVisible = hasStaleData
+        menu?.findItem(R.id.warning)?.isVisible = hasStaleExchangeData || hasStaleExplorerData
     }
 
     override fun resetUi() {
         netWorth.text = getString(R.string.zero_dollar)
         recyclerView.adapter.notifyDataSetChanged()
+        setEmptyRecyclerViewState()
     }
 
     override fun onPause() {

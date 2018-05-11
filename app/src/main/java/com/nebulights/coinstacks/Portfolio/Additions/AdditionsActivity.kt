@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.nebulights.coinstacks.Common.ConnectionChecker
 import com.nebulights.coinstacks.Extensions.addFragment
 import com.nebulights.coinstacks.Network.BlockExplorers.ExplorerProvider
 import com.nebulights.coinstacks.Network.BlockExplorers.Explorers
@@ -68,7 +69,7 @@ class AdditionsActivity : AppCompatActivity(), AdditionsContract.Navigator {
         val explorers = Explorers
         explorers.loadRepositories(ExplorerProvider)
 
-        presenter = AdditionsPresenter(additionsFragment, exchanges, explorers, cryptoAssetRepository, this)
+        presenter = AdditionsPresenter(additionsFragment, exchanges, explorers, cryptoAssetRepository, this, ConnectionChecker(this))
 
 
 //        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,

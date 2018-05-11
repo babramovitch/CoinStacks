@@ -26,7 +26,7 @@ interface NetworkCompletionCallback {
     fun updateUi(ticker: CryptoPairs)
     fun updateUi(apiBalances: ApiBalances)
     fun updateUi(watchAddress: WatchAddressBalance)
-    fun onNetworkError(exchange: String)
+    fun onNetworkError(exchange: String?)
     fun onNetworkError(exchange: String, error: NetworkErrors)
     fun onNetworkError(exchange: String, message: String?)
 }
@@ -184,7 +184,6 @@ object Exchanges : ExchangeNetworkDataUpdate {
 
     fun isAnyDataStale(): Boolean {
         return staleTickerData.isNotEmpty() || this.staleApiData.isNotEmpty()
-
     }
 
 }

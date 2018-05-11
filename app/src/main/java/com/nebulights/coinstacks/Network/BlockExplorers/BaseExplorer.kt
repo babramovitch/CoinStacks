@@ -7,6 +7,7 @@ import com.nebulights.coinstacks.Network.exchanges.NetworkCompletionCallback
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -29,7 +30,6 @@ abstract class BaseExplorer : Explorer {
     fun <T> startFeed(observable: Observable<T>, watchAddress: WatchAddress, presenterCallback: NetworkCompletionCallback, explorerNetworkDataUpdate: ExplorerNetworkDataUpdate) {
         val disposable = observable.observeOn(AndroidSchedulers.mainThread())
                 .repeatWhen { result -> result.delay(60, TimeUnit.SECONDS) }
-                .retryWhen { error -> error.delay(60, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
 
@@ -51,6 +51,16 @@ abstract class BaseExplorer : Explorer {
                     explorerNetworkDataUpdate.updateWatchAddressData(watchAddress.address, watchAddressBalance)
                     presenterCallback.updateUi(watchAddressBalance)
                 }, { error ->
+
+                    explorerNetworkDataUpdate.staleDataFromError(watchAddress.address)
+
+                    Observable
+                            .timer(60000, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe {
+                                startFeed(observable, watchAddress, presenterCallback, explorerNetworkDataUpdate)
+                            }.addTo(balanceDisposables)
+
                     error.printStackTrace()
                 })
 

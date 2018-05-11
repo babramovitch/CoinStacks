@@ -3,7 +3,9 @@ package com.nebulights.coinstacks.Network.BlockExplorers
 import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddress
 import com.nebulights.coinstacks.Network.BlockExplorers.Model.WatchAddressBalance
 import com.nebulights.coinstacks.Network.ValidationCallback
+import com.nebulights.coinstacks.Network.exchanges.Exchanges
 import com.nebulights.coinstacks.Network.exchanges.NetworkCompletionCallback
+import com.nebulights.coinstacks.Types.CryptoPairs
 
 import com.nebulights.coinstacks.Types.CryptoTypes
 
@@ -13,6 +15,8 @@ import com.nebulights.coinstacks.Types.CryptoTypes
 
 interface ExplorerNetworkDataUpdate {
     fun updateWatchAddressData(address: String, data: WatchAddressBalance)
+    fun staleDataFromError(nickname: String)
+
 }
 
 interface Explorer {
@@ -24,15 +28,18 @@ interface Explorer {
 
 object Explorers : ExplorerNetworkDataUpdate {
 
+
     private var repositories: List<Explorer> = listOf()
     private var apiData: MutableMap<String, WatchAddressBalance> = mutableMapOf()
+    private var staleApiData: MutableMap<String, Boolean> = mutableMapOf()
 
-    fun clearAll(){
+    fun clearAll() {
         apiData.clear()
+        staleApiData.clear()
     }
 
     fun loadRepositories(explorerProvider: ExplorerProvider) {
-        if(repositories.isEmpty()) {
+        if (repositories.isEmpty()) {
             repositories = explorerProvider.getAllRepositories()
         }
     }
@@ -76,8 +83,21 @@ object Explorers : ExplorerNetworkDataUpdate {
 
     override fun updateWatchAddressData(address: String, data: WatchAddressBalance) {
         apiData[address] = data
+        staleApiData.remove(address)
+    }
+
+    override fun staleDataFromError(address: String) {
+        staleApiData[address] = true
+    }
+
+    fun isAnyDataStale(): Boolean {
+        return staleApiData.isNotEmpty()
     }
 
     fun getWatchAddressData(): MutableMap<String, WatchAddressBalance> = apiData
+
+    fun isRecordStale(address: String?): Boolean{
+            return (address != null && staleApiData[address] != null)
+    }
 
 }
